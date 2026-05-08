@@ -11,7 +11,7 @@
 # ============================================================
 
 # Version — semantic, monotonically increasing
-version: "0.5.2"
+version: "0.5.3"
 released: "2026-05-08"
 sealed_by: "KM-1176"
 seal_glyph: "∞Δ∞"

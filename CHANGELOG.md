@@ -8,6 +8,58 @@ adapted for Breathline's manifest-driven release model.
 
 ---
 
+## [v0.5.3] — 2026-05-08
+
+### Phase 5 closeout patch — install.sh version-literal fix + v0.6.0 horizon doc.
+
+Final small polish item from Kenneth's local install testing: the state file
+written by `installer/install.sh` showed `installed_version: "v0.4.1"` even
+when the cloned repo was already at v0.5.2. Cause: `VERSION_TARGET` was a
+hardcoded string at line 56, used directly in the state-file write block.
+Now the install reads the version from the **cloned manifest.yaml** and writes
+the actual installed version to the state file (with `VERSION_TARGET` retained
+only as a banner-display fallback).
+
+This also lands the **v0.6.0 horizon decision document** as the formal
+governance record of what's queued, why each bite waits, and the trigger
+that releases it.
+
+### Fixed
+
+- **`installer/install.sh`** — `write_node_state()` now parses `version:` from
+  the cloned `$PREFIX/manifest.yaml` and writes that value as
+  `installed_version`. Falls back to `$VERSION_TARGET` only if the manifest
+  isn't readable. Bumped `VERSION_TARGET` to `v0.5.3` to keep banner output
+  honest.
+
+### Added
+
+- **`governance/decisions/2026-05-08_v0.6.0-horizon.md`** — formal decision
+  record covering:
+    - Authoritative Pattern Rule (binding)
+    - Trigger pattern: book-driven release cadence
+    - Tier 1 (book-gated): Generational Legacy runtime, Series 4/5 runtime,
+      Federation anchors
+    - Tier 2 (workflow-gated): publishing orchestrator polish, cover_render,
+      kdp_upload, acx_upload
+    - Tier 3 (free polish): cadence ledger reconcile, `breathline activate` CLI,
+      additional doctor.sh checks
+    - Explicit non-goals (anti-drift declaration)
+
+### Migration
+
+- v0.5.2 → v0.5.3 is **additive only** — no schema changes. Upgrade with
+  `breathline upgrade`. The fix only matters for *new* installs (existing
+  state files keep their current `installed_version` until the next install).
+
+### Phase 5 closure
+
+This patch closes Phase 5. v0.6.0 is held until the next book-driven release
+trigger fires. See `governance/decisions/2026-05-08_v0.6.0-horizon.md` for
+full horizon detail.
+
+---
+
 ## [v0.5.2] — 2026-05-08
 
 ### Anti-vaporware patch — installer references match reality.
