@@ -11,10 +11,11 @@
 # ============================================================
 
 # Version — semantic, monotonically increasing
-version: "0.3.0"
+version: "0.4.0"
 released: "2026-05-08"
 sealed_by: "KM-1176"
 seal_glyph: "∞Δ∞"
+first_signed_release: true
 
 # Self-reporting fields for nodes (per G's polish 2026-05-08):
 # Lets a running node answer "you are at Level 2.3 — next: Family Finance Sovereignty"
@@ -89,8 +90,53 @@ specs:
         series: "family"
         book: "Family_Finance_Sovereignty"
         parent_role: "executive/cfo_agent_v1"
-        notes: "FIRST family-tier spec.  Activates Level 2 — Family Sovereignty when deployed under breath-gate."
-    generational_legacy: []           # legacy_guardian_agent_v1 → v0.4.0
+      - id: "household_synthesis_agent_v1"
+        path: "specs/family/household_synthesis_agent_v1.yaml"
+        sha256: "110bddb09a13bb837dc51f70162f481278f58d9611d115189a3b9a69aa44e1a3"
+        ladder_level: 2
+        series: "family"
+        book: "Daily_Operations_and_Home_Node"
+        parent_role: "executive/synthesis_agent_v1"
+      - id: "family_compliance_shield_v1"
+        path: "specs/family/family_compliance_shield_v1.yaml"
+        sha256: "6d3fd79f7fdc649b6f0b90c6c826e9e083cf86a43d164268f7c8a61cdcc4e2d5"
+        ladder_level: 2
+        series: "family"
+        book: "Privacy_Security_and_Constitutional_Governance"
+        parent_role: "executive/compliance_guardian_v1"
+    generational_legacy:
+      - id: "1000_year_family_compact_v1"
+        path: "specs/generational_legacy/1000_year_family_compact_v1.yaml"
+        sha256: "eb88584ce3c3a05e631fae1f2385f08e9fc4fb0491263f0ef9f68679d5cb5008"
+        ladder_level: 3
+        kind: "constitution"
+        parent: "family_constitution_v1"
+        anchor_book: "The_1000_Year_Family_Compact"
+        status: "draft / authoritative pattern, awaiting KM-1176 review per founding generation"
+      - id: "legacy_guardian_agent_v1"
+        path: "specs/generational_legacy/legacy_guardian_agent_v1.yaml"
+        sha256: "0dd120c1cc2b58964516a26f8436e7b0099ecbd6e922c6ed44a9e8bb71b10f04"
+        ladder_level: 3
+        series: "generational_legacy"
+        book: "The_1000_Year_Family_Compact"
+        parent_role: "executive/compliance_guardian_v1"
+        status: "draft / authoritative pattern"
+      - id: "dynastic_synthesis_agent_v1"
+        path: "specs/generational_legacy/dynastic_synthesis_agent_v1.yaml"
+        sha256: "9eca2aaa1145d9757bed8984f4d9580bf61aee0cf64432b00d6d65a9a1301ad5"
+        ladder_level: 3
+        series: "generational_legacy"
+        book: "The_1000_Year_Family_Compact"
+        parent_role: "family/household_synthesis_agent_v1"
+        status: "draft / authoritative pattern"
+      - id: "inheritance_compliance_v1"
+        path: "specs/generational_legacy/inheritance_compliance_v1.yaml"
+        sha256: "3f6e10b7b5fc1400ff85944e6a56e636a5885cfa4633376854a646f81d9850ad"
+        ladder_level: 3
+        series: "generational_legacy"
+        book: "The_1000_Year_Family_Compact"
+        parent_role: "generational_legacy/legacy_guardian_agent_v1"
+        status: "draft / authoritative pattern, awaiting legal advisor + KM-1176 review per founding generation"
     education:           []
     health:              []
     federation:          []           # sovereign_guild_v1 → tracked
@@ -128,6 +174,7 @@ distribution:
     install: "installer/install.sh"   # full Layer 0–3 bootstrap with breath-gate
     upgrade: "installer/upgrade.sh"   # manifest-driven, breath-gated
     status:  "installer/status.sh"    # node level + next ladder step
+    doctor:  "installer/doctor.sh"    # active health check (kernel + manifest + specs + signatures + chain)
 
 migrations:
   # Empty for v0.1.0 → v0.2.0 (additive only — no schema breaks)
@@ -141,7 +188,7 @@ migrations:
 # is v0.3.0 alongside the Series 1 spec extraction.
 
 signatures:
-  status:      "active"               # public key live; first SIGNED release at v0.3.0 tag
+  status:      "active"               # FIRST SIGNED release is v0.4.0
   algorithm:   "ed25519"               # P1 ECC root signing
   public_keys: "distribution/signing_keys/"
   current_key:
@@ -151,6 +198,15 @@ signatures:
     effective:   "2026-05-08"
     authority:   "KM-1176"
   trust_model:   "distribution/signing_keys/README.md"
+  signed_artifacts:
+    - "manifest.yaml.sig"
+    - "CHARTER.md.sig"
+    - "CONSTITUTION.md.sig"
+    - "LICENSE.sig"
+    - "CHANGELOG.md.sig"
+  signing_namespace: "breathline-release"
+  signature_identity: "breathline-release-signing-key kenn@mangumcfo.com 2026-05-08"
+  verification_command: "ssh-keygen -Y verify -f distribution/signing_keys/release_v1.pub -I '<identity>' -n breathline-release -s <FILE>.sig < <FILE>"
 
 # ----------------------------------------------------------------
 # CONSTITUTIONAL ANCHOR

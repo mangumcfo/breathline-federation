@@ -137,6 +137,29 @@ echo "${C_BOLD}applying upgrade...${C_RST}"
 }
 echo "  ${C_OK}✓${C_RST} repo fast-forwarded"
 
+# Post-pull signature verification (v0.4.0+)
+ALLOWED_SIGNERS="$PREFIX/distribution/signing_keys/allowed_signers"
+if [[ -f "$ALLOWED_SIGNERS" ]] && command -v ssh-keygen >/dev/null 2>&1; then
+  echo "  ${C_DIM}verifying release signatures...${C_RST}"
+  sig_fail=0
+  for sigfile in "$PREFIX/manifest.yaml.sig" "$PREFIX/CHARTER.md.sig" "$PREFIX/CONSTITUTION.md.sig" \
+                 "$PREFIX/LICENSE.sig" "$PREFIX/CHANGELOG.md.sig"; do
+    [[ -f "$sigfile" ]] || continue
+    target="${sigfile%.sig}"
+    if ! ssh-keygen -Y verify -f "$ALLOWED_SIGNERS" -I "kenn@mangumcfo.com" \
+         -n "breathline-release" -s "$sigfile" < "$target" >/dev/null 2>&1; then
+      echo "  ${C_ERR}✗${C_RST} signature MISMATCH: $(basename "$target")"
+      sig_fail=$((sig_fail + 1))
+    fi
+  done
+  if [[ "$sig_fail" -gt 0 ]]; then
+    echo "  ${C_ERR}✗${C_RST} $sig_fail signature failure(s) — UPGRADE PAUSED.  Default-deny."
+    echo "  Manually inspect $PREFIX before proceeding."
+    exit 1
+  fi
+  echo "  ${C_OK}✓${C_RST} all release signatures verified"
+fi
+
 # Try migration script if exists (versions converted to compact form for path)
 INST_KEY=$(echo "$INSTALLED" | tr -d '.')
 UP_KEY=$(echo "$UPSTREAM" | tr -d '.')

@@ -1,0 +1,17 @@
+# ============================================================
+# allowed_signers — for `ssh-keygen -Y verify`
+#
+# Format: <principal> <key-type> <key-blob> [comment]
+#
+# This file is what verification tooling (install.sh, upgrade.sh,
+# doctor.sh, release.yml) feeds to `ssh-keygen -Y verify -f`.
+# It maps a principal name (e.g., "kenn@mangumcfo.com") to the
+# public key authorized to sign on that principal's behalf.
+#
+# The public key here is the SAME key as release_v1.pub.  This
+# file is just the canonical wrapper format ssh-keygen expects.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# ============================================================
+kenn@mangumcfo.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH0OidSVpSztNKMPKlJLFCHr0uarrUO3my1+7hRGS5c3 breathline-release-signing-key kenn@mangumcfo.com 2026-05-08

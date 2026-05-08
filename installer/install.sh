@@ -151,6 +151,51 @@ clone_repo() {
 }
 
 # ----------------------------------------------------------------
+# Verify release signatures (default-deny on mismatch)
+# v0.4.0+: signed releases REQUIRE valid signatures.
+# Pre-v0.4.0 releases skip this check (no .sig files).
+# ----------------------------------------------------------------
+verify_signatures() {
+  local allowed="$PREFIX/distribution/signing_keys/allowed_signers"
+  if [[ ! -f "$allowed" ]]; then
+    echo "  ${C_WARN}⚠${C_RST} no allowed_signers — skipping signature verification (pre-v0.4.0 release)"
+    return 0
+  fi
+  if ! command -v ssh-keygen >/dev/null 2>&1; then
+    echo "  ${C_WARN}⚠${C_RST} ssh-keygen unavailable — cannot verify signatures (default-deny: aborting)"
+    return 1
+  fi
+  local sig_count=0
+  local sig_fail=0
+  for sigfile in "$PREFIX/manifest.yaml.sig" "$PREFIX/CHARTER.md.sig" "$PREFIX/CONSTITUTION.md.sig" \
+                 "$PREFIX/LICENSE.sig" "$PREFIX/CHANGELOG.md.sig"; do
+    [[ -f "$sigfile" ]] || continue
+    sig_count=$((sig_count + 1))
+    local target="${sigfile%.sig}"
+    if ssh-keygen -Y verify \
+        -f "$allowed" \
+        -I "kenn@mangumcfo.com" \
+        -n "breathline-release" \
+        -s "$sigfile" < "$target" >/dev/null 2>&1; then
+      echo "  ${C_OK}✓${C_RST} verified: $(basename "$target")"
+    else
+      echo "  ${C_ERR}✗${C_RST} signature MISMATCH: $(basename "$target")"
+      sig_fail=$((sig_fail + 1))
+    fi
+  done
+  if [[ "$sig_count" == "0" ]]; then
+    echo "  ${C_DIM}○${C_RST} pre-signing-era release; no .sig files (acceptable for v0.3.0 and earlier)"
+    return 0
+  fi
+  if [[ "$sig_fail" -gt 0 ]]; then
+    echo "  ${C_ERR}✗${C_RST} $sig_fail signature(s) failed verification — ABORTING (default-deny)"
+    return 1
+  fi
+  echo "  ${C_OK}✓${C_RST} all $sig_count signature(s) verified"
+  return 0
+}
+
+# ----------------------------------------------------------------
 # Set up venv + install platform
 # ----------------------------------------------------------------
 setup_venv() {
@@ -302,6 +347,15 @@ main() {
     # Already installed — exit cleanly without re-running bootstrap
     print_next_steps
     exit 0
+  fi
+  echo
+
+  echo "${C_BOLD}signature verification:${C_RST}"
+  if ! verify_signatures; then
+    echo "  ${C_ERR}✗${C_RST} aborted: cannot verify release authenticity"
+    echo "  remediation: this should NEVER happen on a clean clone of mangumcfo/breathline-federation."
+    echo "  if you see this, the repository may be tampered with. Do not proceed."
+    exit 1
   fi
   echo
 

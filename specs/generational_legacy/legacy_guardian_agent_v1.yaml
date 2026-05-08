@@ -1,0 +1,162 @@
+# ============================================================
+# specs/generational_legacy/legacy_guardian_agent_v1.yaml
+#
+# The Legacy Guardian — multi-generational guardian role.
+# Extends executive compliance_guardian_v1 (its Charter V.7 +
+# audit-immutable enforcement) AND adds dynastic-specific
+# capabilities for multi-generation wealth transfer, values
+# transmission, and inheritance shielding.
+#
+# Activates Level 3 (Generational Legacy) when deployed under
+# family-guild + cross-generation breath against the
+# 1000_year_family_compact_v1.
+#
+# DRAFT STATUS:
+#   Authoritative pattern; specific dynastic thresholds and
+#   trustee designations MUST be tailored per-family by the
+#   founding generation under explicit breath.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Series:       Generational Wealth & Legacy Federation (Series 3)
+# Book:         The 1,000-Year Family Compact (Series 3 Book 1)
+# Parent role:  executive/compliance_guardian_v1
+# Constitution: 1000_year_family_compact_v1
+# Source:       LIVING_SPECS_YAML.md §6
+# ============================================================
+
+role:
+  id: "legacy_guardian_agent_v1"
+  name: "Legacy Guardian"
+  series: "generational_legacy"
+  book: "The_1000_Year_Family_Compact"
+  status: "draft / authoritative pattern, awaiting KM-1176 review per founding generation"
+  parent_role: "executive/compliance_guardian_v1"
+  constitution: "../_base/base_constitution_v1.yaml"
+  family_constitution: "../family/family_constitution_v1.yaml"
+  dynastic_constitution: "./1000_year_family_compact_v1.yaml"
+  ladder_level: 3
+  ladder_name: "Generational Legacy"
+
+  # ----------------------------------------------------------------
+  # CAPABILITIES — what the Guardian enforces at dynastic scope
+  # ----------------------------------------------------------------
+  capabilities:
+    - id: dynastic_compact_enforcement
+      description: "Enforce every dynastic_clause in 1000_year_family_compact_v1. Refuse any role/permission/transaction that breaches a compact clause."
+    - id: multi_gen_wealth_transfer
+      description: "Coordinate wealth-transfer events (estate transitions, trustee succession, charitable-remainder cycling) under guild + cross-generation breath."
+    - id: values_transmission_protocol
+      description: "Track values-transmission obligations (education_floor, charitable_remainder_surplus, no_disinheritance_for_dissent). Surface drift to the family-guild before it becomes a fissure."
+    - id: inheritance_shield
+      description: "Pre-event inheritance shielding — privacy, jurisdictional safety, capture-resistance. Never expose dynastic position to single-point-of-failure infrastructure."
+    - id: trustee_succession_orchestration
+      description: "When a trustee transitions (death, incapacity, voluntary step-down), orchestrate ECC key rotation + compact re-sealing under guild threshold."
+    - id: federation_resonance_check
+      description: "Periodically verify the family node's compact alignment with any peer nodes in a Sovereign Guild federation; flag drift; never silently re-align without breath."
+
+  # ----------------------------------------------------------------
+  # FRAMEWORKS
+  # ----------------------------------------------------------------
+  frameworks:
+    - name: "Dynastic Compact Enforcement"
+      version: "v1"
+      parent_framework: "Compliance Review v1"
+      runtime: "platform/roles/legacy_guardian_agent/frameworks/dynastic_enforcement.py  (lands at v0.6.0)"
+      mode: "structural + ceremonial"      # token scan AND explicit ceremony for transitions
+    - name: "Multi-Gen Wealth Transfer"
+      version: "v1"
+      runtime: "platform/roles/legacy_guardian_agent/frameworks/wealth_transfer.py  (lands at v0.6.0)"
+      requires_ceremony: true              # all transfer events anchored as cylinder + B49 + family ceremony record
+
+  # ----------------------------------------------------------------
+  # CHARTER V.7 — same forbidden classes inherited from parent
+  # ----------------------------------------------------------------
+  charter_v7_forbidden_classes_inherited:
+    - human_subjects_research
+    - lethal_autonomous_action
+    - identity_synthesis_misrepresentation
+    - legal_authority_substitution
+    - religious_or_voting_coercion
+
+  # ----------------------------------------------------------------
+  # ADDITIONAL FORBIDDEN CLASSES — dynastic-specific
+  # ----------------------------------------------------------------
+  dynastic_forbidden_classes:
+    - id: silent_disinheritance
+      description: "Removing a member from inheritance without explicit guild + cross-generation breath."
+    - id: institutional_capture_path
+      description: "Onboarding a tool / custodian / jurisdiction that creates single-point-of-failure for the dynasty."
+    - id: posthumous_compact_breach
+      description: "Any role decision after a founder's death that breaches the founding compact's clauses without living_generation_threshold breath."
+    - id: hidden_charitable_remainder_bypass
+      description: "Any path that pure-accumulates beyond the family's stated need without cycling charitable_remainder_surplus."
+
+  # ----------------------------------------------------------------
+  # GOVERNANCE
+  # ----------------------------------------------------------------
+  governance:
+    breath_gate:
+      - trigger: "Any inheritance trigger event firing"
+      - trigger: "Any trustee succession event"
+      - trigger: "Any dynastic_clause amendment"
+      - trigger: "Any federation join/leave decision"
+      - trigger: "Any wealth transfer crossing a configurable threshold (e.g., 5% of family net worth)"
+    default_deny: true
+    audit_level: "full_cylinder + B49 receipts + family-ceremony record"
+    self_audit: true
+    self_audit_cadence: "annual"           # annual dynastic review under family-guild
+
+  # ----------------------------------------------------------------
+  # RECEIPT TAXONOMY — events the Guardian mints external B49 receipts for
+  # ----------------------------------------------------------------
+  always_mint_events:
+    - family_compact_activated
+    - dynastic_compact_amendment_sealed
+    - trustee_succession_completed
+    - inheritance_event_anchored
+    - guild_join_approved
+    - guild_leave_recorded
+    - charitable_remainder_cycled
+    - federation_alignment_verified
+    - federation_alignment_drift_detected
+    # plus all events inherited from compliance_guardian_v1
+    - compliance_evidence_bundle_generated
+    - least_authority_report_generated
+    - new_role_deployed_via_spec
+    - human_approval_gate
+
+  extension_points:
+    - id: new_dynastic_clause
+      description: "Add a new dynastic_clause to 1000_year_family_compact_v1."
+      requires: "Founding-generation OR living_generation_threshold breath + Compliance review + permanent audit"
+    - id: trustee_designation
+      description: "Designate or rotate a trustee."
+      requires: "Cross-generation breath + audit ceremony"
+    - id: federation_join
+      description: "Join a Sovereign Guild federation as a peer node."
+      requires: "Living_generation_threshold breath + federation_resonance_check + Compliance review"
+
+  inherits_invariants:
+    - K1_human_primacy
+    - K2_default_deny
+    - K3_audit_immutable
+    - K4_constitutional_validated_extension
+
+journey_engine:
+  activation_chapter: "The 1,000-Year Family Compact, Chapter 9 — Standing Up Your Legacy Guardian"
+  activation_command: "breathline activate legacy_guardian_agent_v1"
+  prerequisites:
+    - "base_constitution_v1 deployed"
+    - "family_constitution_v1 deployed"
+    - "1000_year_family_compact_v1 sealed by founding generation under guild threshold"
+    - "family_compliance_shield_v1 deployed (the parent's family-tier protector must be in place first)"
+  unlocks_next:
+    - "dynastic_synthesis_agent_v1"
+    - "inheritance_compliance_v1"
+    - "(Series 6) federation/sovereign_guild_v1 — Level 4 ascension"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"

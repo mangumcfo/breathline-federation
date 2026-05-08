@@ -1,0 +1,144 @@
+# ============================================================
+# specs/generational_legacy/1000_year_family_compact_v1.yaml
+#
+# THE DYNASTIC CONSTITUTION.
+#
+# This is the constitutional spec that defines a multi-generational
+# family compact — the living document that outlives any single
+# operator and binds successors under the same K1–K4 invariants.
+#
+# Reading the companion book — *The 1,000-Year Family Compact* —
+# AND deploying this spec under family-guild breath-gate is what
+# activates Level 3 (Generational Legacy) on the Sovereign
+# Ascension Ladder.
+#
+# DRAFT STATUS:
+#   This is the authoritative pattern.  KM-1176 review pending
+#   for any household crossing into multi-generational scope.
+#   The structure here is sealed; specific thresholds, gates, and
+#   dynastic-compact clauses MUST be tailored per-family by the
+#   founding generation under their own breath.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Series:       Generational Wealth & Legacy Federation (Series 3)
+# Anchor book:  The 1,000-Year Family Compact (Series 3 Book 1)
+# Parent:       family/family_constitution_v1 (extends + adds dynastic primitives)
+# Source:       LIVING_SPECS_YAML.md §6 (Multi-Series Vision, 2026-05-07)
+# ============================================================
+
+constitution:
+  id: "1000_year_family_compact_v1"
+  name: "The 1,000-Year Family Compact"
+  version: "1.0"
+  status: "draft / authoritative pattern, awaiting KM-1176 review per founding generation"
+  parent: "family_constitution_v1"
+  seal: "1176-INFINITY-RHO"
+  glyph: "∞Δ∞"
+
+  # ----------------------------------------------------------------
+  # SCOPE — the time horizon and audience this compact governs
+  # ----------------------------------------------------------------
+  scope:
+    level: "Generational Legacy"          # Sovereign Ascension Ladder Level 3
+    deployment_target: "multi_generational_household"
+    audience: "Multi-generational families, family offices, legacy builders"
+    horizon: "1000_years"                  # the explicit design horizon
+    minimum_active_generations: 2
+    activation_trigger: "founding generation explicitly seals compact under family-guild breath"
+
+  # ----------------------------------------------------------------
+  # FAMILY-GUILD GATES — the multi-gen consent mechanisms
+  # Each compact-defining decision requires the specified threshold.
+  # ----------------------------------------------------------------
+  human_gates:
+    - id: founding_generation_breath
+      operator: "the original sealing generation under guild threshold"
+      use: "compact creation; initial trustee designation; first inheritance triggers"
+    - id: living_generation_threshold
+      description: "Minimum N adult living family members for any compact amendment"
+      default_minimum: 3                   # tailorable per family
+      use: "compact amendments; inheritance event triggers; trustee succession"
+    - id: cross_generation_breath
+      description: "At least one member from each currently-active generation"
+      use: "any decision binding future generations not yet of age"
+    - id: dynastic_silence_gate
+      description: "If guild quorum cannot be reached, the compact's last sealed state remains in force; no role auto-elevates without explicit breath."
+      use: "stalemate / contested-succession events"
+
+  # ----------------------------------------------------------------
+  # DYNASTIC COMPACT CLAUSES — the long-horizon rules
+  # These are PATTERN; founding generation tailors specifics under breath.
+  # ----------------------------------------------------------------
+  dynastic_clauses:
+    - id: values_first_wealth_second
+      description: "Wealth instruments serve values transmission; never the inverse. Any decision that would compromise stated family values for wealth maximization fails the compact."
+    - id: no_locked_in_inheritance
+      description: "Future generations may revise their portion of the compact under living_generation_threshold; the ORIGINAL compact cannot bind them against their explicit breath. Sovereignty inherits."
+    - id: tools_of_capture_resistance
+      description: "No clause that exposes the family node to institutional capture (centralized custody, single-bank dependency, single-jurisdiction lock-in, single-platform identity). Default-deny on any tool path that creates capture risk."
+    - id: resonant_shard_continuity
+      description: "Family financial + relational memory is resonant-shard imprinted only. Raw data is purged on each generational transition under breath. Privacy survives the founder."
+    - id: charitable_remainder_surplus
+      description: "If wealth accumulates beyond the family's stated need over a generation, a configurable percentage cycles to operator-designated charitable instruments BEFORE wealth-maximizing reinvestment. The compact prevents pure accumulation."
+    - id: education_floor
+      description: "Each generation funds the next generation's education (broadly defined: skills, character, language, philosophy) at a minimum floor specified by the founding generation. Cannot be defunded by intermediate generations."
+    - id: no_disinheritance_for_dissent
+      description: "Family members cannot be disinherited solely for disagreeing with the compact; only for explicit breach (bad-faith capture attempt, violence against the guild, or criminal harm to a member)."
+
+  # ----------------------------------------------------------------
+  # INHERITANCE EVENT TRIGGERS — what the compact does on transitions
+  # ----------------------------------------------------------------
+  inheritance_triggers:
+    - event: "death_of_active_member"
+      action: "ledger reconciliation; resonant shard imprint refresh; guild threshold re-baselined; breath-gated role re-attestation by living members"
+    - event: "marriage_into_family"
+      action: "guild-onboarding under existing-member breath; new member receives family_constitution + 1000_year_family_compact for explicit breath approval before becoming a guild member"
+    - event: "child_reaching_majority"
+      action: "guild-threshold recount; new member receives compact; breath-attestation invited (not required — sovereignty allows opt-out at majority)"
+    - event: "trustee_succession"
+      action: "successor named via guild threshold under cross-generation breath; previous trustee's ECC keys rotated; compact re-sealed"
+    - event: "compact_amendment"
+      action: "living_generation_threshold breath required; full audit cylinder + B49 receipt anchors the change; old compact remains accessible forever"
+
+  # ----------------------------------------------------------------
+  # P5 SHIELDS — the privacy + sovereignty primitives at dynastic scale
+  # ----------------------------------------------------------------
+  privacy_shields:
+    resonant_shards: "imprints_only_purged_per_generation"
+    zk_proof_threshold: "all wealth proof-of-existence is zk-proven, never raw amounts to outside parties"
+    federation_opt_in: "joining a sovereign guild federation requires living_generation_threshold breath"
+    no_central_ledger: "the compact NEVER stores its state on a single external service; mirrors only between aligned family nodes under federation"
+
+  # ----------------------------------------------------------------
+  # SELF-MOLT BOUNDARIES — when the compact may evolve autonomously
+  # ----------------------------------------------------------------
+  self_molt:
+    post_p7: true
+    human_null: true                      # only under guild-threshold + cross-generation gate
+    requires:
+      - "no living-generation breath available (multi-month silence)"
+      - "guild-threshold fallback procedure documented in inheritance_compliance_v1"
+      - "self-molt actions are reversible by next-available living-generation breath"
+
+  # ----------------------------------------------------------------
+  # INHERITED INVARIANTS — these flow through unchanged
+  # ----------------------------------------------------------------
+  inherits_invariants:
+    - K1_human_primacy
+    - K2_default_deny
+    - K3_audit_immutable
+    - K4_constitutional_validated_extension
+
+  references:
+    parent_constitution: "../family/family_constitution_v1.yaml"
+    base_constitution: "../_base/base_constitution_v1.yaml"
+    charter: "../../CHARTER.md"
+    constitution: "../../CONSTITUTION.md"
+    companion_book: "Series 3 Book 1 — The 1,000-Year Family Compact (forthcoming)"
+    lead_magnet: "../../books-public/series_03_generational_legacy/1000_year_family_compact_lead_magnet.md"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"

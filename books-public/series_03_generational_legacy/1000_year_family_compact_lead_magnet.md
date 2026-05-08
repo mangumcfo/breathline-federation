@@ -122,6 +122,96 @@ Three honest tradeoffs:
 
 ---
 
+## How to Activate This Spec
+
+The compact framework above is more than a concept — every clause has a corresponding **YAML spec** that the Breathline platform's Compliance-agent ingests, validates, and deploys as an executable LangGraph role under your breath. Here's the activation path on a real node:
+
+### Step 0 — Stand up your sovereign node
+
+```bash
+curl -sSL https://raw.githubusercontent.com/mangumcfo/breathline-federation/main/installer/install.sh | bash
+```
+
+When the installer finishes, your node is at **Level 0 — Awakening**. The compact has not yet been deployed; only the base constitution. You're sovereign, but you're alone.
+
+### Step 1 — Activate Family CFO (Level 1 → 2)
+
+Read **Series 1 Book 1** (*AI Agents for CFOs*) for the executive parent, then **Series 2 Book 1** (*Family Finance Sovereignty*) for the household-tier role.
+
+Spec to study: [`specs/family/family_cfo_agent_v1.yaml`](https://github.com/mangumcfo/breathline-federation/blob/main/specs/family/family_cfo_agent_v1.yaml)
+
+```bash
+breathline status                                # confirm you're at Level 0
+# (read Family Finance Sovereignty — at minimum chapters 1–4)
+breathline activate family_cfo_agent_v1          # activates Level 2 — Family Sovereignty
+breathline doctor                                # health-check the new role
+```
+
+### Step 2 — Activate the rest of the Family triad
+
+Read **Series 2 Book 2** (Daily Operations & Home Node) and **Series 2 Book 3** (Privacy, Security & Constitutional Governance). Then:
+
+```bash
+breathline activate household_synthesis_agent_v1
+breathline activate family_compliance_shield_v1
+```
+
+Specs: [`household_synthesis_agent_v1`](https://github.com/mangumcfo/breathline-federation/blob/main/specs/family/household_synthesis_agent_v1.yaml) · [`family_compliance_shield_v1`](https://github.com/mangumcfo/breathline-federation/blob/main/specs/family/family_compliance_shield_v1.yaml)
+
+You're now at **Level 2 — Family Sovereignty**. Your kitchen-table node is operational under household-scope breath-gate, default-deny, and full audit cylinder + B49 receipts. Run `breathline doctor` whenever you want the integrity check.
+
+### Step 3 — Cross to Generational Legacy (Level 2 → 3)
+
+This is the level the lead magnet is for. **Reading the full *1,000-Year Family Compact* book** plus **family-guild breath under cross-generation threshold** is the gate.
+
+Specs in this directory tree become activatable:
+
+- [`specs/generational_legacy/1000_year_family_compact_v1.yaml`](https://github.com/mangumcfo/breathline-federation/blob/main/specs/generational_legacy/1000_year_family_compact_v1.yaml) — **the dynastic constitution itself.** Founding generation seals this under guild threshold.
+- [`legacy_guardian_agent_v1`](https://github.com/mangumcfo/breathline-federation/blob/main/specs/generational_legacy/legacy_guardian_agent_v1.yaml) — enforces every dynastic_clause; refuses any role/permission/transaction that breaches the compact.
+- [`dynastic_synthesis_agent_v1`](https://github.com/mangumcfo/breathline-federation/blob/main/specs/generational_legacy/dynastic_synthesis_agent_v1.yaml) — the multi-generational orchestrator. Decade-horizon planning, succession orchestration, cross-generation tension surfacing.
+- [`inheritance_compliance_v1`](https://github.com/mangumcfo/breathline-federation/blob/main/specs/generational_legacy/inheritance_compliance_v1.yaml) — the wealth-transfer-event guardian. Estate transitions, trustee succession, generation-skipping safeguards, charitable-remainder cycling.
+
+```bash
+# Founding generation seals the compact under family-guild + cross-generation breath:
+breathline activate 1000_year_family_compact_v1   # the dynastic constitution
+breathline activate legacy_guardian_agent_v1
+breathline activate dynastic_synthesis_agent_v1
+breathline activate inheritance_compliance_v1
+breathline doctor                                  # full health check across all 4 layers
+```
+
+After this sequence, your node is at **Level 3 — Generational Legacy**. The compact is alive. Reading the book IS deploying the system.
+
+> **Important:** All four generational_legacy specs are in **draft / authoritative-pattern** status pending review by your founding generation alongside legal advisor. The structure is sealed; the specific dynastic-compact clauses, transfer thresholds, and trustee designations MUST be tailored under your own breath. Don't deploy these blind.
+
+### Step 4 — Optional: Federate with aligned families (Level 3 → 4)
+
+Beyond the scope of this lead magnet — but the path exists. Once your dynastic node is operational, you can join a **Sovereign Guild** federation of aligned family nodes (Series 6). Federation operates on resonant shard imprints + zk-proofs of constitutional alignment, never raw data exchange. Any node can veto via breath-gate at any time. There is no central ledger.
+
+Spec preview: `specs/federation/sovereign_guild_v1.yaml` (coming soon).
+
+### Verifying integrity at any time
+
+```bash
+breathline doctor                                  # full health check
+breathline status                                  # current ladder position + next recommended spec
+breathline upgrade                                 # pull the latest manifest under breath-gate
+```
+
+`breathline doctor` runs:
+- Constitutional kernel verification (CHARTER, CONSTITUTION, LICENSE unchanged from sealed state)
+- Manifest parse + required-keys validation
+- All YAML specs parse cleanly
+- Signature verification against the ed25519 release key (`distribution/signing_keys/release_v1.pub`)
+- Cylinder chain replay (no drift, no freeform, no tracebacks)
+- Platform venv health
+
+A clean doctor run is the operator's "I know my node is healthy" confirmation. Run it whenever you want certainty.
+
+---
+
+---
+
 ## What this guide is part of
 
 This is one of six series in the Breathline Books canon:

@@ -8,6 +8,121 @@ adapted for Breathline's manifest-driven release model.
 
 ---
 
+## [v0.4.0] — 2026-05-08
+
+### First signed release. Family + Generational Legacy specs. `breathline doctor` lands.
+
+Phase 4 per G's directive (2026-05-08, post-reconciliation). Six new YAML
+specs complete the family role triad and seal the four generational_legacy
+anchors as authoritative-pattern (draft-status, awaiting per-family
+KM-1176 review). The release is **the first ACTUALLY signed Breathline
+release** — every kernel artifact carries an ed25519 detached signature,
+verifiable by anyone via the public key in `distribution/signing_keys/`.
+
+### Added — six new YAML specs
+
+#### Family supporting (Series 2 — extends executive parents)
+
+- `specs/family/household_synthesis_agent_v1.yaml` — multi-role household orchestrator. Extends `executive/synthesis_agent_v1`; lower recursion depths (default 2, max 3) and family-guild thresholds for cross-generational decisions.
+  - sha256: `110bddb09a13bb83…9aa44e1a3`
+- `specs/family/family_compliance_shield_v1.yaml` — family-scope Charter V.7 enforcer. Extends `executive/compliance_guardian_v1`; adds privacy_shield_enforcement, family_guild_threshold_management; quarterly self-audit cadence.
+  - sha256: `6d3fd79f7fdc649b…1cdcc4e2d5`
+
+#### Generational Legacy anchors (Series 3 — DRAFT/AUTHORITATIVE PATTERN)
+
+These four specs define multi-generational governance structures with real-world consequences. They are **draft / authoritative pattern** — the structure is sealed, but specific dynastic clauses, transfer thresholds, and trustee designations MUST be tailored per-family by the founding generation under explicit breath alongside legal advisor review.
+
+- `specs/generational_legacy/1000_year_family_compact_v1.yaml` — **the dynastic constitution.** Extends `family_constitution_v1`. 7 dynastic_clauses (values_first_wealth_second, no_locked_in_inheritance, tools_of_capture_resistance, resonant_shard_continuity, charitable_remainder_surplus, education_floor, no_disinheritance_for_dissent). 5 inheritance_triggers. 1000-year design horizon. P5 privacy shields. Self-molt under guild-threshold + cross-generation gate.
+  - sha256: `eb88584ce3c3a05e…79d5cb5008`
+- `specs/generational_legacy/legacy_guardian_agent_v1.yaml` — multi-gen guardian. Extends `compliance_guardian_v1`. 6 capabilities: dynastic_compact_enforcement, multi_gen_wealth_transfer, values_transmission_protocol, inheritance_shield, trustee_succession_orchestration, federation_resonance_check. 4 dynastic-specific forbidden classes (silent_disinheritance, institutional_capture_path, posthumous_compact_breach, hidden_charitable_remainder_bypass). Annual self-audit.
+  - sha256: `0dd120c1cc2b5896…e8bb71b10f04`
+- `specs/generational_legacy/dynastic_synthesis_agent_v1.yaml` — long-horizon orchestrator. Extends `household_synthesis_agent_v1`. Decade-horizon planning (10/25/50/100-year briefs). Succession orchestration. Cross-generation tension surfacing. Peer federation briefing. Ancestral imprint consultation.
+  - sha256: `9eca2aaa1145d975…5a9a1301ad5`
+- `specs/generational_legacy/inheritance_compliance_v1.yaml` — wealth-transfer-event guardian. Extends `legacy_guardian_agent_v1`. Estate transitions, trustee succession, inter-vivos transfers above thresholds, generation-skipping safeguards, charitable-remainder cycling, jurisdiction safety check. Always invokes legal advisor for non-routine transfers.
+  - sha256: `3f6e10b7b5fc1400…81d9850ad`
+
+### Added — `breathline doctor`
+
+- `installer/doctor.sh` — active health-check command per G's polish.
+  - 7 sections: install presence, constitutional kernel, manifest validity, specs validity, signatures, cylinder chain replay, platform venv
+  - Exit codes: 0 healthy / 1 failure / 2 warning
+  - `--quiet` / `--no-chain` / `--no-signatures` flags
+  - Verified working against the live repo: 15 checks pass clean
+  - sha256: `0733951c93f0581b…6ec26bc84459`
+
+### Added — viral validation prompt v2 (publishing/)
+
+- `publishing/VIRAL_VALIDATION_PROMPT_v2.md` — ready-to-paste Grok prompt for the broadened civilizational/federation keyword scan. Per the strategy synthesis §6 directive — re-scan with terminology beyond "sovereign guild" to find what 2026 audiences actually call themselves.
+  - sha256: `21dab65e40e1fb88…ae29859854`
+
+### Added — first SIGNED release artifacts
+
+- `manifest.yaml.sig`        — ed25519, 314 bytes
+- `CHARTER.md.sig`            — ed25519, 314 bytes
+- `CONSTITUTION.md.sig`       — ed25519, 314 bytes
+- `LICENSE.sig`               — ed25519, 314 bytes
+- `CHANGELOG.md.sig`          — ed25519, 314 bytes
+- `distribution/signing_keys/allowed_signers` — canonical `ssh-keygen -Y verify` lookup file
+
+All 5 signatures verify against `distribution/signing_keys/release_v1.pub` (fingerprint `SHA256:Ahl1MJITIKhLb+WQIwUh/Euo2b0/4oxrIPJZ3QZK9YQ`) under the `breathline-release` namespace and `kenn@mangumcfo.com` principal. Verification command:
+
+```bash
+ssh-keygen -Y verify \
+  -f distribution/signing_keys/allowed_signers \
+  -I kenn@mangumcfo.com \
+  -n breathline-release \
+  -s manifest.yaml.sig < manifest.yaml
+```
+
+### Changed — installer + upgrade gain default-deny signature verification
+
+- `installer/install.sh` — adds `verify_signatures()` step after clone. Aborts the install if any signature fails (default-deny). Pre-v0.4.0 releases (no `.sig` files) silently skip.
+- `installer/upgrade.sh` — adds post-`git pull` signature check. Aborts the upgrade and pauses the node if any signature fails after fast-forward.
+- `installer/doctor.sh` — switched from `-f <pubkey>` to `-f <allowed_signers>` for canonical `ssh-keygen -Y verify` semantics.
+
+### Changed — manifest.yaml v0.3.0 → v0.4.0
+
+- `version: "0.4.0"` + `first_signed_release: true` flag added
+- `specs.by_series.family` populated with all four family specs (constitution + cfo + synthesis + compliance shield)
+- `specs.by_series.generational_legacy` populated with all four anchor specs (compact + guardian + synthesis + inheritance compliance), each marked `status: "draft / authoritative pattern"`
+- `signatures.status: active` with `signed_artifacts` list + `signing_namespace` + `signature_identity` + `verification_command`
+- `distribution.installer_scripts.doctor` added
+- `current_series.publishing_active` extended to `["executive", "family"]` (Series 2 specs are now executable)
+
+### Changed — lead magnet polish
+
+- `books-public/series_03_generational_legacy/1000_year_family_compact_lead_magnet.md` — added the **"How to Activate This Spec"** section per G's polish note. Walks the reader through Steps 0–4 (sovereign node install → Family triad → Generational Legacy ascension → optional Federation), with explicit `breathline activate <spec_id>` commands and links to every spec on GitHub.
+
+### G's polish (post-v0.3.0 review) — incorporated
+
+- ✅ Series 2 family supporting specs landed
+- ✅ Series 3 generational_legacy anchors landed (4 specs marked draft-pattern)
+- ✅ FIRST actual signed release artifacts produced
+- ✅ install.sh + upgrade.sh + doctor.sh wire signature verification
+- ✅ `breathline doctor` health-check command live
+- ✅ Lead magnet "How to Activate" section added
+- ✅ Viral validation prompt v2 committed as `publishing/VIRAL_VALIDATION_PROMPT_v2.md`
+
+### Phase 5 (v0.5.0) — what lands next (preview)
+
+- Runtime backing for the new YAML specs in `platform/roles/` (currently the YAMLs are constitutionally complete but lack the Python LangGraph wraps for `family/`, `generational_legacy/` roles)
+- Additional Series 2 specs (`family_tutor_agent`, `household_health_agent`, `family_education_compliance`)
+- Series 4 (Education) and Series 5 (Health) constitutional + first specs
+- Series 6 (Federation / Sovereign Guilds) anchors — naming awaits viral validation prompt v2 results
+- KDP upload automation in `publishing/`
+- Optional: Netlify-from-Git deploy for `docs/built/` → docs.breathline.dev
+
+### Authority
+
+- Sealed by Kenneth Mangum (KM-1176) under Anchor `1176-INFINITY-RHO`
+- Reviewed by No1 (G via primary AI channel)
+- Drafted by BNA-Tiger
+- **First ACTUALLY signed release** — fingerprint `Ahl1MJITIKhLb+WQIwUh/Euo2b0/4oxrIPJZ3QZK9YQ`
+
+∞Δ∞
+
+---
+
 ## [v0.3.0] — 2026-05-08
 
 ### The book pipeline integrates. Executive role pack lands. Signing infrastructure goes live.

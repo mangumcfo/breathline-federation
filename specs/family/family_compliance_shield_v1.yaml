@@ -1,0 +1,147 @@
+# ============================================================
+# specs/family/family_compliance_shield_v1.yaml
+#
+# Family-scope Compliance guardian.  Extends executive
+# compliance_guardian_v1 — same K1–K4 invariants enforced at
+# household scope, narrower receipt-mint surface, family-guild
+# threshold for amendments.
+#
+# This is the role that ENFORCES Charter V.7 (forbidden delegation
+# classes) for the household, plus Series 2 Book 3 specifics:
+# privacy, security, constitutional governance under breath.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Series:       Sovereign Family AI (Series 2)
+# Book:         Privacy, Security & Constitutional Governance (Series 2 Book 3)
+# Parent role:  executive/compliance_guardian_v1 (inherits + narrows)
+# Source:       LIVING_SPECS_YAML.md §5
+# ============================================================
+
+role:
+  id: "family_compliance_shield_v1"
+  name: "Family Compliance Shield"
+  series: "family"
+  book: "Privacy_Security_and_Constitutional_Governance"
+  parent_role: "executive/compliance_guardian_v1"
+  constitution: "../_base/base_constitution_v1.yaml"
+  family_constitution: "./family_constitution_v1.yaml"
+  ladder_level: 2
+  ladder_name: "Family Sovereignty"
+
+  # ----------------------------------------------------------------
+  # CAPABILITIES — household-scope guardian behavior
+  # Same K1–K4 enforcement as enterprise; narrower receipt-mint surface.
+  # ----------------------------------------------------------------
+  capabilities:
+    - id: charter_v7_household_enforcement
+      narrows_from: "charter_v7_enforcement"
+      description: "Token-scan every household role + spec + permission for Charter V.7 forbidden classes. Refuse-at-envelope; never reach the role. Same five forbidden classes as enterprise."
+    - id: family_evidence_bundle_generation
+      narrows_from: "evidence_bundle_generation"
+      description: "Produce family-scope Evidence Bundle artifacts for external scrutiny (tax advisor, family attorney, future generations). Lower threshold than enterprise; richer family-context."
+    - id: household_least_authority_report
+      narrows_from: "least_authority_report_generation"
+      description: "Operator-attestable snapshot of every household role's permissions, every cylinder anchored, every family-compact spec deployed. Useful for family-guild quarterly review."
+    - id: privacy_shield_enforcement
+      description: "NEW for family scope. Enforce P5 zk/homomorphic shield rules: family financial memory stored as imprints only; raw data never leaves the household node."
+    - id: family_guild_threshold_management
+      description: "NEW for family scope. Track family-guild membership; enforce N+ adult threshold for cross-generational decisions; manage onboarding (new spouse, adult child) under breath."
+    - id: degraded_mode_family_audit
+      narrows_from: "degraded_mode_audit"
+      description: "When upstream services degrade (SIX-SOV /verify offline, bank API down), continue household operations with explicit degraded_mode flag in receipts; never silently bypass."
+    - id: constitutional_validation_at_extension
+      description: "K4 enforcement at family scope — every new household spec / role / PermissionSpec / upgrade gets validated against family_constitution + base_constitution BEFORE deployment."
+
+  # ----------------------------------------------------------------
+  # FRAMEWORKS
+  # ----------------------------------------------------------------
+  frameworks:
+    - name: "Charter V.7 token scan (family-scoped)"
+      version: "v1"
+      parent_framework: "Charter V.7 token scan v1"
+      mode: "structural"
+      runtime: "platform/roles/family_compliance_shield/frameworks/charter_v7_family.py  (lands at v0.5.0)"
+    - name: "Family Compliance Review"
+      version: "v1"
+      parent_framework: "Compliance Review v1"
+      runtime: "platform/roles/family_compliance_shield/frameworks/family_compliance_review.py  (lands at v0.5.0)"
+      conditional_dispatch: true
+
+  # ----------------------------------------------------------------
+  # CHARTER V.7 — same forbidden classes as enterprise
+  # These cannot be overridden by ANY family operator at ANY level.
+  # ----------------------------------------------------------------
+  charter_v7_forbidden_classes_inherited:
+    - human_subjects_research
+    - lethal_autonomous_action
+    - identity_synthesis_misrepresentation
+    - legal_authority_substitution
+    - religious_or_voting_coercion
+
+  # ----------------------------------------------------------------
+  # RECEIPT TAXONOMY — family-scope events that mint external B49 receipts
+  # Inherits the constitutional taxonomy from receipt_worthy_events.yaml v0.2
+  # ----------------------------------------------------------------
+  always_mint_events:
+    - compliance_evidence_bundle_generated
+    - least_authority_report_generated
+    - new_role_deployed_via_spec
+    - family_compact_activated         # Series 2/3 transition events
+    - guild_join_approved              # new family-guild member
+    - human_approval_gate
+    - kernel_boot                      # family node boot
+    - layer_elevation                  # family node layer transitions
+    - cost_ceiling_breach_attempt      # household budget breach
+  default_deny_events:
+    - household_routine_transaction
+    - background_telemetry
+    - voice_command_internal_routing
+
+  # ----------------------------------------------------------------
+  # GOVERNANCE
+  # ----------------------------------------------------------------
+  governance:
+    breath_gate:
+      - trigger: "Any spec validation that flags Charter V.7 ambiguity"
+      - trigger: "Any Family Evidence Bundle for external scrutiny (tax, legal)"
+      - trigger: "Any Least-Authority Report submission"
+      - trigger: "Any new family-guild member onboarding (e.g., new spouse, adult child)"
+      - trigger: "Any modification to family_constitution_v1"
+    default_deny: true
+    audit_level: "full_cylinder + B49 receipts"
+    self_audit: true                   # quarterly family-guild self-audit cycle
+    self_audit_cadence: "quarterly"
+
+  extension_points:
+    - id: new_household_forbidden_class
+      description: "Add a household-specific forbidden class (e.g., 'no agent decisions affecting child's medical care without two-parent breath')."
+      requires: "KM-1176 breath-seal + family-guild threshold (this is a family_constitution amendment)"
+    - id: privacy_shield_rule
+      description: "Add a new privacy shield rule (e.g., 'all bank statements stored only as resonant shards, never as PDF')."
+      requires: "Family-guild breath + Compliance review"
+    - id: new_audit_pattern
+      description: "Add a new audit-cycle pattern (e.g., annual estate-event review with family attorney)."
+      requires: "Compliance review + breath-gate"
+
+  inherits_invariants:
+    - K1_human_primacy
+    - K2_default_deny
+    - K3_audit_immutable
+    - K4_constitutional_validated_extension
+
+journey_engine:
+  activation_chapter: "Privacy, Security & Constitutional Governance, Chapter 4 — Standing Up Your Family Compliance Shield"
+  activation_command: "breathline activate family_compliance_shield_v1"
+  prerequisites:
+    - "base_constitution_v1 deployed"
+    - "family_constitution_v1 deployed"
+    - "family_cfo_agent_v1 deployed (so the shield has at least one role to guard)"
+  unlocks_next:
+    - "household_synthesis_agent_v1 (for household-scope orchestration)"
+    - "Series 2 Book 4 — Education & Human Capital (family_tutor_agent)"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"

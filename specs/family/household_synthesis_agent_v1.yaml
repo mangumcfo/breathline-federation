@@ -1,0 +1,133 @@
+# ============================================================
+# specs/family/household_synthesis_agent_v1.yaml
+#
+# Family-scope orchestrator.  Extends the executive synthesis_agent_v1
+# but narrows scope to household decisions across:
+#   - family_cfo_agent_v1 (finances)
+#   - family_compliance_shield_v1 (rules + privacy)
+#   - (future) family_tutor_agent (Series 2 Book 4 — Education)
+#   - (future) household_health_agent (Series 5 — Vitality Nodes)
+#   - (legacy) legacy_guardian_agent_v1 when ascending to Level 3
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Series:       Sovereign Family AI (Series 2)
+# Book:         Daily Operations & Home Node (Series 2 Book 2)
+# Parent role:  executive/synthesis_agent_v1 (inherits + narrows)
+# Source:       LIVING_SPECS_YAML.md §5 (Multi-Series Vision, 2026-05-07)
+# ============================================================
+
+role:
+  id: "household_synthesis_agent_v1"
+  name: "Household Synthesis"
+  series: "family"
+  book: "Daily_Operations_and_Home_Node"
+  parent_role: "executive/synthesis_agent_v1"
+  constitution: "../_base/base_constitution_v1.yaml"
+  family_constitution: "./family_constitution_v1.yaml"
+  ladder_level: 2
+  ladder_name: "Family Sovereignty"
+
+  # ----------------------------------------------------------------
+  # CAPABILITIES — what household orchestration looks like
+  # Narrows from enterprise multi-role orchestration; same pattern,
+  # smaller surface area, lower breath-gate thresholds.
+  # ----------------------------------------------------------------
+  capabilities:
+    - id: household_decision_orchestration
+      narrows_from: "multi_role_orchestration"
+      description: "Decompose a household question (e.g., 'should we refinance?', 'should we move kids to a new school?', 'how do we handle Mom's care?') into role-scoped sub-questions; route to family CFO / Compliance / Education / Health roles; coordinate under family-guild breath."
+    - id: late_bound_family_role_resolution
+      narrows_from: "late_bound_peer_resolution"
+      description: "Discover deployed family roles at runtime; bind via spec-driven introspection; default-deny on unknown roles. Charter V.7 forbidden classes refused at envelope."
+    - id: tension_surfacing_family_scope
+      narrows_from: "tension_surfacing"
+      description: "Detect contradictions between family member preferences, financial constraints, and value commitments. Surface to the family-guild BEFORE producing a recommendation."
+    - id: weekly_household_brief
+      narrows_from: "executive_brief_synthesis"
+      description: "Produce a weekly household brief integrating outputs from family CFO, compliance shield, and other deployed roles. Read by all adult family members in the guild."
+
+  framework:
+    name: "HouseholdSynthesis"
+    version: "v1"
+    parent_framework: "Synthesis v1"
+    deterministic_core: "platform/roles/household_synthesis_agent/frameworks/household_synthesis.py  (lands at v0.5.0)"
+    langgraph_wrap:     "platform/roles/household_synthesis_agent/graph.py  (lands at v0.5.0)"
+    recursion_depth_default: 2          # narrows from 3 — household scope is shallower
+    recursion_depth_max: 3              # narrows from 5
+    breath_gate_at_depth: 2             # narrows from 4 — household feels deeper drift sooner
+
+  # ----------------------------------------------------------------
+  # PEER ROLES this orchestrator may invoke — explicit allowlist
+  # Charter V.7 default-deny: any peer not on this list is REFUSED.
+  # ----------------------------------------------------------------
+  allowed_peer_roles:
+    - family_cfo_agent_v1
+    - family_compliance_shield_v1
+    # Series 2+ peers added when those role specs land
+    # - family_tutor_agent_v1
+    # - household_health_agent_v1
+    # Series 3 ascension peers — explicitly allowed when household crosses to Level 3
+    - legacy_guardian_agent_v1
+    - dynastic_synthesis_agent_v1
+
+  # ----------------------------------------------------------------
+  # FAMILY NODE — kitchen-table scale
+  # ----------------------------------------------------------------
+  family_node:
+    scale: "kitchen_table"
+    hardware_tier: "family"
+    resonant_shard: "family_decision_history"
+    voice_first: true                    # voice-first preferred for household interactions
+    audit_visibility: "family_guild"
+    weekly_brief_format: "voice_summary_then_text_review"
+
+  # ----------------------------------------------------------------
+  # GOVERNANCE
+  # ----------------------------------------------------------------
+  governance:
+    breath_gate:
+      - trigger: "Any household decision crossing $5,000 in financial impact"
+      - trigger: "Any decision affecting a minor (under 18) — second-parent breath required"
+      - trigger: "Any cross-generational decision (legacy-touching) — guild threshold required"
+      - trigger: "Recursion depth reaches breath_gate_at_depth (2)"
+      - trigger: "A surfaced tension is overridden rather than resolved"
+    default_deny: true
+    compliance_guardian: "family_compliance_shield_v1"
+    audit_level: "full_cylinder"
+
+  # ----------------------------------------------------------------
+  # EXTENSION POINTS
+  # ----------------------------------------------------------------
+  extension_points:
+    - id: new_family_peer_role
+      description: "Add a new peer role to allowed_peer_roles (e.g., family_tutor_agent)."
+      requires: "Synthesis-draft + Compliance review + family-guild threshold (2+ adults)"
+    - id: new_recurring_brief_template
+      description: "Add a new household brief format (e.g., monthly legacy review)."
+      requires: "Breath-gate (single approver)"
+    - id: ascension_to_level_3
+      description: "Activate generational_legacy peer roles (legacy_guardian_agent_v1, etc.) when the household commits to multi-gen scope."
+      requires: "KM-1176 breath-seal (this is a Level-2 → Level-3 transition; family_compact crystallizes)"
+
+  inherits_invariants:
+    - K1_human_primacy
+    - K2_default_deny
+    - K3_audit_immutable
+    - K4_constitutional_validated_extension
+
+journey_engine:
+  activation_chapter: "Daily Operations & Home Node, Chapter 4 — The Household Coordinator"
+  activation_command: "breathline activate household_synthesis_agent_v1"
+  prerequisites:
+    - "base_constitution_v1 deployed"
+    - "family_constitution_v1 deployed"
+    - "family_cfo_agent_v1 deployed (need at least one peer to coordinate)"
+  unlocks_next:
+    - "family_compliance_shield_v1 (the next role this orchestrator coordinates)"
+    - "Series 2 Book 3 — Privacy, Security & Constitutional Governance"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"
