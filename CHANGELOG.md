@@ -8,6 +8,83 @@ adapted for Breathline's manifest-driven release model.
 
 ---
 
+## [v0.5.0] — 2026-05-08
+
+### Phase 5 thin-layer LangGraph wrap for the Series 2 Family triad. Publishing pipeline orchestrator skeleton. Smarter doctor.
+
+This release closes Phase 5 of the public sovereign onboarding hub. It ships
+runtime backing for Ladder Level 2 (Family Sovereignty) by wrapping the three
+family-tier roles in LangGraph (parity with the executive triad in v0.4.x);
+introduces the publishing pipeline's first callable surface (`PublishingPipeline`
++ `manifest_books.yaml`); and hardens `installer/doctor.sh` to stop
+false-flagging when run from a dev tree against a healthy installed venv.
+
+Series 4 (Education) and Series 5 (Health) ship as **YAML specs only** — their
+runtime role packs are scheduled for v0.6.0+. Generational Legacy specs are
+already present in v0.4.x and are unchanged here; their LangGraph wraps are also
+deferred to v0.6.0+.
+
+### Added
+
+- **Series 2 Family triad LangGraph wraps** (`platform/roles/family_*/graph.py`):
+    - `FamilyCFOAgentGraph` — subclasses `CFOAgentGraph`; same FORECAST core,
+      family-tier metadata overlay (audit_scope=household, family_tier=True,
+      breath_gate_thresholds for transaction / recurring / transfer).
+    - `FamilyComplianceShieldGraph` — subclasses `ComplianceAgentGraph`; same
+      Charter V.7 enforcement; quarterly audit cadence; family-guild threshold.
+    - `HouseholdSynthesisAgentGraph` — subclasses `SynthesisAgentGraph`; same
+      orchestration; lower recursion depths; family-scope peer allowlist.
+  Each carries `ladder_level = 2` for tier-aware tooling. Deterministic cores
+  unchanged. K1–K4 invariants preserved (verified by 6 new parity tests).
+
+- **`create_family_graph_handlers()` + `create_full_graph_handlers()`** in
+  `platform/roles/__init__.py` — LangGraph factories mirroring the existing
+  pure-Python `create_family_handlers` / `create_full_handlers`.
+
+- **Publishing pipeline orchestrator** (`publishing/orchestrator.py`,
+  `publishing/manifest_books.yaml`, `publishing/test_orchestrator.py`):
+    - `PublishingPipeline.list_available_books()` — feeds `installer/status.sh`
+      ascension ladder display with manifest-driven "next recommended book".
+    - `PublishingPipeline.precheck_manuscript()` — grep-based KDP_PUBLISHING_SOP
+      §1.2 checklist (word-count floor, [VISUAL: …] placeholders, [TODO]/[TK]
+      markers).
+    - `PublishingPipeline.prep_audiobook()` — delegates to existing
+      `prep_audiobooks.split_and_optimize()` unchanged.
+    - Future phases (`cover_render`, `kdp_upload`, `acx_upload`) raise
+      `NotImplementedError("v0.6.0+")` to keep the contract honest.
+
+- **Series 4 (Education) + Series 5 (Health) spec starters** registered in
+  `manifest.yaml` (YAML only; runtime at v0.6.0+):
+    - `education_constitution_v1`, `family_tutor_agent_v1`
+    - `health_constitution_v1`, `household_health_agent_v1`
+  Each declares `status: draft / authoritative pattern`. Health specs additionally
+  await clinician sign-off per HIPAA / medical-advisor governance.
+
+### Changed
+
+- **`installer/doctor.sh`** smarter platform-venv detection. Now prefers the
+  installed venv at `~/.breathline/platform/.venv`; falls back to the dev-tree
+  local venv; warns only when *neither* has importable core deps. The dep-import
+  check is corrected to match `pyproject.toml` declared deps (yaml, fastapi,
+  langgraph, pydantic) — `pptx` was a stale check carried over from a tool that
+  lives in another repo.
+
+- **`platform/roles/__init__.py`** — extended the LangGraph factory section to
+  include the family triad. Pure-Python factories unchanged.
+
+### Stats
+
+- 188 → 212 tests (194 platform + 18 publishing).
+- 12 → 16 specs in manifest (4 new Series 4/5 spec starters).
+- 0 deterministic-core changes. Charter V.7 floor preserved.
+
+### Migration
+
+- v0.4.1 → v0.5.0 is **additive only** — no schema changes. Existing nodes
+  upgrade with `breathline upgrade` (no migration needed).
+
+---
+
 ## [v0.4.1] — 2026-05-08
 
 ### Tier-aware presentation. Executive becomes the default first impression.

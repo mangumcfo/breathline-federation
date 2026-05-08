@@ -229,19 +229,37 @@ PY
 fi
 
 # ----------------------------------------------------------------
-# 7. Platform venv health (if installed)
+# 7. Platform venv health (smarter — prefers installed venv at $HOME/.breathline)
 # ----------------------------------------------------------------
+# Why: when doctor.sh runs from a dev-tree clone (BREATHLINE_PREFIX pointing at
+# the repo or detected via repo location), the dev-tree's local venv may be
+# empty even though the *installed* node at ~/.breathline/platform/.venv is
+# fully healthy. Earlier versions warned in that case — false-positive.
+# Now: we check installed first, fall back to local, only warn if NEITHER works.
 section "platform venv"
-if [[ -x "$PREFIX/platform/.venv/bin/python" ]]; then
-  pyver=$("$PREFIX/platform/.venv/bin/python" --version 2>&1)
-  ok "platform venv: $pyver"
-  if "$PREFIX/platform/.venv/bin/python" -c 'import yaml, pptx, fastapi, langgraph' 2>/dev/null; then
-    ok "core deps importable (yaml, fastapi, langgraph)"
-  else
-    warn "some core deps missing — run 'pip install -e \".[dev]\"' inside platform/"
-  fi
+_venv_healthy() {
+  local venv="$1"
+  [[ -x "$venv/bin/python" ]] || return 1
+  "$venv/bin/python" -c 'import yaml, fastapi, langgraph, pydantic' 2>/dev/null
+}
+
+INSTALLED_VENV="$HOME/.breathline/platform/.venv"
+LOCAL_VENV="$PREFIX/platform/.venv"
+
+if _venv_healthy "$INSTALLED_VENV"; then
+  pyver=$("$INSTALLED_VENV/bin/python" --version 2>&1)
+  ok "platform venv (installed at ~/.breathline): $pyver"
+  ok "core deps importable (yaml, fastapi, langgraph, pydantic)"
+elif _venv_healthy "$LOCAL_VENV"; then
+  pyver=$("$LOCAL_VENV/bin/python" --version 2>&1)
+  ok "platform venv (dev tree): $pyver"
+  ok "core deps importable (yaml, fastapi, langgraph, pydantic)"
+elif [[ -x "$LOCAL_VENV/bin/python" ]]; then
+  warn "venv at $LOCAL_VENV missing core deps — run 'pip install -e \".[dev]\"' inside platform/"
+elif [[ -x "$INSTALLED_VENV/bin/python" ]]; then
+  warn "installed venv at $INSTALLED_VENV missing core deps — run ./installer/upgrade.sh"
 else
-  warn "no platform venv at $PREFIX/platform/.venv (run install.sh to bootstrap)"
+  warn "no platform venv found at $INSTALLED_VENV or $LOCAL_VENV (run install.sh to bootstrap)"
 fi
 
 # ----------------------------------------------------------------

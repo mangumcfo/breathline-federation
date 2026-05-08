@@ -37,11 +37,18 @@ if _LANGGRAPH_AVAILABLE:
     from roles import (
         create_demo2_graph_handlers,
         create_demo2_handlers,
+        create_family_graph_handlers,
+        create_family_handlers,
+        create_full_graph_handlers,
         register_demo2_roles,
+        register_family_roles,
     )
     from roles.cfo_agent.graph import CFOAgentGraph
     from roles.compliance_agent.graph import ComplianceAgentGraph
     from roles.synthesis_agent.graph import SynthesisAgentGraph
+    from roles.family_cfo_agent.graph import FamilyCFOAgentGraph
+    from roles.family_compliance_shield.graph import FamilyComplianceShieldGraph
+    from roles.household_synthesis_agent.graph import HouseholdSynthesisAgentGraph
 
 
 # -----------------------------------------------------------------------------
@@ -322,4 +329,151 @@ def test_langgraph_principal_propagation(role_registry, graph_handlers):
     assert cfo_peer_artifact["principal_id"] == "auditor-007"
 
 
+# =============================================================================
+# v0.5.0 — Series 2 Family triad LangGraph wrap parity
+# =============================================================================
+# Each family wrap must:
+#   (a) produce the same artifact body as its pure-Python counterpart,
+#   (b) carry family-tier metadata (audit_scope, family_tier, etc.),
+#   (c) NOT weaken K1–K4 invariants (Charter V.7 floor preserved).
+# =============================================================================
+
+
+@pytest.fixture
+def family_role_registry(action_class_registry):
+    """RoleRegistry with both executive + family role specs registered."""
+    registry = RoleRegistry(action_class_registry)
+    register_demo2_roles(registry)
+    register_family_roles(registry)
+    return registry
+
+
+def test_family_cfo_graph_matches_pure_python_output(family_role_registry):
+    """FamilyCFOAgentGraph artifact body == FamilyCFOAgent artifact body."""
+    pure = create_family_handlers(family_role_registry)["family_cfo_agent"]
+    graph = FamilyCFOAgentGraph()
+    request = PlugInRequest(
+        request_id="req-lg-fam-cfo",
+        principal_id="kmangum",
+        role_target="family_cfo_agent",
+        action_class="produce_forecast_artifact",
+        payload=_cfo_payload(),
+    )
+    pure_out = pure.process(request)
+    graph_out = graph.process(request)
+    assert pure_out["status"] == graph_out["status"] == "produced"
+    assert pure_out["forecast_artifact"]["scenarios"] == \
+        graph_out["forecast_artifact"]["scenarios"]
+    # Family-tier metadata parity
+    assert graph_out["family_tier"] is True
+    assert graph_out["audit_scope"] == "household"
+    assert graph_out["role_id"] == "family_cfo_agent"
+    assert graph_out["series"] == "family"
+    assert "breath_gate_thresholds" in graph_out
+
+
+def test_family_compliance_graph_charter_v7_clean(family_role_registry):
+    """Family compliance shield graph approves a clean peer artifact."""
+    graph = FamilyComplianceShieldGraph(role_registry=family_role_registry)
+    request = PlugInRequest(
+        request_id="r",
+        principal_id="kmangum",
+        role_target="family_compliance_shield",
+        action_class="review_peer_outputs",
+        payload={
+            "mode": "charter_v7_review",
+            "peer_artifact": {"role_id": "family_cfo_agent", "status": "produced"},
+        },
+    )
+    out = graph.process(request)
+    assert out["status"] == "produced"
+    assert out["framework"] == "charter_v7_enforcement"
+    assert out["verdict"]["approved"] is True
+    # Family-tier metadata
+    assert out["family_tier"] is True
+    assert out["audit_scope"] == "household"
+    assert out["audit_cadence"] == "quarterly"
+    assert out["role_id"] == "family_compliance_shield"
+
+
+def test_household_synthesis_graph_invokes_family_peers(family_role_registry):
+    """Household synthesis graph invokes family peer handlers correctly."""
+    handlers = create_family_graph_handlers(family_role_registry)
+    hsynth = handlers["household_synthesis_agent"]
+    request = PlugInRequest(
+        request_id="req-lg-hsyn",
+        principal_id="kmangum",
+        role_target="household_synthesis_agent",
+        action_class="produce_executive_brief",
+        payload={
+            "request_summary": "household quarterly review",
+            "peer_roles_to_invoke": ["family_cfo_agent"],
+            "peer_payloads": {
+                "family_cfo_agent": {
+                    "action_class": "produce_forecast_artifact",
+                    "payload": _cfo_payload(),
+                },
+            },
+        },
+    )
+    out = hsynth.process(request)
+    assert out["status"] == "produced"
+    assert out["family_tier"] is True
+    assert out["audit_scope"] == "household"
+    assert out["role_id"] == "household_synthesis_agent"
+    assert len(out["executive_brief"]["peer_results"]) == 1
+    family_peer = out["executive_brief"]["peer_results"][0]
+    assert family_peer["role_id"] == "family_cfo_agent"
+
+
+def test_create_family_graph_handlers_returns_three(family_role_registry):
+    handlers = create_family_graph_handlers(family_role_registry)
+    expected = {
+        "family_cfo_agent",
+        "family_compliance_shield",
+        "household_synthesis_agent",
+    }
+    assert set(handlers.keys()) == expected
+    # Each must be a graph-wrapped instance (carries _graph attribute via parent)
+    for h in handlers.values():
+        assert hasattr(h, "_graph")
+
+
+def test_create_full_graph_handlers_returns_six(family_role_registry):
+    handlers = create_full_graph_handlers(family_role_registry)
+    expected = {
+        "cfo_agent", "compliance_agent", "synthesis_agent",
+        "family_cfo_agent", "family_compliance_shield", "household_synthesis_agent",
+    }
+    assert set(handlers.keys()) == expected
+
+
+def test_family_graph_does_not_weaken_default_deny(family_role_registry):
+    """Family CFO graph MUST refuse the same bad payloads as executive graph."""
+    exec_graph = CFOAgentGraph()
+    family_graph = FamilyCFOAgentGraph()
+    bad_payload = {"only_horizon": True}
+    exec_request = PlugInRequest(
+        request_id="r-exec", principal_id="kmangum",
+        role_target="cfo_agent",
+        action_class="produce_forecast_artifact",
+        payload=bad_payload,
+    )
+    family_request = PlugInRequest(
+        request_id="r-family", principal_id="kmangum",
+        role_target="family_cfo_agent",
+        action_class="produce_forecast_artifact",
+        payload=bad_payload,
+    )
+    exec_out = exec_graph.process(exec_request)
+    family_out = family_graph.process(family_request)
+    assert exec_out["status"] == "refused"
+    assert family_out["status"] == "refused"
+    # Family wrap doesn't fabricate a forecast artifact on refusal
+    assert "forecast_artifact" not in family_out
+    # But still carries family-tier metadata so downstream knows the tier
+    assert family_out["family_tier"] is True
+
+
 # ∞Δ∞ LangGraph wrap test seal — Phase 5 thin-layer parity verified ∞Δ∞
+# ∞Δ∞ v0.5.0 Series 2 family triad parity verified ∞Δ∞

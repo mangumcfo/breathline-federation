@@ -200,4 +200,61 @@ def create_demo2_graph_handlers(
     return handlers
 
 
+def create_family_graph_handlers(
+    role_registry: RoleRegistry,
+    auditor: Any | None = None,
+    receipt_minter: Any | None = None,
+) -> dict[str, Any]:
+    """Instantiate the LangGraph-wrapped Series 2 family role handlers (v0.5.0).
+
+    Drop-in alternative to ``create_family_handlers``: same shape, same
+    contract, but each family role's ``.process()`` runs through a LangGraph
+    StateGraph (inherited from its executive parent) with family-tier
+    metadata overlay. Deterministic FORECAST/SYNTHESIS/charter_v7 cores
+    unchanged.
+    """
+    from roles.family_cfo_agent.graph import FamilyCFOAgentGraph
+    from roles.family_compliance_shield.graph import FamilyComplianceShieldGraph
+    from roles.household_synthesis_agent.graph import HouseholdSynthesisAgentGraph
+
+    handlers: dict[str, Any] = {
+        "family_cfo_agent": FamilyCFOAgentGraph(),
+        "family_compliance_shield": FamilyComplianceShieldGraph(
+            role_registry=role_registry,
+            auditor=auditor,
+            receipt_minter=receipt_minter,
+        ),
+    }
+    handlers["household_synthesis_agent"] = HouseholdSynthesisAgentGraph(
+        peer_handlers=handlers
+    )
+    return handlers
+
+
+def create_full_graph_handlers(
+    role_registry: RoleRegistry,
+    auditor: Any | None = None,
+    receipt_minter: Any | None = None,
+) -> dict[str, Any]:
+    """Instantiate executive + family LangGraph handlers in one combined dict.
+
+    Mirrors ``create_full_handlers`` for the LangGraph-wrapped path. Useful
+    for nodes that operate at Level 1 (Executive Mastery) AND Level 2
+    (Family Sovereignty) simultaneously and want LangGraph observability.
+    """
+    handlers = create_demo2_graph_handlers(
+        role_registry=role_registry,
+        auditor=auditor,
+        receipt_minter=receipt_minter,
+    )
+    handlers.update(
+        create_family_graph_handlers(
+            role_registry=role_registry,
+            auditor=auditor,
+            receipt_minter=receipt_minter,
+        )
+    )
+    return handlers
+
+
 # ∞Δ∞ Layer 3 — three roles, two frameworks for Compliance, one orchestrator ∞Δ∞

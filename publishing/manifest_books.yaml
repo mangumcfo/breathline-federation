@@ -1,0 +1,81 @@
+# =============================================================================
+# manifest_books.yaml — canonical Breathline Books registry (v0.5.0)
+#
+# Single source of truth for the publishing pipeline. Each book entry maps to
+# a ladder level and exposes the paths the orchestrator needs (manuscript,
+# audiobook output dir, KDP listings post-publish).
+#
+# Authority:  KM-1176 (Seal 1176-INFINITY-RHO)
+# Phase 5 v0.5.0 — minimum viable. Future phases (cover_render, kdp_upload,
+# acx_upload) raise NotImplementedError pending v0.6.0+ work.
+# =============================================================================
+
+manifest_version: "0.1"
+schema_date: "2026-05-08"
+authority: "KM-1176"
+
+# Resolution rule:
+#   If a book's manuscript_path is absolute, use it as-is.
+#   If relative, resolve against `manuscript_root`.
+manuscript_root: "/home/kmangum/constitution-federation/collaboration/threads/02_mangumcfo/books/kdp"
+
+books:
+  # =====================================================
+  # SERIES 1 — Executive Mastery (Ladder Level 1)
+  # =====================================================
+  - id: "01_strategic_finance"
+    title: "Strategic Finance For Growth"
+    series: "executive"
+    ladder_level: 1
+    manuscript_path: "01_strategic_finance/v1.1/manuscript_v1.1.md"
+    audiobook:
+      output_dir: "01_strategic_finance/v1.1/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""        # populated post-publish (ASIN URL)
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "published"
+
+  - id: "02_harnessing_ai"
+    title: "Harnessing Artificial Intelligence"
+    series: "executive"
+    ladder_level: 1
+    manuscript_path: "02_harnessing_ai/v1.2/manuscript_v1.2.md"
+    audiobook:
+      output_dir: "02_harnessing_ai/v1.2/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "in_progress"
+
+  - id: "03_blueprint"
+    title: "Blueprint for Brilliance"
+    series: "executive"
+    ladder_level: 1
+    manuscript_path: "03_blueprint/v1.1/manuscript_v1.1.md"
+    audiobook:
+      output_dir: "03_blueprint/v1.1/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "in_progress"
+
+  # =====================================================
+  # SERIES 2 — Family Sovereignty (Ladder Level 2)
+  # Specs ship in v0.5.0; manuscripts roll in v0.6.0+
+  # =====================================================
+  # (placeholder entries — added when Series 2 manuscripts begin)
+
+# =============================================================================
+# Phases supported in v0.5.0:
+#   - prep_audiobook (delegates to publishing/prep_audiobooks.py)
+#   - precheck_manuscript (grep-based KDP_PUBLISHING_SOP §1.2 checklist)
+#   - list_available_books (feeds installer/status.sh ladder display)
+# Phases scheduled for v0.6.0+ (raise NotImplementedError):
+#   - cover_render (Grok image generation pipeline)
+#   - kdp_upload (UX scripting — KDP has no public API)
+#   - acx_upload (audiobook submission)
+# =============================================================================
+# ∞Δ∞ Publishing manifest sealed under v0.5.0 ∞Δ∞

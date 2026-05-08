@@ -11,11 +11,11 @@
 # ============================================================
 
 # Version — semantic, monotonically increasing
-version: "0.4.1"
+version: "0.5.0"
 released: "2026-05-08"
 sealed_by: "KM-1176"
 seal_glyph: "∞Δ∞"
-first_signed_release: true              # v0.4.0 was first; v0.4.1 carries forward
+first_signed_release: true              # v0.4.0 was first; v0.4.1+ carries forward
 presentation_tier_default: "executive"  # KM-1176 directive 2026-05-08 (post-G review)
 presentation_tier_options:
   - executive       # default — leads with Executive Mastery; CFO/Synth/Compliance triad
@@ -38,13 +38,14 @@ platform:
   status: "active"
   kernel_version: "0.2.0"
   required_python: ">=3.12"
-  test_count: 169
+  test_count: 212        # 194 platform (executive + family triad parity) + 18 publishing orchestrator
   source: "Imported from agentic_platform_seed/v1.0 at 2026-05-08 (clean copy per G's review)"
   layers:
     - "Layer 0 — Seed (constitutional kernel + manifest)"
     - "Layer 1 — Kernel (Spec / Constructor / Critic / Auditor / Governor primitives)"
     - "Layer 2 — Platform (registry, audit_adapter, chain_sentinel, receipt_minter, plug-in interface)"
-    - "Layer 3 — Roles (CFO / Synthesis / Compliance + LangGraph wrap)"
+    - "Layer 3 — Roles (Executive triad + Series 2 Family triad + LangGraph wraps for both)"
+    - "Layer 4 — Publishing pipeline orchestrator (manifest_books.yaml + orchestrator.py)"
 
 # ----------------------------------------------------------------
 # YAML SPECS  (the executable form of the books)
@@ -143,8 +144,40 @@ specs:
         book: "The_1000_Year_Family_Compact"
         parent_role: "generational_legacy/legacy_guardian_agent_v1"
         status: "draft / authoritative pattern, awaiting legal advisor + KM-1176 review per founding generation"
-    education:           []
-    health:              []
+    education:
+      - id: "education_constitution_v1"
+        path: "specs/education/education_constitution_v1.yaml"
+        sha256: "a4a9f717b7f7aafeb9fff35e1363f452a2d7311e968396987c2579881fb12a83"
+        ladder_level: 4
+        kind: "constitution"
+        parent: "family_constitution_v1"
+        anchor_book: "Family_Tutor_and_Lifelong_Learning"
+        status: "draft / authoritative pattern, runtime lands at v0.6.0+"
+      - id: "family_tutor_agent_v1"
+        path: "specs/education/family_tutor_agent_v1.yaml"
+        sha256: "f18d652c9fda075f2787f48e7a723a2a2f220cb08f756d8ece44247ce7184fb5"
+        ladder_level: 4
+        series: "education"
+        book: "Family_Tutor_and_Lifelong_Learning"
+        parent_role: "family/family_cfo_agent_v1"
+        status: "draft / authoritative pattern, runtime lands at v0.6.0+"
+    health:
+      - id: "health_constitution_v1"
+        path: "specs/health/health_constitution_v1.yaml"
+        sha256: "e11f4940ddbfde47a5e95b0525a5a20c07c9ebd3005f7fb0880bbdb6cf60e657"
+        ladder_level: 5
+        kind: "constitution"
+        parent: "family_constitution_v1"
+        anchor_book: "Household_Health_and_Sovereign_Wellness"
+        status: "draft / authoritative pattern, awaiting clinician sign-off + KM-1176 review"
+      - id: "household_health_agent_v1"
+        path: "specs/health/household_health_agent_v1.yaml"
+        sha256: "84327eb685867f5ecfd12ab8409bfc9732ef012e1854fa49ecbbf56264071671"
+        ladder_level: 5
+        series: "health"
+        book: "Household_Health_and_Sovereign_Wellness"
+        parent_role: "family/family_cfo_agent_v1"
+        status: "draft / authoritative pattern, awaiting clinician sign-off + KM-1176 review"
     federation:          []           # sovereign_guild_v1 → tracked
 
 # ----------------------------------------------------------------
@@ -258,6 +291,8 @@ companions:
 
 publishing:
   orchestration_doc: "publishing/BOOK_DEVELOPMENT.md"
+  orchestrator: "publishing/orchestrator.py"      # v0.5.0 — minimum viable pipeline
+  manifest:     "publishing/manifest_books.yaml"  # v0.5.0 — canonical book registry
   sops:
     - "publishing/SOP_SERIALIZED_NONFICTION_v1.1.md"
     - "publishing/KDP_PUBLISHING_SOP.md"
