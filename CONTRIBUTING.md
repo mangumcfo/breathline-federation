@@ -29,7 +29,7 @@ If you're unsure whether your change touches an invariant, **ask in the issue fi
 - Bug fixes that strengthen invariants (e.g., closing a default-deny bypass)
 - New role handlers under `platform/roles/<series>/` that follow the existing patterns
 - New living YAML specs under `specs/<series>/` that pass Compliance-agent validation
-- Documentation improvements in `docs/source/`
+- Documentation improvements in `governance/decisions/`, `README.md`, `CHARTER.md`, `CONSTITUTION.md` (the canonical doc sources — `docs/source/` is reserved for future expansion)
 - Test additions (the platform currently runs 169+ tests; more is better)
 - Installer / `breathline upgrade` mechanism improvements
 - New examples under `examples/` for ladder levels

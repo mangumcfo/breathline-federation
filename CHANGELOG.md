@@ -8,6 +8,60 @@ adapted for Breathline's manifest-driven release model.
 
 ---
 
+## [v0.5.2] — 2026-05-08
+
+### Anti-vaporware patch — installer references match reality.
+
+Fresh-install testing surfaced two "coming soon / vaporware" gaps that cut
+against the **Authoritative Pattern Rule** sealed in v0.5.0 ("books and platform
+evolve in resonance — the platform leads just enough, never races ahead of
+content"):
+
+1. `installer/status.sh` recommended *AI Agents for CFOs (Series 1, Book 1)* as
+   the next read, but no manuscript with that title exists. The actual Series 1
+   anchor is **Strategic Finance For Growth** (Kenneth Mangum, 2026).
+2. `installer/status.sh` advertised a "Free pilot chapter" pointing at
+   `books-public/`, but `books-public/series_01_executive/` was empty (only a
+   `.gitkeep`). A new user clicking through hit a dead end.
+3. `README.md` line 140 referenced `docs/source/concepts/books-as-specs.md` as
+   "coming soon" — but `docs/source/` was an empty directory and the books-as-
+   specs architecture is already documented in
+   `governance/decisions/2026-05-08_breathline-federation-architecture.md`.
+
+### Added
+
+- **`books-public/series_01_executive/strategic_finance_for_growth_lead_magnet.md`**
+  — real Series 1 lead chapter (Constitutional Source-Available v1.0). Mirrors
+  the pattern of the Series 3 lead magnet. Marketing-safe excerpts from the
+  anchor manuscript: premise, four-stages framework, three-pillars structure,
+  chapter previews, license, where to buy the full book.
+- Manifest registers the new lead magnet under `books_public.by_series.executive`
+  with sha256 + license declaration.
+
+### Changed
+
+- **`installer/status.sh`** — Awakening-level recommendation now reads:
+    - `Strategic Finance For Growth (Series 1, Book 1)` (was: *AI Agents for CFOs*)
+    - "Free lead chapter" line shown **only when the file actually exists** —
+      conditional on `[[ -f $PREFIX/books-public/series_01_executive/strategic_finance_for_growth_lead_magnet.md ]]`.
+    - Same conditional pattern applied to the Series 3 lead magnet for the
+      full-sovereign tier.
+- **`README.md`** line 140 — replaced `docs/source/concepts/books-as-specs.md`
+  "coming soon" reference with direct pointers to `CONSTITUTION.md`,
+  `CHARTER.md`, and the books-as-specs architecture decision record at
+  `governance/decisions/2026-05-08_breathline-federation-architecture.md`.
+- **`CONTRIBUTING.md`** — clarifies that doc improvements go to
+  `governance/decisions/`, `README.md`, `CHARTER.md`, `CONSTITUTION.md`;
+  `docs/source/` is reserved for future expansion (not actively populated).
+
+### Migration
+
+- v0.5.1 → v0.5.2 is **additive only**. Existing nodes upgrade with
+  `breathline upgrade` (no migration). The Series 1 lead magnet appears under
+  `books-public/` after upgrade; status.sh recommendations update on next call.
+
+---
+
 ## [v0.5.1] — 2026-05-08
 
 ### Patch — `BREATHLINE_PREFIX` state-file leak fix.

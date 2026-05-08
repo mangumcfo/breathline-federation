@@ -11,7 +11,7 @@
 # ============================================================
 
 # Version — semantic, monotonically increasing
-version: "0.5.1"
+version: "0.5.2"
 released: "2026-05-08"
 sealed_by: "KM-1176"
 seal_glyph: "∞Δ∞"
@@ -189,7 +189,14 @@ specs:
 books_public:
   status: "active"
   by_series:
-    executive: []                     # sample chapters → tracked
+    executive:
+      - id: "strategic_finance_for_growth_lead_magnet"
+        path: "books-public/series_01_executive/strategic_finance_for_growth_lead_magnet.md"
+        sha256: "bf218af9b2644f84b63146e8cba21805cdcf69a595666659a2b6580f4358657d"
+        kind: "lead_magnet"
+        series: "executive"
+        anchor_book: "Strategic_Finance_For_Growth"
+        license: "Constitutional Source-Available v1.0 (free to share with attribution)"
     generational_legacy:
       - id: "1000_year_family_compact_lead_magnet"
         path: "books-public/series_03_generational_legacy/1000_year_family_compact_lead_magnet.md"

@@ -137,7 +137,7 @@ Compliance validates → KM-1176 breath-seals → manifest.yaml bumped →
 GitHub release tagged → existing nodes notice on next `breathline upgrade`
 ```
 
-Full operational details: [`docs/source/concepts/books-as-specs.md`](./docs/source/) (coming soon).
+Full operational details: see [`CONSTITUTION.md`](./CONSTITUTION.md) (the kernel rules), [`CHARTER.md`](./CHARTER.md) (the sovereignty frame), and [`governance/decisions/2026-05-08_breathline-federation-architecture.md`](./governance/decisions/2026-05-08_breathline-federation-architecture.md) (the books-as-specs architecture decision record).
 
 ---
 

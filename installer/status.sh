@@ -154,7 +154,11 @@ case "$NODE_TIER" in
   executive|enterprise)
     case "$level" in
       Awakening|"Level 0"|0)
-        echo "  • Read companion book:  ${C_BOLD}AI Agents for CFOs${C_RST} (Series 1, Book 1)"
+        echo "  • Read companion book:  ${C_BOLD}Strategic Finance For Growth${C_RST} (Series 1, Book 1)"
+        # v0.5.2: only show "Free pilot chapter" when a Series 1 lead magnet exists
+        if [[ -f "$PREFIX/books-public/series_01_executive/strategic_finance_for_growth_lead_magnet.md" ]]; then
+          echo "  • Free lead chapter:    ${C_ACCENT}$PREFIX/books-public/series_01_executive/strategic_finance_for_growth_lead_magnet.md${C_RST}"
+        fi
         echo "  • Read the charter:     ${C_ACCENT}$PREFIX/CHARTER.md${C_RST}"
         echo "  • Goal: ascend to Level 1 — Executive Mastery"
         echo "  • Activation:           ${C_ACCENT}breathline activate cfo_agent_v1${C_RST} (when role runtime lands)"
@@ -191,8 +195,14 @@ case "$NODE_TIER" in
     case "$level" in
       Awakening|"Level 0"|0)
         echo "  • Read the vision:    ${C_ACCENT}$PREFIX/README.md${C_RST}"
-        echo "  • Free pilot chapter: ${C_ACCENT}$PREFIX/books-public/${C_RST}"
-        echo "  • Next book to read:  ${C_BOLD}AI Agents for CFOs${C_RST} (Series 1, Book 1)"
+        # v0.5.2: only show "Free lead chapter" lines for the series whose lead magnets actually exist
+        if [[ -f "$PREFIX/books-public/series_01_executive/strategic_finance_for_growth_lead_magnet.md" ]]; then
+          echo "  • Free lead chapter:  ${C_ACCENT}$PREFIX/books-public/series_01_executive/strategic_finance_for_growth_lead_magnet.md${C_RST}  (Series 1)"
+        fi
+        if [[ -f "$PREFIX/books-public/series_03_generational_legacy/1000_year_family_compact_lead_magnet.md" ]]; then
+          echo "  • Free lead chapter:  ${C_ACCENT}$PREFIX/books-public/series_03_generational_legacy/1000_year_family_compact_lead_magnet.md${C_RST}  (Series 3 anchor)"
+        fi
+        echo "  • Next book to read:  ${C_BOLD}Strategic Finance For Growth${C_RST} (Series 1, Book 1)"
         echo "  • Goal: ascend to Level 1 — Executive Mastery"
         ;;
       "Executive Mastery"|"Level 1"|1)
