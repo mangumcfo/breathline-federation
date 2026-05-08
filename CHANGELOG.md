@@ -8,6 +8,45 @@ adapted for Breathline's manifest-driven release model.
 
 ---
 
+## [v0.5.1] — 2026-05-08
+
+### Patch — `BREATHLINE_PREFIX` state-file leak fix.
+
+Surfaced during v0.5.0 fresh-install verification: `installer/install.sh` and
+`installer/upgrade.sh` both wrote the node-state file at `~/.breathline-state.yaml`
+regardless of `BREATHLINE_PREFIX`, so a temp-prefixed install (e.g.
+`BREATHLINE_PREFIX=/tmp/foo ./installer/install.sh`) overwrote the global
+state file of the real installed node. Cosmetic but real; cleaned manually
+post-verification.
+
+### Fixed
+
+- **`installer/install.sh`** now honors a `BREATHLINE_STATE` env var (defaults
+  to `$HOME/.breathline-state.yaml` for backward compatibility).
+- **`installer/upgrade.sh`** same fix.
+- **`installer/status.sh`** already had this pattern (no change); v0.5.1 brings
+  install.sh + upgrade.sh in line with it.
+
+### Usage
+
+For isolated installs, pass both vars together:
+```bash
+BREATHLINE_PREFIX=/tmp/breathline-test \
+BREATHLINE_STATE=/tmp/breathline-test/.breathline-state.yaml \
+  ./installer/install.sh --tier executive --skip-breath-gate
+```
+This ensures the global `~/.breathline-state.yaml` of the real installed node
+is never touched.
+
+### Migration
+
+- v0.5.0 → v0.5.1 is a **patch with zero schema changes**. Existing nodes
+  upgrade with `breathline upgrade` (no migration). The fix only affects
+  *isolated* installs that override `BREATHLINE_PREFIX`; default behavior is
+  unchanged.
+
+---
+
 ## [v0.5.0] — 2026-05-08
 
 ### Phase 5 thin-layer LangGraph wrap for the Series 2 Family triad. Publishing pipeline orchestrator skeleton. Smarter doctor.

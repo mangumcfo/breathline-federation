@@ -333,7 +333,11 @@ breath_gate() {
 # Persist node state file
 # ----------------------------------------------------------------
 write_node_state() {
-  local statefile="$HOME/.breathline-state.yaml"
+  # v0.5.1: honor BREATHLINE_STATE env var (matches status.sh pattern). When
+  # callers pass BREATHLINE_PREFIX=/tmp/foo for an isolated install, they should
+  # also pass BREATHLINE_STATE=/tmp/foo/.breathline-state.yaml to avoid touching
+  # the global state file.
+  local statefile="${BREATHLINE_STATE:-$HOME/.breathline-state.yaml}"
   local node_id
   node_id="$(python3 -c 'import uuid; print(uuid.uuid4())')"
   local ts

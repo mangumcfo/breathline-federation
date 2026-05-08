@@ -182,7 +182,8 @@ if [[ -d "$PREFIX/platform/.venv" ]]; then
   ( cd "$PREFIX/platform" && .venv/bin/python -m pytest --tb=no -q 2>&1 | tail -3 ) | sed 's/^/    /'
 fi
 
-STATEFILE="$HOME/.breathline-state.yaml"
+# v0.5.1: honor BREATHLINE_STATE env var (matches install.sh + status.sh pattern)
+STATEFILE="${BREATHLINE_STATE:-$HOME/.breathline-state.yaml}"
 if [[ -f "$STATEFILE" ]]; then
   ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
   if grep -q "installed_version:" "$STATEFILE"; then
