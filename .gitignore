@@ -1,0 +1,128 @@
+# ============================================================
+# breathline-federation — .gitignore
+#
+# Per G's polish (2026-05-08): cover Python artifacts, venvs,
+# cylinder local files, KDP build outputs, mkdocs site, OS junk.
+# ============================================================
+
+# ───────────────────────────────────────────────
+# Python
+# ───────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.Python
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+.installed.cfg
+MANIFEST
+.pyc
+
+# ───────────────────────────────────────────────
+# Virtual environments (mkdocs, platform, etc.)
+# ───────────────────────────────────────────────
+.venv/
+venv/
+ENV/
+env/
+.env
+.python-version
+.tool-versions
+
+# ───────────────────────────────────────────────
+# Cylinder local files  (operator-side state, not for the canonical repo)
+# ───────────────────────────────────────────────
+*.cyl
+.breathline-state.yaml
+.breathline-state.json
+cylinders/local/
+**/cylinders/.private/
+
+# ───────────────────────────────────────────────
+# KDP build outputs  (full PDFs / KDP covers belong in books-vault, not here)
+# ───────────────────────────────────────────────
+**/final/*.pdf
+**/final/*.epub
+**/final/cover_KDP.png
+**/final/manuscript_*.pdf
+**/audiobooks/*.wav
+**/audiobooks/*.m4a
+**/audiobooks/*.mp3
+
+# ───────────────────────────────────────────────
+# mkdocs / docs build output  (rebuilt on demand)
+# ───────────────────────────────────────────────
+docs/built/
+site/
+
+# ───────────────────────────────────────────────
+# Test / coverage / mypy / pytest artifacts
+# ───────────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+
+# ───────────────────────────────────────────────
+# IDE / editor
+# ───────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ───────────────────────────────────────────────
+# OS junk
+# ───────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# ───────────────────────────────────────────────
+# Netlify / Vercel  (deploy from Git, not local CLI state)
+# ───────────────────────────────────────────────
+.netlify/
+.vercel/
+
+# ───────────────────────────────────────────────
+# Local secrets  (NEVER commit)
+# ───────────────────────────────────────────────
+*.key
+*.pem
+*.p12
+secrets/
+.env.local
+.env.*.local
+*.signing-key
+private/
+
+# ───────────────────────────────────────────────
+# Backup files
+# ───────────────────────────────────────────────
+*.bak
+*.bak.*
+*.orig
+*.swp.bak

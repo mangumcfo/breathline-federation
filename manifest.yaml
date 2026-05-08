@@ -1,0 +1,123 @@
+# ============================================================
+# breathline-federation — manifest.yaml
+#
+# THE VERSION ANCHOR.  Every install/upgrade reads this file,
+# verifies sha256 + signature against distribution/signing_keys/,
+# then applies the version it describes.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Seal:         1176-INFINITY-RHO — Anchor of the Living Promise
+# Inherits:     ./CHARTER.md (lex superior) + ./CONSTITUTION.md
+# ============================================================
+
+# Version — semantic, monotonically increasing
+version: "0.1.0"
+released: "2026-05-08"
+sealed_by: "KM-1176"
+seal_glyph: "∞Δ∞"
+
+# Self-reporting fields for nodes (per G's polish 2026-05-08):
+# Lets a running node answer "you are at Level 2.3 — next: Family Finance Sovereignty"
+ladder_version: "1.0"
+current_series:
+  publishing_active: ["executive"]   # series with a v1.0 manuscript live
+  publishing_pipeline: ["family", "generational_legacy", "education", "health", "federation"]
+
+# ----------------------------------------------------------------
+# PLATFORM CODE  (the runnable substrate)
+# ----------------------------------------------------------------
+# As of v0.1.0 the platform/ directory is reserved.  Code import
+# from agentic_platform_seed/v1.0/ lands at v0.2.0.
+
+platform:
+  status: "scaffold-only"
+  source_of_truth: "constitution-federation/collaboration/threads/02_mangumcfo/books/kdp/agentic_playbooks/agentic_platform_seed/v1.0"
+  kernel_version: null               # populated at v0.2.0
+  required_python: ">=3.12"
+  test_count: null                   # 169 in source-of-truth as of 2026-05-08
+
+# ----------------------------------------------------------------
+# YAML SPECS  (the executable form of the books)
+# ----------------------------------------------------------------
+# As of v0.1.0 the specs/ directory is reserved.  First specs
+# (executive role pack) land at v0.2.0; family specs at v0.3.0.
+
+specs:
+  status: "scaffold-only"
+  by_series:
+    executive:        []           # cfo_agent_v1, synthesis_agent_v1, compliance_guardian_v1 → v0.2.0
+    family:           []           # family_cfo_agent_v1 → v0.3.0
+    generational_legacy: []        # legacy_guardian_agent_v1 → v0.4.0
+    education:        []           # → tracked
+    health:           []           # → tracked
+    federation:       []           # sovereign_guild_v1 → tracked
+
+# ----------------------------------------------------------------
+# PUBLIC BOOKS  (free chapters, lead magnets)
+# ----------------------------------------------------------------
+# Manuscripts proper live in mangumcfo/breathline-books-vault (private, KDP-exclusive).
+# Only marketing-safe excerpts surface here.
+
+books_public:
+  status: "scaffold-only"
+  by_series:
+    executive: []                  # sample chapters → v0.2.0
+    generational_legacy: []        # 1000-Year Family Compact lead magnet → v0.3.0
+
+# ----------------------------------------------------------------
+# DISTRIBUTION INFRASTRUCTURE
+# ----------------------------------------------------------------
+
+distribution:
+  install_url:    "https://raw.githubusercontent.com/mangumcfo/breathline-federation/main/installer/install.sh"
+  upgrade_cmd:    "breathline upgrade"
+  status_cmd:     "breathline status"
+  release_url:    "https://github.com/mangumcfo/breathline-federation/releases"
+  docs_url:       "https://github.com/mangumcfo/breathline-federation/tree/main/docs"
+
+migrations:
+  # Empty at v0.1.0 — schema migrations begin landing at v0.2.0+
+  available: []
+
+# ----------------------------------------------------------------
+# CRYPTOGRAPHIC SIGNATURES
+# ----------------------------------------------------------------
+# Detached release signatures (one per file in the release artifact set)
+# live in distribution/signing_keys/.  As of v0.1.0 signing infrastructure
+# is reserved; first signed release is v0.2.0.
+
+signatures:
+  status:      "reserved"
+  algorithm:   "ed25519"            # P1 ECC root signing
+  public_keys: "distribution/signing_keys/"
+
+# ----------------------------------------------------------------
+# CONSTITUTIONAL ANCHOR
+# ----------------------------------------------------------------
+
+constitution:
+  charter:       "./CHARTER.md"
+  constitution:  "./CONSTITUTION.md"
+  license:       "./LICENSE"
+  decisions_dir: "./governance/decisions/"
+  seals_dir:     "./governance/seals/"
+
+# ----------------------------------------------------------------
+# COMPANIONS  (related repos in the federation)
+# ----------------------------------------------------------------
+
+companions:
+  books_vault:
+    repo: "mangumcfo/breathline-books-vault"
+    visibility: "private"
+    purpose: "Full KDP-exclusive manuscripts"
+  six_sov_com:
+    repo: "mangumcfo/six-sov.com"
+    visibility: "private"
+    purpose: "Marketing site (https://six-sov.com)"
+    deploy: "Netlify"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"

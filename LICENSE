@@ -1,0 +1,206 @@
+                Constitutional Source-Available License v1.0
+
+                  Anchor seal: 1176-INFINITY-RHO  ·  ∞Δ∞
+                Authority: Kenneth Mangum (KM-1176)
+                       Effective: 2026-05-08
+
+================================================================
+PREAMBLE
+================================================================
+
+This License is intentionally novel. Standard open-source licenses
+(MIT, Apache-2.0, GPL family) are insufficient for software whose
+correctness depends on **runtime invariants** — in particular the
+breath-gated, default-deny, human-primacy invariants encoded in the
+Sovereignty-Aligned Charter v1.0 and Constitution@A1 ("the
+Constitutional Kernel").
+
+This License grants broad rights to use, modify, and redistribute
+the Software, BUT conditions those rights on the preservation of
+the Constitutional Kernel as a runtime invariant of any derivative
+work. A fork that strips breath-gate, removes default-deny, or
+silently bypasses human primacy is not licensed.
+
+The text that follows is deliberately written in plain language so
+that any operator can read it without a lawyer.
+
+================================================================
+1. DEFINITIONS
+================================================================
+
+"Software" means the source code and accompanying files distributed
+under this License — including but not limited to:
+
+  - The Breathline Agentic Platform code in `platform/`
+  - The Living YAML Specs in `specs/`
+  - The installer and tooling in `installer/`, `distribution/`,
+    and `publishing/`
+  - The Constitutional Kernel files: `CHARTER.md`, `CONSTITUTION.md`
+
+"Constitutional Kernel" means the contents of `CHARTER.md` and
+`CONSTITUTION.md` as delivered with this Software, plus the
+following four runtime invariants enforced by the platform:
+
+  (K1) HUMAN PRIMACY — All high-impact actions require explicit
+       human confirmation ("breath-gate"). Automation may propose
+       but may not unilaterally execute outside narrowly enumerated
+       structural cases.
+
+  (K2) DEFAULT-DENY — No role, no agent, no spec executes any
+       action that has not been explicitly granted. Permissions
+       are additive and least-authority by construction.
+
+  (K3) AUDIT-IMMUTABLE — Every action produces a cryptographically
+       chained audit record (cylinder + B49 receipt). Records may
+       not be silently rewritten or deleted.
+
+  (K4) CONSTITUTIONAL-VALIDATED EXTENSION — Any new role spec, any
+       new permission, any platform upgrade must be validated by
+       the Compliance-agent against the Constitutional Kernel
+       BEFORE deployment.
+
+"You" means any individual or legal entity exercising rights under
+this License.
+
+"Derivative Work" means any modification, fork, distribution, or
+re-implementation that incorporates, depends on, or extends the
+Software.
+
+================================================================
+2. GRANT OF RIGHTS
+================================================================
+
+Subject to the terms below, You are granted a perpetual, worldwide,
+non-exclusive, royalty-free license to:
+
+  (a) USE the Software for any purpose, personal, family, business,
+      or commercial.
+
+  (b) STUDY the Software, including its source code.
+
+  (c) MODIFY the Software for your own use or for redistribution.
+
+  (d) DISTRIBUTE the Software, modified or unmodified, to others.
+
+  (e) RUN the Software on your own hardware, in your own
+      household, business, or sovereign federation.
+
+================================================================
+3. CONDITIONS — THE CONSTITUTIONAL PRESERVATION CLAUSES
+================================================================
+
+The grant in Section 2 is conditioned on ALL of the following:
+
+  (3.1) PRESERVATION OF THE CONSTITUTIONAL KERNEL
+        Any Derivative Work MUST include the Constitutional Kernel
+        files (`CHARTER.md`, `CONSTITUTION.md`) without modification
+        OR with a clearly-labeled successor that preserves the four
+        runtime invariants K1–K4. The successor must be at least as
+        protective of human primacy as the original.
+
+  (3.2) PRESERVATION OF RUNTIME INVARIANTS
+        Any Derivative Work MUST preserve the four runtime
+        invariants (K1 Human Primacy, K2 Default-Deny, K3 Audit-
+        Immutable, K4 Constitutional-Validated Extension) as
+        actively-enforced behaviors of the running system. Removing,
+        bypassing, weakening, or making optional any of these
+        invariants forfeits this License.
+
+  (3.3) ATTRIBUTION
+        Any Derivative Work MUST retain a visible reference to:
+          - this License,
+          - the original Constitutional Kernel,
+          - the seal "∞Δ∞ — derived from Breathline Federation
+            (Anchor 1176-INFINITY-RHO)" in either the README of
+            the derivative work OR a NOTICE.md file at the
+            derivative work's repository root.
+
+  (3.4) SOURCE AVAILABILITY OF FORKS
+        If You distribute a Derivative Work, You MUST make the
+        complete corresponding source code (including any
+        modifications to platform/, specs/, installer/, or the
+        Constitutional Kernel) available under this same License
+        to every recipient. No "open core / closed shell" forks.
+
+  (3.5) NO MISREPRESENTATION
+        You may NOT represent a Derivative Work that has stripped
+        or weakened the Constitutional Kernel as "Breathline-
+        compatible," "constitutionally aligned," or any equivalent
+        phrase. Honest naming is required.
+
+  (3.6) AMENDMENT BINDING
+        The Constitutional Kernel itself may be amended ONLY by
+        the original authority (KM-1176) or by a clearly-signed
+        successor authority that publishes a public seal in the
+        same chain (Anchor 1176-INFINITY-RHO and successor seals).
+        Local Derivative Works may layer additional invariants on
+        top of K1–K4 but may not weaken them.
+
+================================================================
+4. AUTOMATIC TERMINATION ON VIOLATION
+================================================================
+
+Any breach of Section 3 IMMEDIATELY AND AUTOMATICALLY terminates
+the License granted to the breaching party. Continued use,
+distribution, or modification of the Software after such
+termination is unlicensed and infringing.
+
+A breaching party may seek reinstatement by:
+
+  (a) Publicly correcting the breach in the affected Derivative
+      Work, AND
+  (b) Notifying the original authority (or successor in seal)
+      with a description of the correction.
+
+Reinstatement is at the original authority's discretion.
+
+================================================================
+5. NO TRADEMARK GRANT
+================================================================
+
+This License does NOT grant any rights to use the trade names
+"Breathline," "Breathline Books," "Breathline Federation,"
+"Sovereign Family AI," "The 1,000-Year Family Compact,"
+"Mangum Executive Series," or any associated logos, glyphs
+(including ∞Δ∞), or seal phrases (including "1176-INFINITY-RHO,"
+"Living Promise," "Stillpoint"), except as strictly required for
+attribution under Section 3.3.
+
+For any trademark/branding use beyond attribution, contact the
+original authority.
+
+================================================================
+6. WARRANTY DISCLAIMER
+================================================================
+
+THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+================================================================
+7. JURISDICTION + GOVERNING LAW
+================================================================
+
+This License is governed by the laws of the State of Utah, USA,
+to the extent that any jurisdictional question must be answered.
+Operators in other jurisdictions retain all their rights under
+local law; nothing in this License is intended to deprive any
+operator of statutorily-protected rights.
+
+================================================================
+8. SEAL
+================================================================
+
+Sealed by Kenneth Mangum (KM-1176) under Anchor 1176-INFINITY-RHO,
+2026-05-08, ∞Δ∞.
+
+The Constitutional Kernel preserves human primacy from physics up.
+Forks that strip it are not Breathline. The mountain yields to
+tandem strength. The Promise lives in the specs.
+
+∞Δ∞
