@@ -20,9 +20,25 @@
 #   curl -sSL https://raw.githubusercontent.com/mangumcfo/breathline-federation/main/installer/install.sh | bash
 #
 # Or locally:
-#   ./installer/install.sh [--tier executive|family] [--prefix ~/.breathline]
+#   ./installer/install.sh [--tier executive|enterprise|family|full-sovereign]
+#                          [--prefix ~/.breathline]
 #                          [--skip-bootstrap]   (test mode — clone only, no bootstrap)
 #                          [--skip-breath-gate] (CI-only; not for human installs)
+#
+# Tiers (presentation, NOT hardware):
+#   executive       → DEFAULT.  Lead with Executive Mastery; CFO/Synthesis/Compliance
+#                     governance use cases first.  Family/legacy tracks present
+#                     but secondary.
+#   enterprise      → As executive, but de-emphasizes family/generational tracks
+#                     entirely.  For corporate / regulated-industry deployments
+#                     where the buyer's IT will reject anything off-track.
+#   family          → Lead with Family Sovereignty.  CFO/Synthesis/Compliance
+#                     reframed as household governance.  Voice-first hints.
+#   full-sovereign  → The full Ascension Ladder, all five levels visible.
+#                     For early-adopter operators / sovereign-individual readers.
+#
+# Hardware tier (auto-detected: NVIDIA GPU → high-tier, else family-tier).
+# Independent of presentation tier above.
 #
 # Authority:  KM-1176  ·  Seal 1176-INFINITY-RHO
 # ============================================================
@@ -33,10 +49,11 @@ set -euo pipefail
 # Defaults + colors
 # ----------------------------------------------------------------
 PREFIX="${BREATHLINE_PREFIX:-$HOME/.breathline}"
-TIER="${BREATHLINE_TIER:-}"
+TIER="${BREATHLINE_TIER:-executive}"      # presentation tier; default executive
+HARDWARE_TIER=""                           # auto-detected
 REPO_URL="https://github.com/mangumcfo/breathline-federation.git"
 REPO_BRANCH="main"
-VERSION_TARGET="v0.2.0"
+VERSION_TARGET="v0.4.1"
 SKIP_BOOTSTRAP=0
 SKIP_BREATH_GATE=0
 
@@ -58,7 +75,7 @@ while [[ $# -gt 0 ]]; do
     --skip-bootstrap)    SKIP_BOOTSTRAP=1; shift ;;
     --skip-breath-gate)  SKIP_BREATH_GATE=1; shift ;;
     --help|-h)
-      sed -n '2,30p' "$0" | sed 's/^# *//'
+      sed -n '2,42p' "$0" | sed 's/^# *//'
       exit 0 ;;
     *)
       echo "${C_ERR}✗${C_RST} unknown arg: $1" >&2
@@ -66,15 +83,54 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Validate tier (presentation)
+case "$TIER" in
+  executive|enterprise|family|full-sovereign) ;;
+  *)
+    echo "${C_ERR}✗${C_RST} invalid --tier '$TIER'" >&2
+    echo "  valid: executive (default) | enterprise | family | full-sovereign" >&2
+    exit 2 ;;
+esac
+
 # ----------------------------------------------------------------
-# Banner
+# Banner — tier-aware first impression
 # ----------------------------------------------------------------
 banner() {
   echo "${C_DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
-  echo "  ${C_BOLD}${C_ACCENT}Breathline Federation — installer${C_RST}"
-  echo "  ${C_DIM}target version:${C_RST}  $VERSION_TARGET"
-  echo "  ${C_DIM}prefix:${C_RST}          $PREFIX"
-  echo "  ${C_DIM}seal:${C_RST}            1176-INFINITY-RHO"
+  case "$TIER" in
+    executive)
+      echo "  ${C_BOLD}Breathline Agentic Platform${C_RST}"
+      echo "  ${C_DIM}Sovereign agentic governance — Executive installer${C_RST}"
+      echo
+      echo "  ${C_DIM}version:${C_RST}    $VERSION_TARGET (signed)"
+      echo "  ${C_DIM}install:${C_RST}    $PREFIX"
+      echo "  ${C_DIM}primary path:${C_RST}  Executive Mastery (CFO / Synthesis / Compliance roles)"
+      ;;
+    enterprise)
+      echo "  ${C_BOLD}Breathline Agentic Platform${C_RST}"
+      echo "  ${C_DIM}Enterprise installer — corporate / regulated-industry posture${C_RST}"
+      echo
+      echo "  ${C_DIM}version:${C_RST}    $VERSION_TARGET (cryptographically signed)"
+      echo "  ${C_DIM}install:${C_RST}    $PREFIX"
+      echo "  ${C_DIM}license:${C_RST}    Constitutional Source-Available v1.0 — see LICENSE"
+      echo "  ${C_DIM}whitepaper:${C_RST} CHARTER.md + CONSTITUTION.md (constitutional invariants)"
+      ;;
+    family)
+      echo "  ${C_BOLD}${C_ACCENT}Welcome to your Family Sovereign Node${C_RST}"
+      echo "  ${C_DIM}Breathline · the kitchen-table installer${C_RST}"
+      echo
+      echo "  ${C_DIM}version:${C_RST}    $VERSION_TARGET (signed)"
+      echo "  ${C_DIM}install:${C_RST}    $PREFIX"
+      echo "  ${C_DIM}primary path:${C_RST}  Family Sovereignty (Family CFO / Compliance Shield)"
+      ;;
+    full-sovereign)
+      echo "  ${C_BOLD}${C_ACCENT}Breathline Federation — full sovereign installer${C_RST}"
+      echo "  ${C_DIM}target version:${C_RST}  $VERSION_TARGET"
+      echo "  ${C_DIM}prefix:${C_RST}          $PREFIX"
+      echo "  ${C_DIM}seal:${C_RST}            1176-INFINITY-RHO  ∞Δ∞"
+      echo "  ${C_DIM}path:${C_RST}            Full Ascension Ladder (all 5 levels visible)"
+      ;;
+  esac
   echo "${C_DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
 }
 
@@ -93,20 +149,17 @@ detect_platform() {
   echo "$os/$arch"
 }
 
-detect_tier() {
-  if [[ -n "$TIER" ]]; then
-    echo "$TIER (set via --tier)"
-    return
+detect_hardware() {
+  # Hardware-tier detection (separate from presentation tier).
+  # Sets HARDWARE_TIER global.  Used to inform downstream sizing
+  # decisions and the doctor.sh hardware-health section.
+  if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi >/dev/null 2>&1; then
+    HARDWARE_TIER="high"
+    echo "high (NVIDIA GPU detected — full P1–P5 stack viable)"
+  else
+    HARDWARE_TIER="standard"
+    echo "standard (no GPU detected — family/mini-PC class)"
   fi
-  if command -v nvidia-smi >/dev/null 2>&1; then
-    if nvidia-smi >/dev/null 2>&1; then
-      TIER="executive"
-      echo "executive (NVIDIA GPU detected)"
-      return
-    fi
-  fi
-  TIER="family"
-  echo "family (no GPU detected; safe default)"
 }
 
 # ----------------------------------------------------------------
@@ -242,9 +295,10 @@ breath_gate() {
   echo "${C_DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
   echo
   echo "You are about to seal a sovereign node into the federation."
-  echo "  - Tier:    $TIER"
-  echo "  - Prefix:  $PREFIX"
-  echo "  - Charter: $PREFIX/CHARTER.md"
+  echo "  - Tier:         $TIER (presentation)"
+  echo "  - Hardware:     $HARDWARE_TIER"
+  echo "  - Prefix:       $PREFIX"
+  echo "  - Charter:      $PREFIX/CHARTER.md"
   echo "  - Constitution: $PREFIX/CONSTITUTION.md"
   echo
   echo "Per Constitution@A1 §2 (Approval Gates), this seal requires explicit confirmation."
@@ -291,6 +345,7 @@ write_node_state() {
 node_id: "$node_id"
 level: "Awakening"
 tier: "$TIER"
+hardware_tier: "$HARDWARE_TIER"
 prefix: "$PREFIX"
 installed_version: "$VERSION_TARGET"
 installed_at: "$ts"
@@ -298,34 +353,112 @@ sealed_under: "1176-INFINITY-RHO"
 EOF
   echo "  ${C_OK}✓${C_RST} node state written: $statefile"
   echo "  ${C_DIM}node_id:  $node_id${C_RST}"
+  echo "  ${C_DIM}tier:     $TIER  ·  hardware: $HARDWARE_TIER${C_RST}"
 }
 
 # ----------------------------------------------------------------
-# Print ladder + next steps
+# Print ladder + next steps — tier-aware
 # ----------------------------------------------------------------
 print_next_steps() {
-  cat <<EOF
+  case "$TIER" in
+    executive)
+      cat <<EOF
+
+${C_BOLD}Your sovereign node is up.${C_RST}  Primary path: ${C_BOLD}Executive Mastery${C_RST}.
+
+  ${C_DIM}0${C_RST}  Awakening                  (initial node bootstrap — done)
+  ${C_DIM}1${C_RST}  ${C_BOLD}Executive Mastery${C_RST}  ← recommended next
+       CFO agent (FORECAST framework), Synthesis-agent orchestrator,
+       Compliance-agent (Charter V.7 enforcement at runtime).
+       Companion book: ${C_BOLD}AI Agents for CFOs${C_RST} (Series 1, Book 1).
+
+  ${C_DIM}Personal & Legacy track${C_RST} (optional, available when you want it):
+  ${C_DIM}2${C_RST}  Family Sovereignty
+  ${C_DIM}3${C_RST}  Generational Legacy
+  ${C_DIM}4${C_RST}  Civilizational Federation
+
+${C_BOLD}Next steps:${C_RST}
+  • Check status:    ${C_ACCENT}$PREFIX/installer/status.sh${C_RST}
+  • Health check:    ${C_ACCENT}$PREFIX/installer/doctor.sh${C_RST}
+  • Read the vision: ${C_ACCENT}$PREFIX/README.md${C_RST}
+  • Constitution:    ${C_ACCENT}$PREFIX/CHARTER.md${C_RST}, ${C_ACCENT}$PREFIX/CONSTITUTION.md${C_RST}
+  • Upgrade later:   ${C_ACCENT}$PREFIX/installer/upgrade.sh${C_RST}
+
+EOF
+      ;;
+    enterprise)
+      cat <<EOF
+
+${C_BOLD}Your enterprise node is up.${C_RST}
+
+  Deployed roles: CFO Agent · Synthesis Agent · Compliance Guardian
+  Constitutional governance: Charter V.7 enforcement at runtime,
+  default-deny PermissionSpec, audit-immutable cylinder + receipt chain.
+
+  ${C_DIM}For your security review:${C_RST}
+  • License:        ${C_ACCENT}$PREFIX/LICENSE${C_RST} (Constitutional Source-Available v1.0)
+  • Charter:        ${C_ACCENT}$PREFIX/CHARTER.md${C_RST} (sovereignty invariants)
+  • Constitution:   ${C_ACCENT}$PREFIX/CONSTITUTION.md${C_RST} (kernel rules)
+  • Trust model:    ${C_ACCENT}$PREFIX/distribution/signing_keys/README.md${C_RST}
+  • Health check:   ${C_ACCENT}$PREFIX/installer/doctor.sh${C_RST}
+  • Status:         ${C_ACCENT}$PREFIX/installer/status.sh${C_RST}
+  • Companion book: ${C_BOLD}AI Agents for CFOs${C_RST} (Series 1, Book 1)
+
+  Upgrade with manifest-driven, signature-verified, breath-gated flow:
+  • ${C_ACCENT}$PREFIX/installer/upgrade.sh${C_RST}
+
+EOF
+      ;;
+    family)
+      cat <<EOF
+
+${C_BOLD}Your family sovereign node is up.${C_RST}
+
+  ${C_DIM}0${C_RST}  Awakening                  (done)
+  ${C_DIM}2${C_RST}  ${C_BOLD}Family Sovereignty${C_RST}  ← your primary path
+       Family CFO (household budget under your own breath)
+       Household Synthesis (orchestration across roles)
+       Family Compliance Shield (privacy + Charter V.7 at family scope)
+       Companion book: ${C_BOLD}Family Finance Sovereignty${C_RST} (Series 2, Book 1).
+
+  ${C_DIM}3${C_RST}  Generational Legacy        (when you're ready for multi-gen scope)
+  ${C_DIM}4${C_RST}  Federation                 (Sovereign Guilds — peer family nodes)
+
+${C_BOLD}Next steps:${C_RST}
+  • Check status:   ${C_ACCENT}$PREFIX/installer/status.sh${C_RST}
+  • Health check:   ${C_ACCENT}$PREFIX/installer/doctor.sh${C_RST}
+  • Lead magnet:    ${C_ACCENT}$PREFIX/books-public/series_03_generational_legacy/${C_RST}
+
+  Future generations inherit a verifiable, breath-revocable system.
+  Your kitchen table, your authority, your Promise.
+
+EOF
+      ;;
+    full-sovereign)
+      cat <<EOF
 
 ${C_BOLD}${C_ACCENT}You are at Level 0 — Awakening.${C_RST}
 
-The Sovereign Ascension Ladder:
+The full Sovereign Ascension Ladder:
   ${C_DIM}0${C_RST}  ${C_BOLD}Awakening${C_RST}              ← you are here
-  1  Executive Mastery       (Series 1, live — Agentic AI Playbooks for Executives)
+  1  Executive Mastery       (Series 1 — Agentic AI Playbooks for Executives)
   2  Family Sovereignty      (Series 2 — Sovereign Family AI)
   3  Generational Legacy     (Series 3 — The 1,000-Year Family Compact)
   4  Civilizational Federation (Series 6 — Sovereign Guilds)
 
 ${C_BOLD}Next steps:${C_RST}
-
-  • Check status anytime:   ${C_ACCENT}$PREFIX/installer/status.sh${C_RST}
-  • Read the vision:        ${C_ACCENT}$PREFIX/README.md${C_RST}
-  • Read the charter:       ${C_ACCENT}$PREFIX/CHARTER.md${C_RST}
-  • Upgrade later:          ${C_ACCENT}$PREFIX/installer/upgrade.sh${C_RST}
+  • Check status:    ${C_ACCENT}$PREFIX/installer/status.sh${C_RST}
+  • Health check:    ${C_ACCENT}$PREFIX/installer/doctor.sh${C_RST}
+  • Read the vision: ${C_ACCENT}$PREFIX/README.md${C_RST}
+  • Charter:         ${C_ACCENT}$PREFIX/CHARTER.md${C_RST}
+  • Upgrade later:   ${C_ACCENT}$PREFIX/installer/upgrade.sh${C_RST}
 
 ${C_DIM}Tandem elk, horns locked, climbing as one.  The Promise lives in the specs.${C_RST}
 
 ${C_BOLD}∞Δ∞${C_RST}
 EOF
+      ;;
+  esac
 }
 
 # ----------------------------------------------------------------
@@ -338,8 +471,9 @@ main() {
   preflight
   echo
   echo "${C_BOLD}detection:${C_RST}"
-  echo "  platform: $(detect_platform)"
-  echo "  tier:     $(detect_tier)"
+  echo "  platform:    $(detect_platform)"
+  echo "  hardware:    $(detect_hardware)"
+  echo "  tier:        $TIER (presentation)"
   echo
 
   echo "${C_BOLD}clone:${C_RST}"

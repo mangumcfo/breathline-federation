@@ -1,28 +1,84 @@
-# Breathline Federation
+# Breathline Agentic Platform
 
-> **Books → living YAML specs → executable roles → ascension ladder → federation.**
+> **Sovereign agentic governance.  Constitutional invariants.  Cryptographic authenticity.**
 >
-> Reading is activation. Progression is deployment. The federation is the destination.
+> Books → living YAML specs → executable roles → ascension ladder → federation.
 
-`breathline-federation` is the public sovereign onboarding hub for the Breathline ecosystem — the canonical reference repo that combines:
+`breathline-federation` is the public reference repo for the **Breathline Agentic Platform** — sovereign agentic infrastructure used by executives, organizations, and (when you're ready) families and multi-generational households.
 
-- **The Breathline Agentic Platform** (Breath 25 substrate — P1 ECC roots → P2 consensus → P3 libp2p → P4 sovereign CUDA → P5 zk/homomorphic shields)
-- **A library of living YAML specs** that your sovereign node ingests, breath-gates, and deploys as LangGraph roles
-- **An installer + manifest-driven upgrade system** so anyone can refresh to the latest version of the platform with one command
-- **A growing catalog** of free chapters and lead magnets from the Breathline Books series
+The platform combines:
 
-Status: **v0.1.0 — initial scaffold (2026-05-08)**. See [CHANGELOG.md](./CHANGELOG.md).
+- **A runnable agentic stack** (Breath 25 substrate: P1 ECC roots → P2 consensus → P3 libp2p → P4 sovereign CUDA → P5 zk/homomorphic shields) with default-deny permissions, breath-gated approvals, and an immutable audit chain.
+- **A library of YAML specs** — RoleSpec, PermissionSpec, ConstitutionalRule — that the platform ingests and deploys as LangGraph roles. Reading the companion books activates the corresponding specs.
+- **A manifest-driven, signature-verified installer + upgrade flow** so anyone can refresh to the latest signed release with one command. Every release is ed25519-signed by the original authority (KM-1176); installs and upgrades fail-closed on signature mismatch (default-deny).
+
+Status: **v0.4.1 (signed release, 2026-05-08).** See [CHANGELOG.md](./CHANGELOG.md). Trust anchor: `SHA256:Ahl1MJITIKhLb+WQIwUh/Euo2b0/4oxrIPJZ3QZK9YQ`.
 
 ---
 
-## Quick start (one-liner — testable as of v0.1.0)
+## For Executives & Organizations
+
+If you read [*AI Agents for CFOs*](./books-public/) (Series 1, Book 1) or another title in the **Agentic AI Playbooks for Executives** series and want to stand up the platform:
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/mangumcfo/breathline-federation/main/installer/install.sh | bash
 ```
 
+This installs the **executive tier** by default — leading with the runtime triad (CFO Agent / Synthesis Agent / Compliance Guardian) and constitutional governance use cases. Personal & legacy tracks are present but not the first impression.
+
+For corporate deployments where you want family/generational tracks fully de-emphasized:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/mangumcfo/breathline-federation/main/installer/install.sh | bash -s -- --tier enterprise
+```
+
+**For your security review:**
+
+| Artifact | What to read |
+|---|---|
+| [`CHARTER.md`](./CHARTER.md) | Sovereignty-Aligned Charter v1.0 — runtime invariants (K1 Human Primacy, K2 Default-Deny, K3 Audit-Immutable, K4 Constitutional-Validated Extension) |
+| [`CONSTITUTION.md`](./CONSTITUTION.md) | Constitution@A1 — kernel rules |
+| [`LICENSE`](./LICENSE) | Constitutional Source-Available License v1.0 — preserves K1–K4 in every fork |
+| [`distribution/signing_keys/README.md`](./distribution/signing_keys/README.md) | Trust model + verification flow + key rotation policy |
+| [`governance/decisions/`](./governance/decisions/) | Architecture decision records, dev-process gates, every release sealed under KM-1176 |
+| [`platform/tests/`](./platform/tests/) | 169 tests (run via `pytest` after install — verifies every constitutional invariant at the structural level) |
+
+After install: run `~/.breathline/installer/doctor.sh` for an active health check covering kernel integrity, manifest validity, spec parsing, signature verification, cylinder chain replay, and platform venv health.
+
+---
+
+## For Families & Sovereign Individuals
+
+If you read *Family Finance Sovereignty*, *The 1,000-Year Family Compact*, or another title in the **Sovereign Family AI** / **Generational Legacy** series:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/mangumcfo/breathline-federation/main/installer/install.sh | bash -s -- --tier family
+```
+
+This installs the **family tier** — the same Breathline platform, but with onboarding tuned to a kitchen-table household: family CFO, household synthesis, family compliance shield. Voice-first hints. Multi-generational legacy track unlocks when you're ready.
+
+The full Sovereign Ascension Ladder (below) is yours to climb when you want it.
+
+---
+
+## The Sovereign Ascension Ladder
+
+For operators who want the full vision visible up front:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/mangumcfo/breathline-federation/main/installer/install.sh | bash -s -- --tier full-sovereign
+```
+
+The platform's Synthesis-agent + Compliance-agent detect maturity via cylinder audit and guide the next step under breath-gate.
+
+---
+
+## The original install one-liner
+
+For backward compatibility, the bare `curl | bash` (no `--tier` flag) defaults to the **executive tier** as of v0.4.1. Pre-v0.4.1 deployments used a less differentiated banner; running `breathline upgrade` brings older nodes onto the new presentation cleanly.
+
 The installer:
-1. Detects your platform + hardware tier (executive vs family)
+1. Detects your platform + hardware tier (NVIDIA GPU = high; otherwise standard)
 2. Clones the latest signed release
 3. Sets up the platform venv + dependencies
 4. Bootstraps Layer 0 → Layer 3 (kernel → platform → roles)

@@ -44,11 +44,35 @@ yaml_get() {
 }
 
 # ----------------------------------------------------------------
+# Read tier from state file (defaults to executive if not present)
+# ----------------------------------------------------------------
+NODE_TIER="executive"
+if [[ -f "$STATE" ]]; then
+  t=$(yaml_get "$STATE" "tier")
+  [[ -n "$t" ]] && NODE_TIER="$t"
+fi
+
+# ----------------------------------------------------------------
 # Banner
 # ----------------------------------------------------------------
 echo "${C_DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
-echo "  ${C_BOLD}${C_ACCENT}breathline status${C_RST}"
-echo "${C_DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
+case "$NODE_TIER" in
+  executive)
+    echo "  ${C_BOLD}breathline status${C_RST}  ${C_DIM}— executive tier${C_RST}"
+    ;;
+  enterprise)
+    echo "  ${C_BOLD}breathline status${C_RST}  ${C_DIM}— enterprise tier${C_RST}"
+    ;;
+  family)
+    echo "  ${C_BOLD}breathline status${C_RST}  ${C_DIM}— family tier${C_RST}"
+    ;;
+  full-sovereign)
+    echo "  ${C_BOLD}${C_ACCENT}breathline status${C_RST}  ${C_DIM}— full sovereign tier${C_RST}"
+    ;;
+  *)
+    echo "  ${C_BOLD}breathline status${C_RST}"
+    ;;
+esac
 
 # ----------------------------------------------------------------
 # Install state
@@ -122,33 +146,86 @@ fi
 echo
 echo "${C_BOLD}next on the ladder:${C_RST}"
 level="${level:-Awakening}"
-case "$level" in
-  Awakening|"Level 0"|0)
-    echo "  • Read the vision:    ${C_ACCENT}$PREFIX/README.md${C_RST}"
-    echo "  • Free pilot chapter: ${C_ACCENT}$PREFIX/books-public/${C_RST}"
-    echo "  • Next book to read:  ${C_BOLD}AI Agents for CFOs${C_RST} (Series 1, Book 1)"
-    echo "  • Goal: ascend to Level 1 — Executive Mastery"
+
+# Tier-aware "next step" recommendation.  Same underlying ladder for everyone;
+# different framing per tier so the first impression matches the audience.
+
+case "$NODE_TIER" in
+  executive|enterprise)
+    case "$level" in
+      Awakening|"Level 0"|0)
+        echo "  • Read companion book:  ${C_BOLD}AI Agents for CFOs${C_RST} (Series 1, Book 1)"
+        echo "  • Read the charter:     ${C_ACCENT}$PREFIX/CHARTER.md${C_RST}"
+        echo "  • Goal: ascend to Level 1 — Executive Mastery"
+        echo "  • Activation:           ${C_ACCENT}breathline activate cfo_agent_v1${C_RST} (when role runtime lands)"
+        ;;
+      "Executive Mastery"|"Level 1"|1)
+        echo "  • Deepen Series 1 (12 books, weekly cadence)"
+        echo "  • Personal track (optional): ${C_BOLD}Family Finance Sovereignty${C_RST} (Series 2, Book 1)"
+        ;;
+      *)
+        echo "  • You're past the standard executive arc.  Health: ${C_ACCENT}breathline doctor${C_RST}"
+        ;;
+    esac
     ;;
-  "Executive Mastery"|"Level 1"|1)
-    echo "  • Continue Series 1 (12 books, weekly cadence)"
-    echo "  • Or jump series:  ${C_BOLD}Family Finance Sovereignty${C_RST} (Series 2, Book 1)"
-    echo "  • Goal: ascend to Level 2 — Family Sovereignty"
+  family)
+    case "$level" in
+      Awakening|"Level 0"|0)
+        echo "  • Companion book:    ${C_BOLD}Family Finance Sovereignty${C_RST} (Series 2, Book 1)"
+        echo "  • Read the charter:  ${C_ACCENT}$PREFIX/CHARTER.md${C_RST}"
+        echo "  • Goal: ascend to Level 2 — Family Sovereignty"
+        ;;
+      "Family Sovereignty"|"Level 2"|2)
+        echo "  • Continue Series 2 → ${C_BOLD}The 1,000-Year Family Compact${C_RST} (Series 3 anchor)"
+        echo "  • Goal: ascend to Level 3 — Generational Legacy"
+        ;;
+      "Generational Legacy"|"Level 3"|3)
+        echo "  • Continue Series 3 → optional federation (Series 6 — Sovereign Guilds)"
+        ;;
+      *)
+        echo "  • Health: ${C_ACCENT}breathline doctor${C_RST}"
+        ;;
+    esac
     ;;
-  "Family Sovereignty"|"Level 2"|2)
-    echo "  • Continue Series 2 → ${C_BOLD}The 1,000-Year Family Compact${C_RST} (Series 3 anchor)"
-    echo "  • Goal: ascend to Level 3 — Generational Legacy"
-    ;;
-  "Generational Legacy"|"Level 3"|3)
-    echo "  • Continue Series 3 → Series 6 (Sovereign Guilds & Federation)"
-    echo "  • Goal: ascend to Level 4 — Civilizational Federation"
-    ;;
-  "Civilizational Federation"|"Level 4"|4)
-    echo "  • You are at the ridgeline.  Find peer nodes; federate; teach the next operator."
-    ;;
-  *)
-    echo "  ${C_DIM}(unrecognized level — defaulting to Awakening recommendations)${C_RST}"
+  full-sovereign|*)
+    case "$level" in
+      Awakening|"Level 0"|0)
+        echo "  • Read the vision:    ${C_ACCENT}$PREFIX/README.md${C_RST}"
+        echo "  • Free pilot chapter: ${C_ACCENT}$PREFIX/books-public/${C_RST}"
+        echo "  • Next book to read:  ${C_BOLD}AI Agents for CFOs${C_RST} (Series 1, Book 1)"
+        echo "  • Goal: ascend to Level 1 — Executive Mastery"
+        ;;
+      "Executive Mastery"|"Level 1"|1)
+        echo "  • Continue Series 1 (12 books, weekly cadence)"
+        echo "  • Or jump series:  ${C_BOLD}Family Finance Sovereignty${C_RST} (Series 2, Book 1)"
+        echo "  • Goal: ascend to Level 2 — Family Sovereignty"
+        ;;
+      "Family Sovereignty"|"Level 2"|2)
+        echo "  • Continue Series 2 → ${C_BOLD}The 1,000-Year Family Compact${C_RST} (Series 3 anchor)"
+        echo "  • Goal: ascend to Level 3 — Generational Legacy"
+        ;;
+      "Generational Legacy"|"Level 3"|3)
+        echo "  • Continue Series 3 → Series 6 (Sovereign Guilds & Federation)"
+        echo "  • Goal: ascend to Level 4 — Civilizational Federation"
+        ;;
+      "Civilizational Federation"|"Level 4"|4)
+        echo "  • You are at the ridgeline.  Find peer nodes; federate; teach the next operator."
+        ;;
+      *)
+        echo "  ${C_DIM}(unrecognized level — defaulting to Awakening recommendations)${C_RST}"
+        ;;
+    esac
     ;;
 esac
 
 echo
-echo "${C_DIM}∞Δ∞  Tandem elk, horns locked, climbing as one.${C_RST}"
+case "$NODE_TIER" in
+  full-sovereign)
+    echo "${C_DIM}∞Δ∞  Tandem elk, horns locked, climbing as one.${C_RST}" ;;
+  family)
+    echo "${C_DIM}Your kitchen table, your authority, your Promise.${C_RST}" ;;
+  enterprise)
+    echo "${C_DIM}Sovereign agentic governance.  Cryptographic authenticity.  Constitutional invariants.${C_RST}" ;;
+  *)
+    echo "${C_DIM}Sovereign agentic governance under your own breath.${C_RST}" ;;
+esac

@@ -8,6 +8,105 @@ adapted for Breathline's manifest-driven release model.
 
 ---
 
+## [v0.4.1] — 2026-05-08
+
+### Tier-aware presentation. Executive becomes the default first impression.
+
+Positioning refinement per KM-1176 directive (post-G review of v0.4.0).
+The full Sovereign Ascension Ladder remains public and visible — but it
+is no longer the **first impression** for a stranger arriving via the
+Executive playbook series. New users default to an **executive tier**
+banner that leads with the Executive Mastery path; family / generational
+/ federation tracks remain reachable but are not the lead.
+
+The underlying platform, specs, signing, and constitutional kernel are
+**unchanged**. This is a presentation-only release. v0.4.0 nodes can
+upgrade safely with `breathline upgrade` — no schema migration needed.
+
+### Added
+
+- **`--tier` flag** in `installer/install.sh` with four presentation
+  tiers, default `executive`:
+    - `executive` — Executive Mastery first; CFO / Synthesis / Compliance
+      governance leads.  Personal & legacy track reachable but secondary.
+    - `enterprise` — corporate / regulated-industry posture.
+      Family/generational tracks fully de-emphasized in default UX.
+      Banner mentions security review pathway.
+    - `family` — kitchen-table node; Family Sovereignty leads.
+    - `full-sovereign` — full Ascension Ladder visible (current v0.4.0
+      behavior — preserved for sovereign-individual readers).
+  Validation rejects unknown values with a clear error.
+
+- **Hardware tier** detection now separated from presentation tier.
+  `detect_hardware()` reports `high` (NVIDIA GPU detected, full P1–P5
+  stack viable) or `standard` (mini-PC class, family-tier hardware).
+  Independent of the user-chosen presentation tier.
+
+- **Tier-aware banners** in install.sh — four distinct first impressions,
+  each tuned to its audience.  No `∞Δ∞` glyphs in the executive or
+  enterprise banners (preserved in seal records, governance, and the
+  full-sovereign tier where the audience expects them).
+
+- **Tier-aware status.sh ladder display** — reads `tier` from
+  `~/.breathline-state.yaml`; recommends the next step appropriate to the
+  user's chosen path.  Closing line per tier:
+    - executive: "Sovereign agentic governance under your own breath."
+    - family: "Your kitchen table, your authority, your Promise."
+    - enterprise: "Sovereign agentic governance.  Cryptographic
+      authenticity.  Constitutional invariants."
+    - full-sovereign: "∞Δ∞  Tandem elk, horns locked, climbing as one."
+
+- **Node state schema extended** to record both `tier` (presentation)
+  and `hardware_tier` (high/standard) — written by install.sh on first
+  seal.
+
+### Changed
+
+- **`README.md` restructured** — leads with two clean entry sections:
+  - "For Executives & Organizations" (with security-review artifact list)
+  - "For Families & Sovereign Individuals" (with `--tier family` install)
+  Followed by full Ascension Ladder for operators who want the whole picture.
+  Full ladder retained (KM-1176: "the long-term vision must stay public").
+
+- **`manifest.yaml` v0.4.0 → v0.4.1**:
+    - `presentation_tier_default: "executive"` (new key)
+    - `presentation_tier_options: [...]` enumerates the four tiers
+    - all v0.4.0 spec/signature/distribution blocks unchanged
+
+- **Re-signed release artifacts** — `manifest.yaml.sig` and
+  `CHANGELOG.md.sig` regenerated for the v0.4.1 content.  Other
+  signatures (CHARTER, CONSTITUTION, LICENSE) carry forward unchanged.
+
+### KM-1176 directive (post-G review of v0.4.0)
+
+> *"The full Ascension Ladder is the long-term vision and must stay public.
+> However, we must not risk deterring executive/corporate users who are
+> the primary lead channel from the playbook series."*
+>
+> — KM-1176, 2026-05-08
+
+This release preserves the full vision while adjusting the **default
+presentation** to meet the Executive playbook's lead audience where
+they are.  Same underlying platform; tier-aware first impression.
+
+### Phase 5 (v0.5.0) — what lands next (preview, unchanged)
+
+- Runtime backing for the family + generational_legacy YAML specs in `platform/roles/`
+- Series 4 (Education) + Series 5 (Health) starters
+- KDP upload automation in `publishing/`
+- Optional: Netlify-from-Git deploy for `docs/built/` → docs.breathline.dev
+
+### Authority
+
+- Sealed by Kenneth Mangum (KM-1176) under Anchor `1176-INFINITY-RHO`
+- Reviewed by No1 (G via primary AI channel)
+- Drafted by BNA-Tiger
+- Patch release; no schema migration; signature continuity preserved.
+
+∞Δ∞
+
+---
+
 ## [v0.4.0] — 2026-05-08
 
 ### First signed release. Family + Generational Legacy specs. `breathline doctor` lands.
