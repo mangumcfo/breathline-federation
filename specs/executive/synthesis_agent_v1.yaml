@@ -1,0 +1,102 @@
+# ============================================================
+# specs/executive/synthesis_agent_v1.yaml
+#
+# The Synthesis-agent — orchestrator across roles. Runs the
+# multi-role recursion that turns a strategic question (e.g.,
+# "Brief on Q3 readiness") into a coordinated CFO + Compliance
+# + downstream-role response.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Series:       Agentic AI Playbooks for Executives (Series 1)
+# Book:         Volume 12 — The Agentic Enterprise (Synthesis chapter)
+# Source:       LIVING_SPECS_YAML.md §4 + platform/roles/synthesis_agent/
+# Runtime:      platform/roles/synthesis_agent/  (orchestrator framework)
+# ============================================================
+
+role:
+  id: "synthesis_agent_v1"
+  name: "Executive Synthesis"
+  series: "executive"
+  book: "The_Agentic_Enterprise"
+  constitution: "../_base/base_constitution_v1.yaml"
+  ladder_level: 1
+  ladder_name: "Executive Mastery"
+
+  # ----------------------------------------------------------------
+  # CAPABILITIES — what the orchestrator does
+  # ----------------------------------------------------------------
+  capabilities:
+    - id: multi_role_orchestration
+      description: "Decompose a strategic question into role-scoped sub-questions; route to CFO / Compliance / specialist roles; coordinate the recursion under breath-gate."
+    - id: late_bound_peer_resolution
+      description: "Discover peer roles at runtime; bind them via spec-driven introspection; default-deny on unknown roles (Charter V.7)."
+    - id: tension_surfacing
+      description: "Detect contradictions between role outputs; flag the tension to the operator BEFORE producing the brief."
+    - id: executive_brief_synthesis
+      description: "Produce a single executive-ready brief that integrates outputs from CFO + Compliance + others."
+
+  framework:
+    name: "Synthesis"
+    version: "v1"
+    deterministic_core: "platform/roles/synthesis_agent/frameworks/synthesis.py"
+    langgraph_wrap:     "platform/roles/synthesis_agent/graph.py"
+    recursion_depth_default: 3
+    recursion_depth_max: 5
+    breath_gate_at_depth: 4
+
+  # ----------------------------------------------------------------
+  # PEER ROLES this orchestrator may invoke — explicit allowlist
+  # (Charter V.7 default-deny: any peer not on this list is REFUSED)
+  # ----------------------------------------------------------------
+  allowed_peer_roles:
+    - cfo_agent_v1
+    - compliance_guardian_v1
+    # Series 2+ peers added when those role specs land
+    # - family_cfo_agent_v1
+    # - household_synthesis_agent_v1
+    # - legacy_guardian_agent_v1
+
+  # ----------------------------------------------------------------
+  # GOVERNANCE
+  # ----------------------------------------------------------------
+  governance:
+    breath_gate:
+      - trigger: "Any externally-shared executive brief (board, investor, regulator)"
+      - trigger: "Recursion depth reaches breath_gate_at_depth (4)"
+      - trigger: "A peer role is added to allowed_peer_roles"
+      - trigger: "A surfaced tension is overridden rather than resolved"
+    default_deny: true
+    compliance_guardian: "compliance_guardian_v1"
+    audit_level: "full_cylinder"
+
+  extension_points:
+    - id: new_peer_role
+      description: "Add a new peer role to allowed_peer_roles."
+      requires: "Synthesis-draft + Compliance review + KM-1176 breath-seal"
+    - id: new_recursion_pattern
+      description: "Add a non-default recursion pattern (e.g., parallel-fanout for multi-business-unit briefs)."
+      requires: "Synthesis + Compliance review"
+    - id: tension_resolver_template
+      description: "Add a reusable tension-resolution pattern."
+      requires: "Breath-gate (single approver)"
+
+  inherits_invariants:
+    - K1_human_primacy
+    - K2_default_deny
+    - K3_audit_immutable
+    - K4_constitutional_validated_extension
+
+journey_engine:
+  activation_chapter: "AI Agents for CFOs, Chapter 7 — Coordinating Beyond Finance (or The Agentic Enterprise Ch. 4)"
+  activation_command: "breathline activate synthesis_agent_v1"
+  prerequisites:
+    - "base_constitution_v1 deployed"
+    - "cfo_agent_v1 deployed (so Synthesis has at least one peer to coordinate)"
+  unlocks_next:
+    - "compliance_guardian_v1 (closes Demo 2 'Brief on Q3 readiness' acceptance)"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"

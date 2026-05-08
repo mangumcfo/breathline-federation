@@ -8,6 +8,112 @@ adapted for Breathline's manifest-driven release model.
 
 ---
 
+## [v0.3.0] — 2026-05-08
+
+### The book pipeline integrates. Executive role pack lands. Signing infrastructure goes live.
+
+Phase 3 per the architecture record. The orchestration doc is now in
+`publishing/BOOK_DEVELOPMENT.md` as the canonical end-to-end flow; the
+companion private vault `mangumcfo/breathline-books-vault` is populated
+with Series 0 Books 1–5 + the 12 Series 1 scaffolds; the executive role
+pack (Series 1 parents to the family specs) is extracted into
+`specs/executive/`; ed25519 release signing is live with the public key
+committed and trust model documented; and the *1,000-Year Family Compact*
+lead magnet is published.
+
+### Added
+
+#### Publishing pipeline integration (`publishing/`)
+
+- `publishing/BOOK_DEVELOPMENT.md` — **the canonical end-to-end orchestration doc.** 9-stage flow from idea → KDP/ACX/specs-push, with explicit pointers to every SOP, template, and tool. Any agent (human or AI) can run the pipeline from this doc with zero context loss.
+- `publishing/SOP_SERIALIZED_NONFICTION_v1.0.md` and `_v1.1.md` — master SOP for the serialized-nonfiction format (preserved from canonical source; v1.1 is current)
+- `publishing/KDP_PUBLISHING_SOP.md` — Amazon KDP upload SOP
+- `publishing/MULTI_SERIES_ROADMAP_v1.0.md` and `_v1.1.md` — portfolio strategy, idea-scoring framework, parallel cadence
+- `publishing/ILLUSTRATION_STYLE_GUIDE_v1.0.md` — visual identity
+- `publishing/prep_audiobooks.py` — manuscript → ACX-narration text tool
+- `publishing/PROMPT_FOR_GROK_PUBLISHING.md` — cross-AI publishing strategy validation prompt
+
+Total: 8 documents + 1 master orchestration doc — full process preservation per Kenneth's "no dropoff" directive.
+
+#### Series 1 executive role pack (`specs/executive/`) — the parents that family specs inherit from
+
+- `specs/executive/cfo_agent_v1.yaml` — the FORECAST 8-step framework, enterprise CFO role. Parent of `family/family_cfo_agent_v1`. Activates Level 1 — Executive Mastery.
+  - sha256: `966e8b2cbc927685…817a90f45`
+- `specs/executive/synthesis_agent_v1.yaml` — multi-role orchestrator with default-deny on peer roles (Charter V.7 enforced via allowlist). Late-bound peer resolution; tension surfacing; recursion-depth breath-gate at depth 4.
+  - sha256: `429763457449ef97…8f2446a5ce`
+- `specs/executive/compliance_guardian_v1.yaml` — the Charter V.7 enforcement role. Token-scan + Compliance Review frameworks; receipt-taxonomy v0.2 events explicitly enumerated; degraded-mode audit pattern.
+  - sha256: `d2cf404555baa2e0…b7e5147c2`
+
+These three specs complete the **executive triad** — the runtime triple that closes the Demo 2 acceptance ("Brief on Q3 readiness" recursion).
+
+#### ed25519 release-signing infrastructure (`distribution/signing_keys/`)
+
+- `distribution/signing_keys/release_v1.pub` — the live public key. Fingerprint: `SHA256:Ahl1MJITIKhLb+WQIwUh/Euo2b0/4oxrIPJZ3QZK9YQ`. Algorithm: ed25519 (matches platform P1 root layer).
+- `distribution/signing_keys/README.md` — trust model, verification flow, key rotation protocol, compromise response. Documents how a node verifies any signed release artifact via `ssh-keygen -Y verify`.
+
+The corresponding private key is held offline by KM-1176 at
+`~/.config/breathline/release-signing.key` (mode 600) and **never appears in any repo**.
+
+#### *The 1,000-Year Family Compact* lead magnet (`books-public/`)
+
+- `books-public/series_03_generational_legacy/1000_year_family_compact_lead_magnet.md` — 12-page concept-explainer for the Series 3 anchor book. Free under Constitutional Source-Available License. Free-to-share with attribution; the full book is KDP-exclusive.
+  - sha256: `61163c63628df04c…605c7a4e`
+
+#### Books vault populated (companion repo)
+
+- **`mangumcfo/breathline-books-vault`** (private) populated with:
+  - **7 commits** matching G's per-series-batched review preference
+  - **Series 0 Books 1–5:** Strategic Finance, Harnessing AI, Blueprint, XRP, Crypto (text + assets + final PDFs + covers; **WAVs/audio masters excluded** via `.gitignore` — they live local + ACX-direct)
+  - **Series 1 (12 books):** all `agentic_playbooks/<NN>_<topic>/` scaffolds
+  - **`audiobooks/`:** prep tooling + chapter text (no WAV/MP3)
+  - Working tree: ~400 MB; well under GitHub's 5 GB cap
+  - `.gitignore` enforces: `*.wav`, `*.m4a`, `*.flac`, `*.mp3`, `audiobook/section_wavs/`, `chapters_mastered/`, etc.
+
+#### Other
+
+- New `governance/decisions/2026-05-08_dev-process-and-quality-gates.md` (had been written in v0.2.0 but is canonical for Phase 3 execution)
+
+### Changed
+
+- `manifest.yaml` v0.2.0 → v0.3.0:
+  - `specs.by_series.executive` populated with the three new role specs (sha256-pinned)
+  - `books_public.status: scaffold-only → active` with the lead magnet entry
+  - `signatures.status: reserved → active` with the public key fingerprint pinned
+  - New `publishing:` block with orchestration doc + SOP list + cadence + pay gates
+  - `companions.books_vault` updated with `populated_at: 2026-05-08`
+
+### G's polish — incorporated
+
+Per G's review of v0.2.0 (and the Phase 3 directive that followed):
+- ✅ Full SOPs migrated into `publishing/` — zero dropoff
+- ✅ `BOOK_DEVELOPMENT.md` as the canonical end-to-end orchestration doc
+- ✅ Series 0 Books 1–5 + Series 1 scaffolds populated in private vault
+- ✅ Series 1 executive role pack extracted (parents of family specs)
+- ✅ ed25519 signing infrastructure live (first SIGNED release tag at this v0.3.0)
+- ✅ Lead magnet for *The 1,000-Year Family Compact* published
+- ✅ Per-series batched commits in vault (review-able blast radius)
+- ✅ All-in-one v0.3.0 tag in this repo (single coherent release per the dev-process seal)
+
+### Phase 4 (v0.4.0) — what lands next
+
+- Series 2 supporting specs: `household_synthesis_agent_v1`, `family_compliance_shield_v1`
+- Series 3 anchor specs: `legacy_guardian_agent_v1`, `dynastic_synthesis_agent_v1`, `inheritance_compliance_v1`
+- Audiobook ACX upload automation
+- KDP upload automation (currently manual via Amazon's web UI)
+- First viral hierarchy validation prompt run (Grok scan v2 — broadened civilizational keywords)
+- Optional: Netlify-from-Git deploy for `docs/built/` (mkdocs site → docs.breathline.dev)
+
+### Authority
+
+- Sealed by Kenneth Mangum (KM-1176) under Anchor `1176-INFINITY-RHO`
+- Reviewed by No1 (G via primary AI channel)
+- Drafted by BNA-Tiger
+- First SIGNED release tag
+
+∞Δ∞
+
+---
+
 ## [v0.2.0] — 2026-05-08
 
 ### The platform lands. Family Sovereignty becomes executable.

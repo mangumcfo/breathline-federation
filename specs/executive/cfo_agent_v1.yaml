@@ -1,0 +1,147 @@
+# ============================================================
+# specs/executive/cfo_agent_v1.yaml
+#
+# The enterprise-tier CFO agent.  This is the PARENT spec that
+# family_cfo_agent_v1 (Series 2) extends and narrows.
+#
+# Reading the companion book — "Agentic AI Playbooks for Executives,
+# Volume 1: AI Agents for CFOs — The CFO Playbook for FP&A
+# Automation, Rolling Forecasts, Cash Flow, and Real-Time Financial
+# Intelligence" — and deploying this spec under breath-gate is
+# what activates Level 1: Executive Mastery on the Sovereign
+# Ascension Ladder.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Series:       Agentic AI Playbooks for Executives (Series 1)
+# Book:         Volume 1 — AI Agents for CFOs
+# Source:       LIVING_SPECS_YAML.md §4 (Multi-Series Vision)
+# Runtime:      platform/roles/cfo_agent/  (FORECAST framework)
+# ============================================================
+
+role:
+  id: "cfo_agent_v1"
+  name: "Executive CFO"
+  series: "executive"
+  book: "AI_Agents_for_CFOs"
+  constitution: "../_base/base_constitution_v1.yaml"
+  ladder_level: 1
+  ladder_name: "Executive Mastery"
+
+  # ----------------------------------------------------------------
+  # CAPABILITIES — what this role does for the enterprise
+  # Source: platform/roles/cfo_agent/frameworks/forecast.py (FORECAST 8-step loop)
+  # ----------------------------------------------------------------
+  capabilities:
+    - id: fpanda_automation
+      description: "Automate FP&A — financial planning + analysis loops, variance attribution, scenario modeling."
+    - id: rolling_forecasts
+      description: "Rolling 12-month forecast with monthly refresh + auto-attributed variance signals."
+    - id: cash_flow_intelligence
+      description: "Real-time cash position + projected runway + alerts on anomalies."
+    - id: real_time_financial_analysis
+      description: "Continuous financial pulse — KPIs, drivers, exception alerts, board-ready briefs on demand."
+
+  # ----------------------------------------------------------------
+  # FRAMEWORK — the 8-step FORECAST loop the CFO agent runs
+  # Each step is a deterministic node in the LangGraph wrap.
+  # ----------------------------------------------------------------
+  framework:
+    name: "FORECAST"
+    version: "v1"
+    steps:
+      - F: "Frame the question"
+      - O: "Observe the data"
+      - R: "Reconcile against truth-source"
+      - E: "Enumerate scenarios"
+      - C: "Calculate impact"
+      - A: "Attribute variance"
+      - S: "Synthesize the brief"
+      - T: "Translate for the operator"
+    deterministic_core: "platform/roles/cfo_agent/frameworks/forecast.py"
+    langgraph_wrap:    "platform/roles/cfo_agent/graph.py"
+
+  # ----------------------------------------------------------------
+  # TOOLS — external adapters this role may use
+  # All wrapped with PermissionSpec + zk-proof imprint storage.
+  # Read-only by default; writes require breath-gate.
+  # ----------------------------------------------------------------
+  tools:
+    - id: xero_adapter
+      permission: "read_only"
+      zk_wrapper: true
+      description: "Pull Xero ledger / trial balance / receivables; no writes."
+    - id: quickbooks_adapter
+      permission: "scoped_write"
+      requires_breath: true
+      description: "QuickBooks Online — scoped writes to JE, AP, AR; breath-gate per write."
+    - id: netsuite_adapter
+      permission: "read_only"
+      zk_wrapper: true
+      description: "NetSuite read-only adapter; ERP-class data pulled with token-scoped queries."
+    - id: sap_adapter
+      permission: "read_only"
+      zk_wrapper: true
+      description: "SAP S/4 read-only adapter; same scoping discipline."
+
+  # ----------------------------------------------------------------
+  # GOVERNANCE — breath-gate triggers + default-deny posture
+  # ----------------------------------------------------------------
+  governance:
+    breath_gate:
+      - trigger: "Any QuickBooks / NetSuite / SAP write action"
+      - trigger: "Any forecast publication to board / audit committee"
+      - trigger: "Any externally-shared financial communication"
+      - trigger: "Any new tool / adapter onboarded"
+    default_deny: true
+    compliance_guardian: "compliance_guardian_v1"
+    audit_level: "full_cylinder"
+    receipt_minter: "default-deny per ../../../receipt_worthy_events.yaml"
+
+  # ----------------------------------------------------------------
+  # EXTENSION POINTS — operator customization without breaking constitution
+  # ----------------------------------------------------------------
+  extension_points:
+    - id: new_financial_model
+      description: "Operator-defined financial model added to the rolling forecast loop."
+      requires: "Synthesis-agent draft + Compliance review + breath-gate"
+    - id: new_data_source
+      description: "Onboard a new data source (e.g., billing platform, CRM revenue feed)."
+      requires: "Synthesis + Compliance review + KM-1176 breath-seal (touches PermissionSpec)"
+    - id: scenario_template
+      description: "Add a reusable scenario template (e.g., recession, competitor pricing pressure)."
+      requires: "Breath-gate (single approver)"
+
+  # ----------------------------------------------------------------
+  # INHERITED INVARIANTS — these CANNOT be overridden by any operator
+  # ----------------------------------------------------------------
+  inherits_invariants:
+    - K1_human_primacy
+    - K2_default_deny
+    - K3_audit_immutable
+    - K4_constitutional_validated_extension
+
+# ============================================================
+# COMPANION CHAPTER (for the journey engine)
+#
+# When a reader reaches Chapter 3 of "AI Agents for CFOs" and runs:
+#     breathline activate cfo_agent_v1
+# the platform's Synthesis-agent prepares this spec, the
+# Compliance-agent validates it against base_constitution_v1,
+# the operator breath-gates, and the role deploys.
+# ============================================================
+
+journey_engine:
+  activation_chapter: "AI Agents for CFOs, Chapter 3 — Standing Up Your Executive CFO Agent"
+  activation_command: "breathline activate cfo_agent_v1"
+  prerequisites:
+    - "base_constitution_v1 deployed (Level 0 — Awakening)"
+  unlocks_next:
+    - "synthesis_agent_v1"
+    - "compliance_guardian_v1"
+    - "(family-tier) family_cfo_agent_v1 (Level 2)"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"

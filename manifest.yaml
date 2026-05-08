@@ -11,7 +11,7 @@
 # ============================================================
 
 # Version — semantic, monotonically increasing
-version: "0.2.0"
+version: "0.3.0"
 released: "2026-05-08"
 sealed_by: "KM-1176"
 seal_glyph: "∞Δ∞"
@@ -52,7 +52,30 @@ specs:
         sha256: "58af6c315b90fce83588a7d4e611d16e4a0d35807509701a11a5b9f17e4a00dc"
         ladder_level: 0
     executive:
-      []                              # role specs land at v0.3.0 alongside Series 1 spec extraction
+      - id: "cfo_agent_v1"
+        path: "specs/executive/cfo_agent_v1.yaml"
+        sha256: "966e8b2cbc927685b666d9560c416734edd3adbf9988acc3e21eab9817a90f45"
+        ladder_level: 1
+        series: "executive"
+        book: "AI_Agents_for_CFOs"
+        framework: "FORECAST v1"
+        runtime: "platform/roles/cfo_agent/"
+      - id: "synthesis_agent_v1"
+        path: "specs/executive/synthesis_agent_v1.yaml"
+        sha256: "429763457449ef976020b9c30e4ab0f704f234a84e0716fbea68618f2446a5ce"
+        ladder_level: 1
+        series: "executive"
+        book: "The_Agentic_Enterprise"
+        framework: "Synthesis v1 (multi-role orchestrator)"
+        runtime: "platform/roles/synthesis_agent/"
+      - id: "compliance_guardian_v1"
+        path: "specs/executive/compliance_guardian_v1.yaml"
+        sha256: "d2cf404555baa2e0012044191ef634abb4fe403e50bfc6979e60ef0b7e5147c2"
+        ladder_level: 1
+        series: "executive"
+        book: "Compliance_and_Audit"
+        framework: "Charter V.7 token-scan + Compliance Review"
+        runtime: "platform/roles/compliance_agent/"
     family:
       - id: "family_constitution_v1"
         path: "specs/family/family_constitution_v1.yaml"
@@ -79,10 +102,17 @@ specs:
 # Only marketing-safe excerpts surface here.
 
 books_public:
-  status: "scaffold-only"
+  status: "active"
   by_series:
-    executive: []                     # sample chapters → v0.3.0
-    generational_legacy: []           # 1000-Year Family Compact lead magnet → v0.3.0
+    executive: []                     # sample chapters → tracked
+    generational_legacy:
+      - id: "1000_year_family_compact_lead_magnet"
+        path: "books-public/series_03_generational_legacy/1000_year_family_compact_lead_magnet.md"
+        sha256: "61163c63628df04cb829f485c2820b64e5f16327a3313b3606edf9f4605c7a4e"
+        kind: "lead_magnet"
+        series: "generational_legacy"
+        anchor_book: "The_1000_Year_Family_Compact"
+        license: "Constitutional Source-Available v1.0 (free to share with attribution)"
 
 # ----------------------------------------------------------------
 # DISTRIBUTION INFRASTRUCTURE
@@ -111,9 +141,16 @@ migrations:
 # is v0.3.0 alongside the Series 1 spec extraction.
 
 signatures:
-  status:      "reserved"
+  status:      "active"               # public key live; first SIGNED release at v0.3.0 tag
   algorithm:   "ed25519"               # P1 ECC root signing
   public_keys: "distribution/signing_keys/"
+  current_key:
+    file:        "distribution/signing_keys/release_v1.pub"
+    fingerprint: "SHA256:Ahl1MJITIKhLb+WQIwUh/Euo2b0/4oxrIPJZ3QZK9YQ"
+    sha256:      "4548aeb40a845df93af64ce02c2e3f44a7cbf0b8ab4a1839b2f59a56a9ca73e3"
+    effective:   "2026-05-08"
+    authority:   "KM-1176"
+  trust_model:   "distribution/signing_keys/README.md"
 
 # ----------------------------------------------------------------
 # CONSTITUTIONAL ANCHOR
@@ -145,12 +182,36 @@ companions:
   books_vault:
     repo: "mangumcfo/breathline-books-vault"
     visibility: "private"
-    purpose: "Full KDP-exclusive manuscripts"
+    purpose: "Full KDP-exclusive manuscripts (Series 0 Books 1–5 + Series 1 12-book scaffolds populated as of v0.3.0)"
+    populated_at: "2026-05-08 (v0.3.0)"
   six_sov_com:
     repo: "mangumcfo/six-sov.com"
     visibility: "private"
     purpose: "Marketing site (https://six-sov.com)"
     deploy: "Netlify"
+
+# ----------------------------------------------------------------
+# PUBLISHING PIPELINE  (v0.3.0)
+# ----------------------------------------------------------------
+
+publishing:
+  orchestration_doc: "publishing/BOOK_DEVELOPMENT.md"
+  sops:
+    - "publishing/SOP_SERIALIZED_NONFICTION_v1.1.md"
+    - "publishing/KDP_PUBLISHING_SOP.md"
+    - "publishing/MULTI_SERIES_ROADMAP_v1.1.md"
+    - "publishing/ILLUSTRATION_STYLE_GUIDE_v1.0.md"
+    - "publishing/prep_audiobooks.py"
+  cadence:
+    target: "≥1 book per week, into perpetuity"
+    active_slots: 2     # per MULTI_SERIES_ROADMAP_v1.1.md §1
+    pipeline_slot: 1
+  pay_gates:
+    full_manuscripts: "Amazon KDP exclusivity"
+    audiobooks: "Audible / ACX exclusivity"
+    free_chapters: "Free under Constitutional Source-Available v1.0"
+    yaml_specs: "Free under Constitutional Source-Available v1.0"
+    advanced_role_library: "TBD (Q5 — open question, deferred to monetization decision)"
 
 # ============================================================
 # SEAL

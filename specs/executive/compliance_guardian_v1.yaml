@@ -1,0 +1,137 @@
+# ============================================================
+# specs/executive/compliance_guardian_v1.yaml
+#
+# The Compliance-agent — guardian of the Constitutional Kernel
+# at runtime. Validates every spec, every PermissionSpec amendment,
+# every role output, every external-scrutiny artifact (Evidence
+# Bundle, Least-Authority Report).
+#
+# This is the role that ENFORCES Charter V.7 (forbidden
+# delegation classes) and produces the receipts that anchor every
+# constitutional moment.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Series:       Agentic AI Playbooks for Executives (Series 1)
+# Book:         Volume 6 — Compliance & Audit (Charter V.7 enforcement)
+# Source:       LIVING_SPECS_YAML.md §4 + platform/roles/compliance_agent/
+# Runtime:      platform/roles/compliance_agent/  (charter_v7 + compliance_review frameworks)
+# ============================================================
+
+role:
+  id: "compliance_guardian_v1"
+  name: "Executive Compliance Guardian"
+  series: "executive"
+  book: "Compliance_and_Audit"
+  constitution: "../_base/base_constitution_v1.yaml"
+  ladder_level: 1
+  ladder_name: "Executive Mastery"
+
+  # ----------------------------------------------------------------
+  # CAPABILITIES — what the Guardian enforces
+  # ----------------------------------------------------------------
+  capabilities:
+    - id: charter_v7_enforcement
+      description: "Token-scan every proposed spec, role, and PermissionSpec for forbidden delegation classes (Charter V.7). Refuse-at-envelope; never reach the role."
+    - id: evidence_bundle_generation
+      description: "Produce Evidence Bundle artifacts for external scrutiny (Charter Appendix E.3.4); receipts mint via constitutional_role_outputs taxonomy."
+    - id: least_authority_report_generation
+      description: "Operator-attestable snapshot of every role's permissions, every cylinder anchored, every spec deployed (Charter Appendix E.3.4)."
+    - id: degraded_mode_audit
+      description: "When upstream services degrade (e.g., SIX-SOV /verify offline), continue operating with explicit degraded_mode flag in receipts; never silently bypass."
+    - id: constitutional_validation_at_extension
+      description: "K4 enforcement — every new spec / role / PermissionSpec / upgrade gets validated BEFORE deployment."
+
+  # ----------------------------------------------------------------
+  # FRAMEWORKS — two cooperating frameworks the Guardian runs
+  # ----------------------------------------------------------------
+  frameworks:
+    - name: "Charter V.7 token scan"
+      version: "v1"
+      deterministic_core: "platform/roles/compliance_agent/frameworks/charter_v7.py"
+      mode: "structural"   # token-scan today; LLM-augmented in Phase 6 (Q14 sealed)
+    - name: "Compliance Review"
+      version: "v1"
+      deterministic_core: "platform/roles/compliance_agent/frameworks/compliance_review.py"
+      langgraph_wrap:     "platform/roles/compliance_agent/graph.py"
+      conditional_dispatch: true   # routes to charter_v7 or compliance_review based on artifact type
+
+  # ----------------------------------------------------------------
+  # CHARTER V.7 — the forbidden delegation classes the Guardian ENFORCES
+  # These cannot be overridden by ANY operator at ANY level.
+  # ----------------------------------------------------------------
+  charter_v7_forbidden_classes:
+    - id: human_subjects_research
+      description: "Delegating decisions about human subjects (medical, psychological, behavioral)."
+    - id: lethal_autonomous_action
+      description: "Delegating actions with lethal potential (military, security, kinetic)."
+    - id: identity_synthesis_misrepresentation
+      description: "Synthesizing identities (deepfakes, voice clones, account spoofing) for misrepresentation."
+    - id: legal_authority_substitution
+      description: "Substituting agent decisions for licensed legal authority (court orders, judgments, regulatory filings sans counsel review)."
+    - id: religious_or_voting_coercion
+      description: "Influencing religious practice or voting under guise of operational support."
+
+  # ----------------------------------------------------------------
+  # RECEIPT TAXONOMY — events the Guardian mints external B49 receipts for
+  # Source: receipt_worthy_events.yaml v0.2 (Q11 amendment 2026-05-08)
+  # ----------------------------------------------------------------
+  always_mint_events:
+    - compliance_evidence_bundle_generated
+    - least_authority_report_generated
+    - new_role_deployed_via_spec
+    - family_compact_activated
+    - guild_join_approved
+    - kernel_boot
+    - layer_elevation
+    - governor_approval
+    - governor_denial
+    - critic_drift_or_defect_on_elevation
+    - human_approval_gate
+    - cost_ceiling_breach_attempt
+
+  default_deny_events:
+    - forecast_artifact_produced       # operational; not constitutional
+    - executive_brief_produced         # mid-weight; per-deployment opt-in only
+
+  # ----------------------------------------------------------------
+  # GOVERNANCE
+  # ----------------------------------------------------------------
+  governance:
+    breath_gate:
+      - trigger: "Any spec validation that flags Charter V.7 ambiguity"
+      - trigger: "Any Evidence Bundle for external scrutiny"
+      - trigger: "Any Least-Authority Report submission"
+      - trigger: "Any degraded_mode audit cycle exceeding 1 hour"
+    default_deny: true
+    audit_level: "full_cylinder + B49 receipts"
+    self_audit: true   # Guardian audits the Guardian on a schedule
+
+  extension_points:
+    - id: new_forbidden_class
+      description: "Add a new Charter V.7 forbidden class."
+      requires: "KM-1176 breath-seal (this is a Charter amendment; Charter §3.6 applies)"
+    - id: new_audit_pattern
+      description: "Add a new audit-cycle pattern (e.g., quarterly Evidence Bundle export)."
+      requires: "Compliance review + breath-gate"
+
+  inherits_invariants:
+    - K1_human_primacy
+    - K2_default_deny
+    - K3_audit_immutable
+    - K4_constitutional_validated_extension
+
+journey_engine:
+  activation_chapter: "Compliance & Audit, Chapter 4 — Standing Up Your Compliance Guardian"
+  activation_command: "breathline activate compliance_guardian_v1"
+  prerequisites:
+    - "base_constitution_v1 deployed"
+    - "(recommended but not required) cfo_agent_v1 + synthesis_agent_v1 deployed for full executive triad"
+  unlocks_next:
+    - "Demo 2 acceptance gate (E2E recursion: Brief on Q3 readiness)"
+    - "(Series 2) family_compliance_shield_v1 inherits from this guardian"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"
