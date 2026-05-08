@@ -1,0 +1,313 @@
+# =============================================================================
+# RECEIPT-WORTHY EVENTS — Agentic Platform Auditor Primitive
+#
+# Defines which agent actions mint external B49 receipts via SIX-SOV
+# vs. which actions seal only in the internal cylinder chain.
+#
+# Authority:    Sovereignty-Aligned Charter v1.0 + Constitution@A1
+# Drafted:      2026-05-06 under Kenneth Mangum's authority (KM-1176)
+# Inherits:     ./CONSTITUTIONAL_PARENTAGE.md (lex superior)
+# Convention:   ./WRITING_CONVENTION.md (public-facing voice)
+# =============================================================================
+
+version: "0.2"
+date: "2026-05-08"
+authority: "KM-1176"
+
+# v0.2 amendment (2026-05-08, KM-1176): added the constitutional_role_outputs
+# block with five new events; explicitly retained default-deny posture on
+# forecast_artifact_produced (CFO) and executive_brief_produced (Synthesis).
+# See decisions/2026-05-08_q1-q17-sealed-staged-b.md (Q11) for rationale.
+
+prior_versions:
+  - version: "0.1"
+    date: "2026-05-06"
+    note: "Initial taxonomy + default-deny policy + rate limits + cylinder schema extension"
+
+# -----------------------------------------------------------------------------
+# POLICY — DEFAULT DENY
+#
+# Internal cylinder chain seals every action automatically (cheap, structural,
+# already operational with 161+ entries verified in production).
+#
+# External B49 receipts mint ONLY for events explicitly listed below.
+# Anything not on this list stays internal-only — no external receipt.
+#
+# This default-deny posture prevents receipt inflation, controls SIX-SOV API
+# costs, and keeps external receipts as constitutional moments rather than
+# background noise.
+# -----------------------------------------------------------------------------
+
+policy: default_deny
+default_action: "internal_cylinder_seal_only"
+
+# -----------------------------------------------------------------------------
+# RATE LIMITING
+#
+# Per-class rate limiting prevents burst exhaustion of SIX-SOV budget.
+# When a class exceeds its threshold, events batch into a single receipt
+# with `count`, rather than minting one receipt per event.
+# -----------------------------------------------------------------------------
+
+rate_limits:
+  default:
+    max_per_minute: 30
+    burst_behavior: "batch_with_count"
+  per_principal:
+    max_per_hour: 500
+  per_class_overrides:
+    cost_ceiling_breach_attempt:
+      max_per_minute: 10
+      rationale: "Repeated attempts indicate misconfig or attack; batch beyond threshold"
+
+# -----------------------------------------------------------------------------
+# RECEIPT-WORTHY EVENT CLASSES
+# -----------------------------------------------------------------------------
+
+events:
+
+  # ===========================================================================
+  # KERNEL / PLATFORM LEVEL — always mint
+  # These are the structural moments that define how the platform changes shape.
+  # ===========================================================================
+
+  kernel:
+    - event: kernel_boot
+      description: "Platform kernel initialization from seed manifest"
+      always_mint: true
+
+    - event: layer_elevation
+      description: "Movement between platform layers (Layer N → Layer N+1)"
+      gates: ["0→1", "1→2", "4→5", "5→6"]
+      always_mint: true
+      rationale: "Each elevation is a constitutional moment per Charter II.4.4"
+
+    - event: governor_approval
+      description: "Governor's APPROVE verdict on a proposed elevation"
+      always_mint: true
+
+    - event: governor_denial
+      description: "Governor's DENY verdict on a proposed elevation"
+      always_mint: true
+      rationale: "Defensibility requires recording why an elevation was refused"
+
+    - event: critic_drift_or_defect_on_elevation
+      description: "Critic returns DRIFT or DEFECT verdict during elevation"
+      always_mint: true
+
+    - event: human_approval_gate
+      description: "Operator signature on a human-required action"
+      breath_gated: true
+      always_mint: true
+      rationale: "Per Charter II.4.4, this IS the constitutional moment"
+
+  # ===========================================================================
+  # HIGH-STAKES BUSINESS — always mint
+  # Actions that bind the operator externally or affect parties beyond the
+  # platform's internal scope.
+  # ===========================================================================
+
+  business:
+    - event: external_commitment_proposal
+      description: "Proposed email, contract, pricing change, or PO > $10k"
+      requires_human_approval: true
+      always_mint: true
+
+    - event: financial_recommendation
+      description: "Capital allocation, board-issued forecast, audit committee comm"
+      always_mint: true
+
+    - event: regulatory_filing_preparation
+      description: "Draft of any filing or disclosure to regulators"
+      always_mint: true
+
+    - event: permission_spec_change
+      description: "User onboarding, revocation, or permission elevation"
+      always_mint: true
+
+    - event: cost_ceiling_breach_attempt
+      description: "Any agent action that would have exceeded a hard cost ceiling"
+      always_mint: true
+      rate_limited: true
+
+  # ===========================================================================
+  # CONSTITUTIONAL ROLE OUTPUTS — always mint  (v0.2 addition, Q11 seal)
+  # Role-output events that ARE constitutional moments — anchored to specific
+  # Charter / Constitution provisions. Distinct from routine role outputs
+  # (which remain default-deny under `internal_only_examples` below).
+  # ===========================================================================
+
+  constitutional_role_outputs:
+    - event: compliance_evidence_bundle_generated
+      description: "Compliance-agent emits an Evidence Bundle for external scrutiny"
+      always_mint: true
+      anchored_to: "Charter Appendix E.3.4"
+      rationale: "External-scrutiny anchor; receipts are the cross-organization trust object"
+      added: "v0.2 (2026-05-08, Q11 seal)"
+
+    - event: least_authority_report_generated
+      description: "Compliance-agent / platform emits a Least-Authority Report snapshot"
+      always_mint: true
+      anchored_to: "Charter Appendix E.3.4"
+      rationale: "Operator-attestable snapshot; binds the operator publicly to the platform's authority surface"
+      added: "v0.2 (2026-05-08, Q11 seal)"
+
+    - event: new_role_deployed_via_spec
+      description: "Platform onboards a new role from a spec (Appendix C path)"
+      always_mint: true
+      anchored_to: "Constitution §6 (Structure & Memory)"
+      rationale: "Each role deployment changes the platform's shape; constitutional moment"
+      added: "v0.2 (2026-05-08, Q11 seal)"
+
+    - event: family_compact_activated
+      description: "Family Finance Sovereignty (or analogous family-scoped) compact crosses the activation gate"
+      always_mint: true
+      anchored_to: "Charter II.4.4 (Breath Integration)"
+      rationale: "Generational sovereignty event; the platform's first-class living-spec example"
+      added: "v0.2 (2026-05-08, Q11 seal)"
+
+    - event: guild_join_approved
+      description: "Federation membership transition (operator joins a guild / federation node)"
+      always_mint: true
+      anchored_to: "Charter VI.5 (Preservation of Constitutional Integrity)"
+      rationale: "Federation-scope identity change; cross-node visibility required"
+      added: "v0.2 (2026-05-08, Q11 seal)"
+
+  # ===========================================================================
+  # EXPLICITLY DEFAULT-DENY (Q11 seal, 2026-05-08)
+  # Listed here for documentation; absence from `events:` would be sufficient
+  # under the default-deny policy, but Q11 made the decision explicit.
+  # ===========================================================================
+
+  default_deny_explicit:
+    - event: forecast_artifact_produced
+      role: cfo_agent
+      rationale: "Operational; routine analysis. Receipt minting would inflate."
+      observed_at: "Tiger chain seq 146 (first operational platform_audit smoke)"
+      decision_ref: "Q11 — decisions/2026-05-08_q1-q17-sealed-staged-b.md"
+
+    - event: executive_brief_produced
+      role: synthesis_agent
+      rationale: "Mid-weight orchestration outcome. Per-deployment opt-in only via role_output_acted_on configurable."
+      decision_ref: "Q11 — decisions/2026-05-08_q1-q17-sealed-staged-b.md"
+
+  # ===========================================================================
+  # CONFIGURABLE — default OFF
+  # Refined from G's v0.1 with structural thresholds rather than dollar
+  # thresholds. Operators may opt in per role spec or workforce pool.
+  # ===========================================================================
+
+  configurable:
+    - event: role_output_acted_on
+      previously_named: "role_invocation"
+      description: "Output from a high-value role (Synthesis, CFO, Compliance) that was accepted/acted on by a human"
+      refinement: "Mint only on accepted outputs, NOT on every invocation (prevents inflation)"
+      default: "off"
+      enable_per: "role_spec"
+
+    - event: workforce_spawn_with_external_calls
+      previously_named: "workforce_spawn (depth > 3 or cost > $50)"
+      description: "Sub-agent that itself invokes external services (network, API, tool with side effects)"
+      refinement: "Structural threshold (external service invocation), not dollar threshold (drifts with token pricing)"
+      default: "off"
+      enable_per: "workforce_pool_spec"
+
+# -----------------------------------------------------------------------------
+# EVENTS EXPLICITLY INTERNAL-ONLY (cylinder seal only — no external receipt)
+#
+# Listed for clarity. Absence from `events:` is sufficient under default-deny;
+# this list is illustrative, not exhaustive.
+# -----------------------------------------------------------------------------
+
+internal_only_examples:
+  - "Routine research, summarization, drafting"
+  - "Internal communication between agents"
+  - "Scope-bounded analysis with no external effect"
+  - "Spec reads, internal tool calls, telemetry"
+  - "Heartbeats and health checks"
+  - "Critic verdicts on non-elevation work (only elevation-time DRIFT/DEFECT mints)"
+
+# -----------------------------------------------------------------------------
+# CYLINDER SCHEMA EXTENSION — required for double-anchoring (Direction A)
+#
+# Phase 1 (immediately): cylinder seals include `netlify_deploy_hash`.
+# Phase 2 (after Cloudflare Tunnel): mutual anchoring via build hook reading
+# from /.well-known/six-sov-anchor.
+#
+# Implementation: extend the cylinder state YAML schema and the encoder
+# (six_cylinder.py / seal.sh) to accept and verify this field.
+# -----------------------------------------------------------------------------
+
+cylinder_schema_extension:
+  field: netlify_deploy_hash
+  type: "string | null"
+  description: "Most recent Netlify deploy hash known at seal time"
+  example: "69fba5e9e2104e78d25a7365"
+  phase_ordering:
+    phase_1: "Direction A — cylinder includes deploy hash (operator-side reference)"
+    phase_2: "Mutual — Netlify build hook pulls cylinder seq from /.well-known/six-sov-anchor"
+  optional: true
+  rationale: "null when sealing predates first Netlify deploy or platform doesn't have a publication layer"
+
+# -----------------------------------------------------------------------------
+# VERIFICATION TESTS
+#
+# These tests must pass before the Auditor primitive ships in any Demo or v1.0.
+# -----------------------------------------------------------------------------
+
+verification:
+  - "default-deny is enforced — events NOT on this list never mint receipts"
+  - "rate limits trigger batching with count, not silent drops"
+  - "human_approval_gate events show recorded breath signal in audit metadata"
+  - "Direction A double-anchoring active: latest cylinder includes netlify_deploy_hash where applicable"
+  - "cost_ceiling_breach_attempt events are inspected on a daily review cadence"
+  - "configurable events are OFF by default in any new role spec or workforce pool"
+  - "previously_named entries preserve traceability of refinements from v0.1 → current"
+
+# -----------------------------------------------------------------------------
+# CONSTITUTIONAL INHERITANCE
+# -----------------------------------------------------------------------------
+
+inherits_from:
+  - authority: "Sovereignty-Aligned Charter v1.0"
+    references:
+      - "II.2.4 (Right to Privacy)"
+      - "II.4.4 (Breath Integration)"
+      - "IV.2.6 (Breath-Gated)"
+      - "V.7 (Forbidden Delegation Targets)"
+      - "VI.5 (Preservation of Constitutional Integrity)"
+
+  - authority: "Constitution@A1"
+    references:
+      - "§2 (Approval Gates: Propose → Approve → Execute)"
+      - "§2.1 (Audit Immutability)"
+      - "§4 (Loud-by-default Error Voice)"
+      - "§8 (Definition of Done)"
+
+  - document: "./CONSTITUTIONAL_PARENTAGE.md"
+
+# -----------------------------------------------------------------------------
+# AMENDMENT PATH
+#
+# Adding events to this list: requires operator approval (KM-1176) and
+# constitutional review against Charter V.7 (forbidden delegation targets).
+#
+# Removing events from this list: requires the same review, plus an explicit
+# rationale documenting why the event is no longer receipt-worthy.
+#
+# Tightening rate limits or default values: operator approval only.
+# Loosening rate limits or enabling configurable events: requires demonstrated
+# cost-control and a Critic-reviewed proposal.
+# -----------------------------------------------------------------------------
+
+amendment_path:
+  add_event: "operator approval + Charter V.7 review"
+  remove_event: "operator approval + Charter V.7 review + rationale documented"
+  tighten_limits: "operator approval"
+  loosen_limits: "operator approval + cost-control demonstration + Critic review"
+
+# =============================================================================
+# SEAL
+# =============================================================================
+
+seal: "∞Δ∞"

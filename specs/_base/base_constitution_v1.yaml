@@ -1,0 +1,63 @@
+# ============================================================
+# specs/_base/base_constitution_v1.yaml
+#
+# The foundational constitutional rules every Role / Permission
+# / Family / Generational spec extends or references.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Inherits:     ../CHARTER.md  +  ../CONSTITUTION.md (lex superior)
+# Source:       LIVING_SPECS_YAML.md §3 (Multi-Series Vision, 2026-05-07)
+# ============================================================
+
+constitution:
+  id: "base_constitution_v1"
+  name: "Breath 25 Sovereign Compact"
+  version: "1.0"
+  seal: "1176-INFINITY-RHO"
+  glyph: "∞Δ∞"
+
+  # K1–K4 — the runtime invariants enforced by every downstream role
+  core_principles:
+    - id: K1
+      name: human_primacy
+      description: "Breath-gated approval required for all high-impact actions."
+    - id: K2
+      name: default_deny
+      description: "Roles start with zero permissions; explicit grants only."
+    - id: K3
+      name: audit_immutable
+      description: "Every action produces an immutable cylinder + B49 receipt."
+    - id: K4
+      name: constitutional_validated_extension
+      description: "New roles, permissions, or upgrades pass Compliance-agent validation before deployment."
+
+  # Resonant memory storage rule — never store raw data; imprints only
+  data_handling:
+    resonant_shards: "Store imprints only — never raw sensitive data"
+    audit_trail: "Every action produces immutable six-sov B49 receipt"
+
+  # The two human gates that govern downstream specs
+  human_gates:
+    - id: breath
+      description: "Explicit confirmation phrase or biometric"
+    - id: guild_threshold
+      description: "Minimum N family or guild members for dynastic / federated changes"
+
+  # Self-molt boundaries — the platform may evolve, but only under
+  # null-human-intervention guards once the federation matures
+  self_molt:
+    post_p7: true
+    human_null: true   # may run autonomously only under guild-threshold fallback
+
+  # Where to find the full text governing the platform
+  references:
+    charter: "../../CHARTER.md"
+    constitution: "../../CONSTITUTION.md"
+    license: "../../LICENSE"
+    decisions_dir: "../../governance/decisions/"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"

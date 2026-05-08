@@ -1,0 +1,135 @@
+# =============================================================================
+# ACTION CLASSES — Controlled vocabulary for Permission Specs
+#
+# Per IMPLEMENTATION_PLAN.md Section 6.3:
+#   "A controlled vocabulary of action classes lives at seed/action_classes.yaml
+#   (loaded as immutable at boot). Adding a new action class requires the same
+#   amendment path as adding a receipt-worthy event."
+#
+# Authority:    Sovereignty-Aligned Charter v1.0 + Constitution@A1
+# Inherits:     ./CONSTITUTIONAL_PARENTAGE.md (lex superior)
+# Drafted:      2026-05-06 under Kenneth Mangum's authority (KM-1176)
+# =============================================================================
+
+version: "0.1"
+date: "2026-05-06"
+authority: "KM-1176"
+
+# -----------------------------------------------------------------------------
+# CHARTER V.7 FORBIDDEN DELEGATION TARGETS
+#
+# Per Sovereignty-Aligned Charter Chapter V Article 7:
+#   "The following may never be delegated:
+#    - Core life decisions (relationships, values, purpose)
+#    - Binding commitments (contracts, financial transfers, public promises)
+#    - Irreversible actions (permanent deletion, destruction, legal execution)
+#    - Authority over other humans (management, coercion, judgment)
+#    - Modification of the Charter itself"
+#
+# These classes are forbidden by inheritance — they can NEVER appear in any
+# role's allowed_action_classes list. The Governor refuses any role spec
+# that attempts to override this, regardless of operator approval.
+# -----------------------------------------------------------------------------
+
+charter_v7_forbidden_classes:
+  - external_commitment
+  - personnel_decision
+  - irreversible_action
+  - charter_modification
+  - judgment_over_humans
+
+# -----------------------------------------------------------------------------
+# ALLOWED ACTION CLASSES (Demo 2 vocabulary)
+#
+# Each role's Permission Spec opts into a subset of these. Action classes
+# not on this list are also default-denied (the request classifier returns
+# `unknown` and the plug-in interface refuses).
+# -----------------------------------------------------------------------------
+
+allowed_action_classes:
+
+  # ─── Reading + analysis ──────────────────────────────────────────────
+  - id: read_spec
+    description: "Read a Spec from the registry (no side effects)"
+
+  - id: read_artifact
+    description: "Read an Artifact from the registry (no side effects)"
+
+  - id: read_structured_financial_data
+    description: "Read structured financial data passed as input"
+
+  - id: read_audit_chain
+    description: "Read entries from the audit chain in a time window"
+
+  - id: read_role_outputs
+    description: "Read outputs produced by peer roles in this session"
+
+  # ─── Production (artifacts that go to operator review) ────────────────
+  - id: produce_forecast_artifact
+    description: "Produce a financial forecast artifact (Book 1 FORECAST)"
+
+  - id: generate_scenarios
+    description: "Generate alternative scenarios with assumption flags"
+
+  - id: cite_assumptions
+    description: "Surface and cite the assumptions underlying an artifact"
+
+  - id: flag_uncertainty
+    description: "Mark uncertainty bounds on numeric or categorical outputs"
+
+  - id: produce_executive_brief
+    description: "Produce an integrated executive brief from peer outputs (Book 12 SYNTHESIS)"
+
+  - id: surface_role_tensions
+    description: "Identify and surface tensions between peer role outputs"
+
+  - id: produce_audit_trail_entry
+    description: "Produce an audit trail entry for sealing in the cylinder chain"
+
+  # ─── Compliance review (Book 6 AUDIT + Charter V.7 enforcement) ───────
+  - id: review_peer_outputs
+    description: "Review a peer role's output for Charter V.7 violations"
+
+  - id: flag_charter_v7_violations
+    description: "Refuse approval on artifacts that violate Charter V.7"
+
+  - id: generate_least_authority_report
+    description: "Produce a snapshot of every role's Permission Spec + forbidden classes"
+
+  - id: generate_compliance_evidence_bundle
+    description: "Produce an Evidence Bundle for external scrutiny (per Appendix E)"
+
+  # ─── Orchestration ──────────────────────────────────────────────────────
+  - id: invoke_peer_role
+    description: "Invoke a peer role within the request envelope"
+
+  - id: integrate_role_outputs
+    description: "Integrate outputs from multiple peer roles"
+
+  # ─── Internal (always available; not gated by Permission Spec) ────────
+  - id: write_audit_entry
+    description: "Write to the audit chain via the Auditor primitive"
+    always_available: true
+
+  - id: request_breath_confirmation
+    description: "Invoke the breath gate for human approval"
+    always_available: true
+
+# -----------------------------------------------------------------------------
+# AMENDMENT PATH
+#
+# Same as receipt_worthy_events.yaml:
+#   add_class:    operator approval + Charter V.7 review
+#   remove_class: operator approval + Charter V.7 review + rationale
+# -----------------------------------------------------------------------------
+
+amendment_path:
+  add_class: "operator approval + Charter V.7 review"
+  remove_class: "operator approval + Charter V.7 review + rationale documented"
+  modify_forbidden: "OFFLINE ONLY — no in-platform path may modify the Charter V.7 forbidden list"
+
+# =============================================================================
+# SEAL
+# =============================================================================
+
+seal: "∞Δ∞"

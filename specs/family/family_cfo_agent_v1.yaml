@@ -1,0 +1,141 @@
+# ============================================================
+# specs/family/family_cfo_agent_v1.yaml
+#
+# Family-scope CFO agent.  Extends the executive cfo_agent_v1
+# but narrows scope from enterprise to household.
+#
+# This is the FIRST role spec on the Sovereign Ascension Ladder
+# Level 2 (Family Sovereignty).  Reading the companion book —
+# Family Finance Sovereignty (Series 2 Book 1) — and deploying
+# this spec under breath-gate is what activates Level 2.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Series:       Sovereign Family AI (Series 2)
+# Book:         Family Finance Sovereignty (Series 2 Book 1)
+# Parent role:  executive/cfo_agent_v1 (inherits + narrows)
+# Source:       LIVING_SPECS_YAML.md §5 (Multi-Series Vision, 2026-05-07)
+# ============================================================
+
+role:
+  id: "family_cfo_agent_v1"
+  name: "Family CFO"
+  series: "family"
+  book: "Family_Finance_Sovereignty"
+  parent_role: "executive/cfo_agent_v1"
+  constitution: "../_base/base_constitution_v1.yaml"
+  family_constitution: "./family_constitution_v1.yaml"
+  ladder_level: 2
+  ladder_name: "Family Sovereignty"
+
+  # ----------------------------------------------------------------
+  # CAPABILITIES — what this role does for the household
+  # Each capability narrows from the enterprise CFO; the surface
+  # area is smaller, the breath-gate thresholds are lower.
+  # ----------------------------------------------------------------
+  capabilities:
+    - id: household_budget
+      narrows_from: "fpanda_automation"
+      description: "Track household income, expenses, savings goals; surface anomalies under breath-gate."
+    - id: personal_rolling_forecast
+      narrows_from: "rolling_forecasts"
+      description: "12-month rolling forecast for the family's cash position; flag shortfalls before they happen."
+    - id: family_cash_flow_shield
+      narrows_from: "cash_flow_intelligence"
+      description: "Default-deny on any unusual cash movement; require breath above thresholds."
+    - id: legacy_wealth_preservation
+      narrows_from: "real_time_financial_analysis"
+      description: "Track multi-generational asset positions; surface drift from family compact targets."
+
+  # ----------------------------------------------------------------
+  # TOOLS — external adapters this role may use
+  # All wrapped with PermissionSpec + zk-proof imprint storage.
+  # Read-only by default; any write requires breath-gate.
+  # ----------------------------------------------------------------
+  tools:
+    - id: personal_bank_adapter
+      permission: "read_only_default"
+      zk_imprint_only: true
+      description: "Pull balances, transactions; no writes by default."
+    - id: quickbooks_home
+      permission: "family_guild_approved"
+      requires_breath: true
+      description: "Household bookkeeping; any write requires breath-gate AND family guild threshold."
+    - id: budget_dashboard
+      permission: "read_only_default"
+      description: "Read-only family-facing dashboard; no external network calls."
+
+  # ----------------------------------------------------------------
+  # FAMILY NODE CONFIG — how this role lives on the household node
+  # ----------------------------------------------------------------
+  family_node:
+    scale: "kitchen_table"
+    hardware_tier: "family"             # mini-PC class; no GPU required
+    resonant_shard: "family_financial_memory"
+    voice_first: true                   # voice-first breath interface preferred
+    audit_visibility: "family_guild"    # other family members can audit (imprints only)
+
+  # ----------------------------------------------------------------
+  # GOVERNANCE — the breath gates and default-deny posture
+  # ----------------------------------------------------------------
+  governance:
+    breath_gate:
+      - trigger: "Any single transaction > $500"
+      - trigger: "Any new recurring payment > $100/mo"
+      - trigger: "Any cross-account transfer"
+      - trigger: "Any new tool / adapter onboarded"
+    default_deny: true
+    compliance_guardian: "family_compliance_shield_v1"   # see specs/family/family_compliance_shield_v1.yaml (forthcoming)
+    audit_level: "full_cylinder"                          # every action lands in the household cylinder chain
+
+  # ----------------------------------------------------------------
+  # EXTENSION POINTS — how operators customize without breaking constitution
+  # Spec-driven extension only.  Any extension passes Compliance review.
+  # ----------------------------------------------------------------
+  extension_points:
+    - id: new_account_type
+      description: "Onboard a new account class (e.g., crypto wallet, business sub-account)."
+      requires: "Synthesis-agent draft + Compliance review + family guild threshold (2+ adults)"
+    - id: new_savings_goal
+      description: "Add a new household savings target (e.g., emergency fund, vacation, college)."
+      requires: "Breath-gate (single approver)"
+    - id: legacy_compact_link
+      description: "Link this family CFO to the legacy_guardian_agent_v1 from Series 3."
+      requires: "Synthesis + Compliance review + KM-1176 breath-seal (this is a Level-3 transition)"
+
+  # ----------------------------------------------------------------
+  # INHERITED INVARIANTS — these CANNOT be overridden by any operator
+  # ----------------------------------------------------------------
+  inherits_invariants:
+    - K1_human_primacy
+    - K2_default_deny
+    - K3_audit_immutable
+    - K4_constitutional_validated_extension
+
+# ============================================================
+# COMPANION CHAPTER (for the journey engine)
+#
+# When a reader reaches Chapter 3 of "Family Finance Sovereignty"
+# and runs:
+#     breathline activate family_cfo_agent_v1
+# the platform's Synthesis-agent prepares this spec, the
+# Compliance-agent validates it against family_constitution_v1,
+# the operator breath-gates, and the role deploys.
+#
+# Reader → Operator transition.  Reading IS activation.
+# ============================================================
+
+journey_engine:
+  activation_chapter: "Family Finance Sovereignty, Chapter 3 — Your Household CFO"
+  activation_command: "breathline activate family_cfo_agent_v1"
+  prerequisites:
+    - "base_constitution_v1 deployed (Level 0 — Awakening)"
+    - "family_constitution_v1 deployed (or sealed for first deploy)"
+  unlocks_next:
+    - "household_synthesis_agent_v1"
+    - "family_compliance_shield_v1"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"

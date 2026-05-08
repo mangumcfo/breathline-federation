@@ -11,7 +11,7 @@
 # ============================================================
 
 # Version — semantic, monotonically increasing
-version: "0.1.0"
+version: "0.2.0"
 released: "2026-05-08"
 sealed_by: "KM-1176"
 seal_glyph: "∞Δ∞"
@@ -26,31 +26,51 @@ current_series:
 # ----------------------------------------------------------------
 # PLATFORM CODE  (the runnable substrate)
 # ----------------------------------------------------------------
-# As of v0.1.0 the platform/ directory is reserved.  Code import
-# from agentic_platform_seed/v1.0/ lands at v0.2.0.
 
 platform:
-  status: "scaffold-only"
-  source_of_truth: "constitution-federation/collaboration/threads/02_mangumcfo/books/kdp/agentic_playbooks/agentic_platform_seed/v1.0"
-  kernel_version: null               # populated at v0.2.0
+  status: "active"
+  kernel_version: "0.2.0"
   required_python: ">=3.12"
-  test_count: null                   # 169 in source-of-truth as of 2026-05-08
+  test_count: 169
+  source: "Imported from agentic_platform_seed/v1.0 at 2026-05-08 (clean copy per G's review)"
+  layers:
+    - "Layer 0 — Seed (constitutional kernel + manifest)"
+    - "Layer 1 — Kernel (Spec / Constructor / Critic / Auditor / Governor primitives)"
+    - "Layer 2 — Platform (registry, audit_adapter, chain_sentinel, receipt_minter, plug-in interface)"
+    - "Layer 3 — Roles (CFO / Synthesis / Compliance + LangGraph wrap)"
 
 # ----------------------------------------------------------------
 # YAML SPECS  (the executable form of the books)
 # ----------------------------------------------------------------
-# As of v0.1.0 the specs/ directory is reserved.  First specs
-# (executive role pack) land at v0.2.0; family specs at v0.3.0.
 
 specs:
-  status: "scaffold-only"
+  status: "active"
   by_series:
-    executive:        []           # cfo_agent_v1, synthesis_agent_v1, compliance_guardian_v1 → v0.2.0
-    family:           []           # family_cfo_agent_v1 → v0.3.0
-    generational_legacy: []        # legacy_guardian_agent_v1 → v0.4.0
-    education:        []           # → tracked
-    health:           []           # → tracked
-    federation:       []           # sovereign_guild_v1 → tracked
+    _base:
+      - id: "base_constitution_v1"
+        path: "specs/_base/base_constitution_v1.yaml"
+        sha256: "58af6c315b90fce83588a7d4e611d16e4a0d35807509701a11a5b9f17e4a00dc"
+        ladder_level: 0
+    executive:
+      []                              # role specs land at v0.3.0 alongside Series 1 spec extraction
+    family:
+      - id: "family_constitution_v1"
+        path: "specs/family/family_constitution_v1.yaml"
+        sha256: "67d6a17706c22defdab11fc8f24d046fc19e72630919e5444b122c566c3b25cc"
+        ladder_level: 2
+        parent: "base_constitution_v1"
+      - id: "family_cfo_agent_v1"
+        path: "specs/family/family_cfo_agent_v1.yaml"
+        sha256: "693a53a53b0c7cca9b67b9d905ecff55ff27287e9a0c01522528f394375cce71"
+        ladder_level: 2
+        series: "family"
+        book: "Family_Finance_Sovereignty"
+        parent_role: "executive/cfo_agent_v1"
+        notes: "FIRST family-tier spec.  Activates Level 2 — Family Sovereignty when deployed under breath-gate."
+    generational_legacy: []           # legacy_guardian_agent_v1 → v0.4.0
+    education:           []
+    health:              []
+    federation:          []           # sovereign_guild_v1 → tracked
 
 # ----------------------------------------------------------------
 # PUBLIC BOOKS  (free chapters, lead magnets)
@@ -61,8 +81,8 @@ specs:
 books_public:
   status: "scaffold-only"
   by_series:
-    executive: []                  # sample chapters → v0.2.0
-    generational_legacy: []        # 1000-Year Family Compact lead magnet → v0.3.0
+    executive: []                     # sample chapters → v0.3.0
+    generational_legacy: []           # 1000-Year Family Compact lead magnet → v0.3.0
 
 # ----------------------------------------------------------------
 # DISTRIBUTION INFRASTRUCTURE
@@ -70,25 +90,29 @@ books_public:
 
 distribution:
   install_url:    "https://raw.githubusercontent.com/mangumcfo/breathline-federation/main/installer/install.sh"
-  upgrade_cmd:    "breathline upgrade"
-  status_cmd:     "breathline status"
+  upgrade_cmd:    "./installer/upgrade.sh"
+  status_cmd:     "./installer/status.sh"
   release_url:    "https://github.com/mangumcfo/breathline-federation/releases"
   docs_url:       "https://github.com/mangumcfo/breathline-federation/tree/main/docs"
+  installer_scripts:
+    install: "installer/install.sh"   # full Layer 0–3 bootstrap with breath-gate
+    upgrade: "installer/upgrade.sh"   # manifest-driven, breath-gated
+    status:  "installer/status.sh"    # node level + next ladder step
 
 migrations:
-  # Empty at v0.1.0 — schema migrations begin landing at v0.2.0+
+  # Empty for v0.1.0 → v0.2.0 (additive only — no schema breaks)
   available: []
 
 # ----------------------------------------------------------------
 # CRYPTOGRAPHIC SIGNATURES
 # ----------------------------------------------------------------
-# Detached release signatures (one per file in the release artifact set)
-# live in distribution/signing_keys/.  As of v0.1.0 signing infrastructure
-# is reserved; first signed release is v0.2.0.
+# Detached release signatures live in distribution/signing_keys/.
+# Signing infrastructure for v0.2.0 is reserved; first SIGNED release
+# is v0.3.0 alongside the Series 1 spec extraction.
 
 signatures:
   status:      "reserved"
-  algorithm:   "ed25519"            # P1 ECC root signing
+  algorithm:   "ed25519"               # P1 ECC root signing
   public_keys: "distribution/signing_keys/"
 
 # ----------------------------------------------------------------
@@ -99,8 +123,19 @@ constitution:
   charter:       "./CHARTER.md"
   constitution:  "./CONSTITUTION.md"
   license:       "./LICENSE"
+  contributing:  "./CONTRIBUTING.md"
   decisions_dir: "./governance/decisions/"
   seals_dir:     "./governance/seals/"
+
+# ----------------------------------------------------------------
+# CI / QUALITY GATES
+# ----------------------------------------------------------------
+
+quality_gates:
+  workflows:
+    - ".github/workflows/test.yml"                    # full pytest suite (≥ 169 baseline)
+    - ".github/workflows/constitutional_check.yml"    # kernel integrity + manifest + spec lint
+    - ".github/workflows/release.yml"                 # tag-triggered build + GitHub Release
 
 # ----------------------------------------------------------------
 # COMPANIONS  (related repos in the federation)

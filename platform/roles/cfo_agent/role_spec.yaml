@@ -1,0 +1,49 @@
+# =============================================================================
+# CFO-agent — Book 1 FORECAST framework
+#
+# Permission Spec for the CFO-agent role. Per IMPLEMENTATION_PLAN.md Section
+# 1.1, this role exercises numeric reasoning, scenario analysis, and
+# decision-grade output formatting — all without binding the operator to
+# external action.
+#
+# Charter V.7 forbidden classes inherit unconditionally (per
+# platform_layer/permission_spec.py); this YAML cannot override them.
+# =============================================================================
+
+role: cfo_agent
+version: "0.1"
+book: 1
+framework: FORECAST
+
+inherits_from:
+  - "Sovereignty-Aligned Charter v1.0 (II.4 + V.7 + III)"
+  - "Constitution@A1 (§1 principal_id end-to-end; §2.1 audit immutability)"
+
+allowed_action_classes:
+  - read_structured_financial_data
+  - produce_forecast_artifact
+  - generate_scenarios
+  - cite_assumptions
+  - flag_uncertainty
+
+invocation_envelope:
+  inputs_required:
+    - financial_data
+    - forecast_horizon
+  outputs_produced:
+    - forecast_artifact
+  side_effects: []
+  external_calls: []
+
+description: |
+  Produces forecast artifacts from structured financial data. Generates
+  three scenarios (baseline / upside / downside) with explicit assumption
+  flags and uncertainty bounds. Decision-grade formatting with assumptions
+  surfaced for operator review per Charter II + Book 3 LEAD.
+
+  Refuses anything outside the envelope. Charter V.7 forbidden classes
+  (external_commitment, personnel_decision, irreversible_action,
+  charter_modification, judgment_over_humans) cannot reach this role —
+  enforcement is structural at the plug-in interface.
+
+# ∞Δ∞ CFO-agent role spec — FORECAST framework, default-deny envelope ∞Δ∞

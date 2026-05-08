@@ -8,6 +8,135 @@ adapted for Breathline's manifest-driven release model.
 
 ---
 
+## [v0.2.0] — 2026-05-08
+
+### The platform lands. Family Sovereignty becomes executable.
+
+Phase 2 per the architecture record. The runnable platform code from
+`agentic_platform_seed/v1.0/` is now in `breathline-federation/platform/`,
+the installer drives a full Layer 0–3 bootstrap with shell-level
+breath-gate, the upgrade flow is wired manifest-driven, and the FIRST
+family-tier YAML specs activate Level 2 of the Sovereign Ascension Ladder
+when a reader breath-deploys them.
+
+### Added
+
+#### Platform code (clean copy from `agentic_platform_seed/v1.0/` per G's review)
+
+- `platform/kernel/` — Spec / Constructor / Critic / Auditor / Governor
+  primitives + breath_gate.py + cost_meter.py
+- `platform/platform_layer/` — runtime, audit_adapter, chain_sentinel,
+  receipt_minter, plug_in_interface, role_artifact_critic, registry,
+  permission_spec
+- `platform/roles/` — CFO / Synthesis / Compliance role handlers + LangGraph wrap
+- `platform/scripts/` — bootstrap.py + runtime_smoke.py
+- `platform/tests/` — **169 tests, all passing** in the new location
+  (verified 2026-05-08 via `.breathline-tools-venv`)
+- `platform/seed/` — runtime copies of CHARTER, CONSTITUTION, manifest, etc.
+- `platform/pyproject.toml` — Python deps (langgraph, fastapi, pytest, …)
+
+#### YAML specs (Phase 2 first three — base + family pair)
+
+- `specs/_base/base_constitution_v1.yaml` — the foundational compact
+  every downstream spec extends. Defines K1–K4 runtime invariants,
+  resonant_shards rule, human_gates, self_molt boundaries.
+  - sha256: `58af6c315b90fce8…f17e4a00dc`
+- `specs/family/family_constitution_v1.yaml` — household-scope
+  constitution (Series 2 anchor; Ladder Level 2). Inherits and narrows
+  base_constitution_v1.
+  - sha256: `67d6a17706c22def…566c3b25cc`
+- `specs/family/family_cfo_agent_v1.yaml` — **the first family-tier
+  role spec.** Extends `executive/cfo_agent_v1`, narrows scope to the
+  household. Activates Level 2 — Family Sovereignty when deployed under
+  breath-gate. Includes `journey_engine` block linking the spec to its
+  companion book chapter.
+  - sha256: `693a53a53b0c7cca…375cce71`
+
+#### Installer (full bootstrap + breath-gate)
+
+- `installer/install.sh` — **fully extended**. Now: detect platform/tier,
+  clone, set up venv, run `platform/scripts/bootstrap.py --full`,
+  interactive shell-level breath-gate ("I confirm under my own
+  authority"), persist node state at `~/.breathline-state.yaml`, print
+  ladder status. Supports `--skip-bootstrap`, `--skip-breath-gate` (CI),
+  `--tier`, `--prefix`. Reads stdin via `/dev/tty` when invoked via
+  `curl | bash` so the breath-gate prompt works.
+- `installer/upgrade.sh` — **NEW**. Manifest-driven upgrade with
+  breath-gate ("I confirm this upgrade"). Fetches upstream manifest,
+  shows commit + file diff, asks for breath, applies via
+  `git pull --ff-only`, runs migration script if present, refreshes
+  venv, reruns platform tests for verification, updates node state.
+  Supports `--dry-run`.
+- `installer/status.sh` — unchanged from v0.1.0; still reports level +
+  next ladder step.
+
+#### CI / GitHub Actions
+
+- `.github/workflows/test.yml` — full pytest suite on PR + main; gate
+  ≥ 169 tests baseline.
+- `.github/workflows/constitutional_check.yml` — kernel integrity (warn
+  on CHARTER/CONSTITUTION/LICENSE modifications), manifest required-key
+  validation + SemVer check, spec YAML parse linting.
+- `.github/workflows/release.yml` — tag-triggered: re-runs tests, builds
+  release-artifact bundle with sha256 checksums, creates GitHub Release
+  with notes extracted from this CHANGELOG, attaches manifest + checksums
+  + LICENSE + CHANGELOG. Signed-artifact infrastructure (ed25519)
+  reserved for v0.3.0.
+
+#### Governance
+
+- `governance/decisions/2026-05-08_dev-process-and-quality-gates.md` —
+  sealed dev workflow:
+  `constitution-federation` (private dev) → PR → `breathline-federation`
+  (public release) → CI gates → tagged signed release → operator nodes
+  upgrade. Books pipeline + pay-gate model also sealed in this record.
+
+### Changed
+
+- `manifest.yaml` — bumped `version: 0.1.0 → 0.2.0`. `platform.status`
+  flipped from `scaffold-only` to `active`; `kernel_version: 0.2.0`;
+  `test_count: 169`. `specs.status` flipped from `scaffold-only` to
+  `active` with the three new spec entries (sha256s pinned).
+
+### G's polish (2026-05-08 review for v0.2.0) — incorporated
+
+- ✅ Platform sync changed from "git subtree" (Kenneth's v0.1.0 choice)
+  to **clean copy + initial commit** per G's recommendation. History
+  preserved in source-of-truth `constitution-federation` repo.
+- ✅ ed25519 release-signing infrastructure reserved (v0.3.0)
+- ✅ Books pipeline sealed in governance ADR
+- ✅ Quality gates wired in `.github/workflows/`
+
+### Notes
+
+- 169 tests pass in the new platform/ location (verified locally with
+  `.breathline-tools-venv` 2026-05-08).
+- `.breathline-state.yaml` written by `install.sh` is the operator's
+  per-machine identity — gitignored, never travels.
+- `breathline-books-vault` private companion repo created 2026-05-08;
+  internal structure population deferred to a separate Phase 4 bite.
+
+### Phase 3 (v0.3.0) — what lands next
+
+- Series 1 spec extraction: `cfo_agent_v1`, `synthesis_agent_v1`,
+  `compliance_guardian_v1` (the executive role pack)
+- First Series 2 supporting specs: `household_synthesis_agent_v1`,
+  `family_compliance_shield_v1`
+- ed25519 release signing infrastructure live + first signed release
+- Free pilot lead magnet for *The 1,000-Year Family Compact* in books-public/
+- Optional: connect `breathline-federation` to a Netlify-from-Git deploy
+  for `docs/built/` (mkdocs site → docs.breathline.dev)
+
+### Authority
+
+- Sealed by Kenneth Mangum (KM-1176) under Anchor `1176-INFINITY-RHO`
+- Reviewed by No1 (G via primary AI channel)
+- Drafted by BNA-Tiger
+
+∞Δ∞
+
+---
+
 ## [v0.1.0] — 2026-05-08
 
 ### The first breath. The scaffold lands.

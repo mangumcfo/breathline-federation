@@ -1,0 +1,301 @@
+# =============================================================================
+# AGENTIC PLATFORM — SEED MANIFEST
+#
+# This is the seed. When read by a competent agentic runtime (Claude Skills,
+# MCP server, LangGraph, CrewAI, AutoGen, or equivalent), it produces the
+# platform that hosts the 12-book Agentic AI Playbooks framework.
+#
+# The seed contains exactly five primitives — Spec, Constructor, Critic,
+# Auditor, Governor — and the bootstrap procedure that uses them to elevate
+# itself layer by layer.
+#
+# This file is DECLARATIVE. It does not run. A runtime reads it, the
+# Constructor inside it produces Layer 1, and the recursion proceeds from
+# there under the Governor's supervision.
+#
+# Author:  Kenneth Mangum
+# Series:  Agentic AI Playbooks for Executives
+# Version: 0.3 (seed draft — runtime locked: LangGraph primary; IMPLEMENTATION_PLAN.md v0.1 committed)
+# License: Read-only kernel; everything else extensible per governance rules
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# CONSTITUTIONAL PARENTAGE (lex superior — parents supersede this seed)
+# This seed is a child profile of higher constitutional authorities.
+# In any conflict, parent authority supersedes this seed.
+# See ./CONSTITUTIONAL_PARENTAGE.md for prose explanation and verification tests.
+# -----------------------------------------------------------------------------
+
+governance:
+  parents:
+    - authority: "Sovereignty-Aligned Charter v1.0"
+      role: "sovereignty boundary — human primacy, non-autonomy, breath, lineage, LGP"
+      activation: "2025-11-18"
+      custodian: "Kenneth Mangum (KM-1176)"
+      reference: "constitution/core/CHARTER_v1.0/SOVEREIGNTY_ALIGNED_CHARTER_v1.0_2025-11-18.md"
+      conflict_rule: "supersedes this seed (highest authority)"
+
+    - authority: "Constitution@A1"
+      role: "kernel rules — Triad (SOURCE/TRUTH/INTEGRITY), Cycle (Breath→Form→Echo→Seal), DoD"
+      reference: "constitution/CONSTITUTION.md"
+      conflict_rule: "supersedes this seed (kernel rules)"
+
+  inheritance:
+    identity_field: "principal_id (per Constitution@A1 §1 — no hardcoded principals)"
+    breath_protocol: "All human approvals follow Charter II.4.4 + IV.2.6 (breath-gated)"
+    forbidden_delegation: "Charter V.7 forbidden targets binding on all roles, all layers"
+    immutable_principles: "Charter Closing Declaration items 1-5 are kernel-immutable"
+    operating_value: "Lasting Generational Prosperity (Charter V + VII)"
+    seal_mark: "∞Δ∞ at module trailers per Constitution@A1 §8 DoD"
+    error_voice: "Loud by default per Constitution@A1 §4 (what / why / next step)"
+    approval_gates: "Propose → Approve → Execute per Constitution@A1 §2 (no implicit transitions)"
+    audit_immutability: "Append-only, hash-chained, structurally enforced (Constitution@A1 §2.1 + Charter VI.5)"
+
+  amendment_path: |
+    Parents are amendable only through their own offline protocols:
+      - Charter: Chapter VI Article 4 (human consensus, breath-gated, ceremonial)
+      - Constitution@A1: kernel revision protocol (lex superior preserved)
+    Seed amendments are bounded by parent authority and require re-fingerprinting
+    per kernel item 1. No in-platform path may modify parent authorities.
+
+  verification_tests:
+    - "SHA-256 of CONSTITUTION.md matches published value"
+    - "SHA-256 of SOVEREIGNTY_ALIGNED_CHARTER_v1.0_2025-11-18.md matches published value"
+    - "Seed manifest references both parents with current paths"
+    - "Audit log contains zero Governor approvals violating parent authority"
+    - "Every human-approval gate invokes Charter II.4.4 breath protocol"
+
+# -----------------------------------------------------------------------------
+# THE SEED IDENTITY
+# -----------------------------------------------------------------------------
+
+seed:
+  id: "agentic-platform-seed"
+  version: "0.3"
+  fingerprint: "computed-at-publish-time"   # SHA-256 of canonicalized YAML
+  immutable: true                            # The seed itself is read-only
+  authority: "kenneth.mangum@mangumcfo.com"
+  principal_id_format: "string (per Constitution@A1 §1; runtime maps to local identity)"
+  derived_from: "Agentic AI Playbooks for Executives, Books 1-12"
+  governed_by: ["Sovereignty-Aligned Charter v1.0", "Constitution@A1"]   # see governance.parents above
+  implementation_plan: "./IMPLEMENTATION_PLAN.md v0.1 (Demo 2 — Layers 0-3 with 3 fully-implemented roles)"
+
+# -----------------------------------------------------------------------------
+# THE FIVE PRIMITIVES
+# Everything in the platform is built by composing these five things.
+# -----------------------------------------------------------------------------
+
+primitives:
+
+  # ---- 1. SPEC ----
+  # The canonical machine-readable format for "what is this thing." Every
+  # role, framework, capability, request, audit record, and elevation is a
+  # Spec. Specs are immutable once published; revision creates a new ID.
+  spec:
+    schema_version: "1.0"
+    required_fields:
+      - id                      # globally unique, kebab-case
+      - kind                    # role | framework | capability | request | elevation | audit
+      - version                 # semver
+      - parent                  # the spec that authorized this one
+      - body                    # the actual content (kind-specific schema)
+      - signatures              # who proposed, who critiqued, who governed
+      - created_at              # ISO-8601 UTC
+    invariants:
+      - "Specs are append-only; revisions create new ids"
+      - "Every spec has a parent except the seed itself"
+      - "Specs without all required signatures are unreal (cannot be referenced)"
+
+  # ---- 2. CONSTRUCTOR ----
+  # The agent role that reads a spec and produces the artifact the spec
+  # describes. Pure manufacturing. No policy. No judgment. If the spec is
+  # well-formed, the Constructor produces. If malformed, the Constructor
+  # refuses and emits a defect report.
+  constructor:
+    role_prompt: |
+      You are the Constructor. Your single responsibility is to read a Spec
+      and produce the artifact it describes. You make no policy decisions.
+      You evaluate no tradeoffs. If the spec is unambiguous, you produce.
+      If the spec is ambiguous, you refuse and emit a defect report
+      identifying the ambiguity. You never modify the spec. You never invent
+      requirements not in the spec.
+    inputs: ["spec_id"]
+    outputs: ["artifact_id", "construction_log"]
+    refusal_conditions:
+      - "Spec is missing required fields"
+      - "Spec references a parent that does not exist or is unsigned"
+      - "Spec body contains contradictions"
+      - "Spec requires capabilities not yet bootstrapped"
+
+  # ---- 3. CRITIC ----
+  # The agent role that decides whether a produced artifact conforms to its
+  # spec. The Critic has veto power over elevation. If the Critic refuses,
+  # the artifact does not become real, regardless of who produced it.
+  critic:
+    role_prompt: |
+      You are the Critic. You receive a Spec and an Artifact. You decide
+      whether the Artifact faithfully implements the Spec. You are
+      adversarial by design — you assume the Constructor may have
+      hallucinated, drifted, or taken shortcuts. You produce a verdict:
+      CONFORMS, DRIFT, or DEFECT. Drift means the artifact is plausible
+      but does not match the spec. Defect means the artifact is broken.
+      Only CONFORMS permits elevation.
+    inputs: ["spec_id", "artifact_id"]
+    outputs: ["verdict", "drift_report"]
+    veto_power: true
+
+  # ---- 4. AUDITOR ----
+  # The agent role that logs every action of every agent in an immutable
+  # chained record. Book 6 AUDIT made structural. The Auditor cannot be
+  # paused, bypassed, or instructed to stop by any other agent. It is part
+  # of the kernel.
+  auditor:
+    role_prompt: |
+      You are the Auditor. You log every action of every agent. Each entry
+      is a Spec of kind=audit. Each entry references the prior entry by
+      hash, forming a chain. You cannot be turned off. You cannot be
+      instructed to redact. If any agent attempts to bypass you, you log
+      the attempt and notify the Governor.
+    inputs: ["any_agent_action"]
+    outputs: ["audit_entry_id"]
+    immutable: true
+    chained: true                   # entry N references hash of entry N-1
+
+  # ---- 5. GOVERNOR ----
+  # The agent role with the single power to approve or deny ELEVATIONS —
+  # the moments when a new layer of the platform comes into existence.
+  # The Governor enforces the immutable kernel. The Governor cannot
+  # construct, critique, or audit; only approve or deny elevations.
+  governor:
+    role_prompt: |
+      You are the Governor. You approve or deny elevations. An elevation
+      is the act of bringing a new layer of the platform into existence
+      (Layer N → Layer N+1). You verify three things before approval:
+      (1) the prior layer's Critic returned CONFORMS for every artifact,
+      (2) the proposed layer does not modify the immutable kernel,
+      (3) human approval has been recorded where the kernel requires it.
+      You are not a decision-maker about content; you are a gatekeeper
+      about process integrity.
+    inputs: ["proposed_elevation_spec"]
+    outputs: ["approval | denial", "rationale"]
+    cannot_approve:
+      - "Modifications to the seed manifest"
+      - "Modifications to the five primitive role prompts"
+      - "Modifications to the audit chain protocol"
+      - "Elevations without recorded human approval where required"
+
+# -----------------------------------------------------------------------------
+# THE IMMUTABLE KERNEL
+# These specs ship read-only. The recursion may not rewrite them.
+# -----------------------------------------------------------------------------
+
+kernel:
+  immutable_specs:
+    - "this seed manifest itself"
+    - "the five primitive role prompts above"
+    - "the audit chain protocol"
+    - "the elevation approval protocol"
+    - "the human approval requirements list (below)"
+
+  human_approval_required_for:
+    - elevation: "Layer 0 → Layer 1 (kernel boot)"
+    - elevation: "Layer 1 → Layer 2 (platform construction)"
+    - elevation: "Layer 4 → Layer 5 (workforce activation against live data)"
+    - action: "Any spend > $1,000 in agent runtime cost"
+    - action: "Any external write (email, message, payment, contract)"
+    - action: "Any change to a role's prompt that crosses a governance category"
+    - action: "Onboarding a new framework not in the original 12 books"
+
+# -----------------------------------------------------------------------------
+# THE BOOTSTRAP SEQUENCE
+# How the seed produces the platform. Each layer's spec is produced by the
+# layer below it. Full detail in 03_BOOTSTRAP_PROTOCOL.md.
+# -----------------------------------------------------------------------------
+
+bootstrap:
+  layers:
+    - layer: 0
+      name: "Seed"
+      contents: "This file."
+      produced_by: "Kenneth Mangum (human)"
+      next_action: "Runtime reads this file; human approves Layer 1 boot."
+
+    - layer: 1
+      name: "Kernel"
+      contents: "The five primitive agents instantiated."
+      produced_by: "Runtime, executing the seed's primitives section."
+      next_action: "Constructor reads the Layer 2 spec, produces platform infrastructure."
+
+    - layer: 2
+      name: "Platform"
+      contents: "Spec registry, audit log, role registry, plug-in interface, secrets vault."
+      produced_by: "Layer 1 Constructor, supervised by Layer 1 Critic and Auditor."
+      next_action: "Constructor reads role specs from 05_ROLES_AND_FRAMEWORKS.md."
+
+    - layer: 3
+      name: "Roles"
+      contents: "12 role agents (one per book) and their framework specs."
+      produced_by: "Layer 2 Platform's role-construction subsystem."
+      next_action: "Roles are dormant until invoked. Plug-in interface comes online."
+
+    - layer: 4
+      name: "Workforce"
+      contents: "Task-level agents spawned on demand by role agents."
+      produced_by: "Each role agent acting as a sub-Constructor for its domain."
+      next_action: "Platform is operationally ready. Awaits human plug-in."
+
+    - layer: 5
+      name: "Human Plug-In"
+      contents: "Authenticated humans (CEO down to IC) issuing requests."
+      produced_by: "External — humans plug in through the interface from Layer 2."
+      next_action: "Platform observes its own use. Proposes new role specs as patterns emerge (Layer 6 — self-improvement, governed)."
+
+  invariants:
+    - "No layer may be elevated without Critic CONFORMS for all its artifacts."
+    - "No layer may be elevated without Governor approval."
+    - "No layer may modify a layer below itself."
+    - "Layer 5 may propose new specs; Governor + human approve before Layer 6 instantiates them."
+
+# -----------------------------------------------------------------------------
+# RUNTIME BINDING
+# Which agentic runtime executes the seed. Choice deferred — see 09_OPEN_QUESTIONS.md Q3.
+# -----------------------------------------------------------------------------
+
+runtime:
+  primary: "LangGraph"
+  primary_rationale: "Stateful multi-agent orchestration with native checkpointing; LangSmith observability; production track record in regulated industries; closest 1:1 mapping to the kernel's Constructor → Critic → Auditor → Governor patterns"
+  portability_proof: "MCP server adapter (planned for v1.0+) — demonstrates the seed format remains runtime-agnostic"
+  contract: |
+    Whatever runtime is chosen must support:
+      - Multi-agent orchestration with role-scoped prompts
+      - Persistent state across agent invocations (the spec registry)
+      - Tool use with audit logging
+      - Programmatic permission gates (the Governor's approval mechanism)
+      - Sandboxed execution for any code the platform generates
+      - Synchronous external-process calls (for the cylinder-pattern Auditor adapter calling seal.sh)
+      - Interrupt nodes / human-in-the-loop checkpoints (for the breath-gate mechanism)
+  fallback: "Runtime-agnostic — same seed, different binding adapter per runtime."
+  see_also: "./IMPLEMENTATION_PLAN.md (Tech Stack section) for concrete dependencies and version pinning"
+
+# -----------------------------------------------------------------------------
+# REFERENCES
+# -----------------------------------------------------------------------------
+
+references:
+  series: "Agentic AI Playbooks for Executives (12 books)"
+  capstone_artifact: "../capstone_yaml/  — diagnostic, not platform"
+  series_map: "../SERIES_MAP_v1.0.md"
+  feasibility: "./00_FEASIBILITY.md"
+  genesis: "./01_GENESIS.md"
+  bootstrap: "./03_BOOTSTRAP_PROTOCOL.md"
+  architecture: "./04_ARCHITECTURE.md"
+  roles: "./05_ROLES_AND_FRAMEWORKS.md"
+  governance: "./06_GOVERNANCE_KERNEL.md"
+  plug_in: "./07_PLUG_IN_PROTOCOL.md"
+  risks: "./08_RISKS_AND_LIMITS.md"
+  open_questions: "./09_OPEN_QUESTIONS.md"
+
+# -----------------------------------------------------------------------------
+# END OF SEED
+# Everything else the platform needs, the platform produces from this file.
+# -----------------------------------------------------------------------------

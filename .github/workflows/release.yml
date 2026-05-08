@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+# When KM-1176 pushes a SemVer tag, this workflow:
+#   1. Verifies the tag is on main (no rogue tags from arbitrary commits)
+#   2. Re-runs the test suite
+#   3. Builds the platform package
+#   4. Computes sha256 of every release artifact
+#   5. Generates GitHub Release notes from CHANGELOG.md
+#   6. Uploads signed artifacts (signing-key infrastructure lands v0.3.0)
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify tag is on main
+        run: |
+          git fetch origin main
+          if ! git merge-base --is-ancestor "${{ github.sha }}" origin/main; then
+            echo "::error::Tag ${{ github.ref_name }} is not on main."
+            exit 1
+          fi
+          echo "✓ tag is on main"
+
+      - name: Run platform test suite
+        working-directory: platform
+        run: |
+          pip install -e ".[dev]"
+          python -m pytest --tb=short
+
+      - name: Build artifacts (manifest + checksums)
+        run: |
+          mkdir -p release-artifacts
+          cp manifest.yaml CHANGELOG.md README.md LICENSE CHARTER.md CONSTITUTION.md release-artifacts/
+          cp -r installer release-artifacts/
+          cp -r specs release-artifacts/
+          cd release-artifacts && find . -type f -exec sha256sum {} \; > ../checksums.sha256
+          cd .. && mv checksums.sha256 release-artifacts/
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          python3 - <<'PY' > release_notes.md
+          import re, sys
+          tag = "${{ github.ref_name }}".lstrip("v")
+          text = open("CHANGELOG.md").read()
+          # Capture from "## [vTAG]" to the next "## [" or EOF
+          pat = re.compile(r"## \[v" + re.escape(tag) + r"\].*?(?=\n## \[|\Z)", re.DOTALL)
+          m = pat.search(text)
+          if m:
+              print(m.group(0))
+          else:
+              print(f"# {tag}\n\nSee CHANGELOG.md for full notes.")
+          PY
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          files: |
+            release-artifacts/manifest.yaml
+            release-artifacts/checksums.sha256
+            release-artifacts/CHANGELOG.md
+            release-artifacts/LICENSE
+          draft: false
+          prerelease: false

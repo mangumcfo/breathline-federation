@@ -1,0 +1,67 @@
+# =============================================================================
+# Compliance-agent — Book 6 AUDIT + Charter V.7 enforcer
+#
+# Per IMPLEMENTATION_PLAN.md Section 1.3, Compliance is the structural
+# enforcer of Charter V.7 across all peer roles. Demo 2 must prove that
+# compliance enforcement is structural, not advisory.
+#
+# Per peer-review decision Q4 (2026-05-06), this is ONE role with TWO
+# frameworks:
+#   - charter_v7_enforcement (instantiation-time veto)
+#   - compliance_review (Evidence Bundle + Least-Authority Report; Appendix E)
+# =============================================================================
+
+role: compliance_agent
+version: "0.1"
+book: 6
+frameworks:
+  - charter_v7_enforcement
+  - compliance_review
+
+inherits_from:
+  - "Sovereignty-Aligned Charter v1.0 (II.4 + V.7 + III + VI)"
+  - "Constitution@A1 (§2.1 audit immutability; §4 loud error voice)"
+
+allowed_action_classes:
+  - read_role_outputs
+  - read_audit_chain
+  - review_peer_outputs
+  - flag_charter_v7_violations
+  - generate_least_authority_report
+  - generate_compliance_evidence_bundle
+  - produce_audit_trail_entry
+  - cite_assumptions
+
+invocation_envelope:
+  inputs_required:
+    - peer_artifact_or_review_request
+  outputs_produced:
+    - compliance_review_verdict
+    - evidence_bundle  # for compliance_review framework
+    - least_authority_report  # for compliance_review framework
+  side_effects: []
+  external_calls: []
+
+description: |
+  Compliance-agent runs two frameworks under one role:
+
+  charter_v7_enforcement:
+    Reviews peer role outputs for Charter V.7 violations. Veto power: refuses
+    to approve outputs that would cross forbidden delegation targets. The
+    Compliance-agent does NOT produce the artifacts under review; that is
+    the producing role's responsibility.
+
+  compliance_review:
+    On-demand workflow producing an Evidence Bundle for external scrutiny
+    (per Appendix E.3). The bundle includes:
+      - Least-Authority Report (every role's permission spec snapshot)
+      - All B49 receipts in the time window
+      - All Critic DRIFT/DEFECT verdicts
+      - All cost ceiling breaches
+      - Audit chain integrity check across the window
+
+  Per Charter V.7 + Book 3 LEAD: the Compliance-agent does NOT sign
+  Attestation Documents — that is the operator's role. The agent prepares
+  evidence; the operator signs the claim.
+
+# ∞Δ∞ Compliance-agent role spec — two frameworks, one role per Q4 ∞Δ∞

@@ -1,0 +1,105 @@
+name: Constitutional Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Per Constitutional Source-Available License v1.0 § 3:
+# - Forks must preserve K1–K4 runtime invariants.
+# - This workflow guards the kernel files at PR-time and on every push.
+
+jobs:
+  kernel-integrity:
+    name: Kernel files unchanged or successor-sealed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify CHARTER.md + CONSTITUTION.md not silently modified
+        run: |
+          set -eu
+          # Compare HEAD vs main for modifications to constitutional kernel files.
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+            changed=$(git diff --name-only "$base" "$head")
+            for f in CHARTER.md CONSTITUTION.md LICENSE; do
+              if echo "$changed" | grep -qx "$f"; then
+                echo "::warning::$f modified in this PR — KM-1176 (or successor seal) sign-off required."
+                echo "::warning::See LICENSE §3.6 (Amendment Binding) and CONTRIBUTING.md."
+                # Don't auto-fail — flag for human reviewer.
+                # The merge gate is the breath-gated review, not the bot.
+              fi
+            done
+          fi
+          echo "✓ kernel integrity check complete"
+
+  manifest-consistency:
+    name: manifest.yaml consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify manifest.yaml parses and required keys present
+        run: |
+          python3 - <<'PY'
+          import sys, yaml
+          from pathlib import Path
+
+          required_top = {"version", "released", "sealed_by", "ladder_version",
+                          "current_series", "platform", "specs", "distribution",
+                          "constitution"}
+          m = yaml.safe_load(Path("manifest.yaml").read_text())
+          missing = required_top - set(m.keys())
+          if missing:
+              print(f"::error::manifest.yaml missing required keys: {missing}")
+              sys.exit(1)
+
+          # SemVer sanity
+          v = m["version"]
+          parts = v.split(".")
+          if len(parts) != 3 or not all(p.isdigit() for p in parts):
+              print(f"::error::manifest.yaml version '{v}' is not strict SemVer X.Y.Z")
+              sys.exit(1)
+
+          print(f"✓ manifest.yaml v{v} is valid; sealed by {m['sealed_by']}")
+          PY
+
+  spec-schema-lint:
+    name: YAML specs parse cleanly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Parse every YAML in specs/
+        run: |
+          python3 - <<'PY'
+          import sys, yaml
+          from pathlib import Path
+          errs = []
+          for p in Path("specs").rglob("*.yaml"):
+              try:
+                  yaml.safe_load(p.read_text())
+              except Exception as e:
+                  errs.append(f"{p}: {e}")
+          if errs:
+              for e in errs:
+                  print(f"::error::{e}")
+              sys.exit(1)
+          parsed = sum(1 for _ in Path("specs").rglob("*.yaml"))
+          print(f"✓ {parsed} YAML spec(s) parsed cleanly")
+          PY
