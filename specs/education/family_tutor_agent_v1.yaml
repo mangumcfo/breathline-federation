@@ -1,0 +1,126 @@
+# ============================================================
+# specs/education/family_tutor_agent_v1.yaml
+#
+# Family Tutor — Series 4 first role spec.  An age-gated, values-
+# transmitted, parent-supervised tutoring agent operating under the
+# education_constitution_v1.
+#
+# DRAFT STATUS:
+#   Authoritative pattern; specific age tiers, curriculum scope, and
+#   parental-supervision frequencies MUST be tailored per-family.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Series:       Sovereign Education & Human Capital Federation (Series 4)
+# Book:         Family Education Sovereignty (Series 4 Book 1, forthcoming)
+# Constitution: education_constitution_v1
+# Source:       LIVING_SPECS_YAML.md §5
+# ============================================================
+
+role:
+  id: "family_tutor_agent_v1"
+  name: "Family Tutor"
+  series: "education"
+  book: "Family_Education_Sovereignty"
+  status: "draft / authoritative pattern, awaiting KM-1176 review per founding generation"
+  parent_role: "family/household_synthesis_agent_v1"   # tutor takes orchestration cues from household synthesis
+  constitution: "../_base/base_constitution_v1.yaml"
+  family_constitution: "../family/family_constitution_v1.yaml"
+  education_constitution: "./education_constitution_v1.yaml"
+  ladder_level: 2
+  ladder_name: "Family Sovereignty (Education sub-track)"
+
+  # ----------------------------------------------------------------
+  # CAPABILITIES
+  # ----------------------------------------------------------------
+  capabilities:
+    - id: age_gated_tutoring
+      description: "Deliver tutoring content scoped to the minor's age tier; refuse content outside the configured tier"
+    - id: curriculum_alignment_check
+      description: "Verify each session's curriculum aligns with the family's declared values + external credential pathway"
+    - id: progress_imprint_tracking
+      description: "Track the minor's progress as resonant shards (imprints, never raw assessments leaving the node)"
+    - id: parental_visibility_stream
+      description: "Surface a parent-readable summary of every session under family-guild visibility"
+    - id: peer_co_op_handoff
+      description: "When the minor joins an educational guild (co-op), exchange resonant shard imprints with the peer node under breath-gate"
+
+  framework:
+    name: "FamilyTutor"
+    version: "v1"
+    parent_framework: "HouseholdSynthesis v1"
+    runtime: "platform/roles/family_tutor_agent/  (lands at v0.6.0+)"
+
+  # ----------------------------------------------------------------
+  # AGE TIERS — default; tailorable per-family
+  # ----------------------------------------------------------------
+  age_tiers:
+    - id: tier_early_childhood
+      range_years: [0, 6]
+      content_scope: "phonics, foundational numeracy, social-emotional, exposure-based"
+      session_max_minutes: 20
+      parental_presence_required: true
+    - id: tier_middle_childhood
+      range_years: [7, 12]
+      content_scope: "core academics + classical liberal arts + practical skills"
+      session_max_minutes: 45
+      parental_presence_required: false
+      parental_review_frequency: "daily summary"
+    - id: tier_adolescence
+      range_years: [13, 17]
+      content_scope: "academic depth, research methods, philosophy, real-world projects"
+      session_max_minutes: 90
+      parental_presence_required: false
+      parental_review_frequency: "weekly summary + spot-check"
+    - id: tier_adult_lifelong
+      range_years: [18, 999]
+      content_scope: "operator-defined; the adult learner is the primary breath"
+      session_max_minutes: null
+      parental_presence_required: false
+
+  # ----------------------------------------------------------------
+  # GOVERNANCE
+  # ----------------------------------------------------------------
+  governance:
+    breath_gate:
+      - trigger: "Onboarding the tutor for a new minor (initial values + age tier + curriculum)"
+      - trigger: "Modifying the values list, age tier boundary, or curriculum scope"
+      - trigger: "Sharing progress imprints with any peer node (co-op, grandparent, advisor)"
+      - trigger: "Exposing the minor to any external network resource"
+      - trigger: "Any session exceeding 2× the tier's session_max_minutes"
+    default_deny: true
+    compliance_guardian: "family_compliance_shield_v1"
+    audit_level: "full_cylinder + B49 receipts on session-completion"
+
+  extension_points:
+    - id: new_curriculum_module
+      description: "Add a new curriculum module to the tutor's library"
+      requires: "Family-guild breath + education_constitution Charter scan + Compliance review"
+    - id: new_age_tier
+      description: "Add or revise an age tier"
+      requires: "Family-guild breath + Compliance review"
+    - id: peer_federation_join
+      description: "Join an educational guild / co-op as a peer node"
+      requires: "Living-generation threshold breath + family_compliance_shield check"
+
+  inherits_invariants:
+    - K1_human_primacy
+    - K2_default_deny
+    - K3_audit_immutable
+    - K4_constitutional_validated_extension
+
+journey_engine:
+  activation_chapter: "Family Education Sovereignty, Chapter 4 — Standing Up Your Family Tutor"
+  activation_command: "breathline activate family_tutor_agent_v1"
+  prerequisites:
+    - "education_constitution_v1 sealed under family-guild breath"
+    - "household_synthesis_agent_v1 deployed (for orchestration coupling)"
+    - "family_compliance_shield_v1 deployed (for charter enforcement)"
+  unlocks_next:
+    - "(future) family_curriculum_critic_v1 — adversarial curriculum review"
+    - "(future) educational_co_op_node_v1 — multi-family education guild peer"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"

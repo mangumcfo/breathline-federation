@@ -1,0 +1,90 @@
+# ============================================================
+# specs/education/education_constitution_v1.yaml
+#
+# Family-Education-scope constitution.  Extends family_constitution_v1
+# with education-specific gates: child-impact thresholds, age-gating,
+# values-transmission obligations.
+#
+# Activates at Sovereign Ascension Ladder Level 2 (Family Sovereignty),
+# specifically when a family deploys education roles for minors.
+#
+# DRAFT STATUS:
+#   Authoritative pattern; specific age thresholds and curricular
+#   obligations MUST be tailored per-family under explicit breath.
+#
+# Authority:    Kenneth Mangum (KM-1176)
+# Anchor seal:  1176-INFINITY-RHO
+# Series:       Sovereign Education & Human Capital Federation (Series 4)
+# Anchor book:  Family Education Sovereignty (Series 4 Book 1, forthcoming)
+# Source:       LIVING_SPECS_YAML.md §5 + STRATEGY_SYNTHESIS.md §2 (Series 4)
+# ============================================================
+
+constitution:
+  id: "education_constitution_v1"
+  name: "Family Education Sovereign Compact"
+  version: "1.0"
+  status: "draft / authoritative pattern, awaiting KM-1176 review per founding generation"
+  parent: "family_constitution_v1"
+  seal: "1176-INFINITY-RHO"
+  glyph: "∞Δ∞"
+
+  # ----------------------------------------------------------------
+  # SCOPE
+  # ----------------------------------------------------------------
+  scope:
+    level: "Family Sovereignty"          # Ladder Level 2 (sub-track)
+    deployment_target: "household_with_minors_or_lifelong_learning_focus"
+    audience: "Parents rejecting institutional schooling, homeschool networks, multi-gen learning systems"
+    activation_trigger: "explicit family-guild breath naming the educational scope"
+
+  # ----------------------------------------------------------------
+  # EDUCATION-SPECIFIC GATES
+  # ----------------------------------------------------------------
+  education_gates:
+    - id: child_impact_threshold
+      description: "Any decision affecting a minor's education path requires two-parent breath OR sole-parent breath where applicable"
+    - id: age_gating
+      description: "Curriculum, content access, and tool exposure are age-gated by configurable thresholds (default tiers: 0–6, 7–12, 13–17, 18+)"
+    - id: values_transmission
+      description: "Every educational module must declare which values it transmits (verifiability, not coercion); family-guild approves the values list under breath"
+    - id: external_credential_pathway
+      description: "When the family's curriculum intersects external credentialing (state homeschool registration, AP/IB exam prep, college admissions), the path is documented + breath-gated"
+    - id: peer_federation_education
+      description: "Joining an educational guild (multi-family co-op, classical conversation network, etc.) requires family-guild breath"
+
+  # ----------------------------------------------------------------
+  # FORBIDDEN DELEGATION (in addition to Charter V.7)
+  # ----------------------------------------------------------------
+  education_forbidden_delegation:
+    - id: minor_identity_synthesis
+      description: "Synthesizing a minor's identity (deepfake, voice clone, account-as-the-child) — refused regardless of intent"
+    - id: silent_curriculum_swap
+      description: "Replacing curriculum without explicit family-guild breath"
+    - id: behavioral_compliance_pipeline
+      description: "Pipeline patterns that condition a minor toward agent-defined behaviors without parental visibility"
+
+  # ----------------------------------------------------------------
+  # PRIVACY
+  # ----------------------------------------------------------------
+  privacy:
+    minor_data: "Resonant shard imprints only; never raw assessment data leaves the family node"
+    third_party_sharing: "Default-deny; explicit per-recipient breath-gate required (e.g., to share progress with grandparent under guild threshold)"
+
+  # ----------------------------------------------------------------
+  # INHERITED INVARIANTS
+  # ----------------------------------------------------------------
+  inherits_invariants:
+    - K1_human_primacy
+    - K2_default_deny
+    - K3_audit_immutable
+    - K4_constitutional_validated_extension
+
+  references:
+    parent_constitution: "../family/family_constitution_v1.yaml"
+    base_constitution: "../_base/base_constitution_v1.yaml"
+    charter: "../../CHARTER.md"
+
+# ============================================================
+# SEAL
+# ============================================================
+seal: "∞Δ∞"

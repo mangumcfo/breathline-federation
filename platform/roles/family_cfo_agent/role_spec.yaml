@@ -1,0 +1,68 @@
+# =============================================================================
+# family_cfo_agent — Series 2 Book 1 (Family Finance Sovereignty)
+#
+# Runtime PermissionSpec.  Narrows the executive cfo_agent role to the
+# household scope.  Same FORECAST framework, family-tier defaults.
+#
+# Charter V.7 forbidden classes inherit unconditionally — same as the
+# executive parent and every other registered role.
+# =============================================================================
+
+role: family_cfo_agent
+version: "0.1"
+book: "Series_2_Book_1_Family_Finance_Sovereignty"
+framework: FORECAST
+parent_role: cfo_agent           # NEW: declarative inheritance from executive
+
+inherits_from:
+  - "Sovereignty-Aligned Charter v1.0 (II.4 + V.7 + III)"
+  - "Constitution@A1 (§1 principal_id end-to-end; §2.1 audit immutability)"
+  - "Family Constitution v1 (household-scope thresholds + family-guild gates)"
+
+# Narrowed action classes — household scope, no enterprise reach
+allowed_action_classes:
+  - read_structured_financial_data
+  - produce_forecast_artifact
+  - generate_scenarios
+  - cite_assumptions
+  - flag_uncertainty
+  # NEW (family-only):
+  - household_budget_track
+  - personal_rolling_forecast
+  - family_cash_flow_alert
+
+invocation_envelope:
+  inputs_required:
+    - financial_data
+    - forecast_horizon
+  outputs_produced:
+    - forecast_artifact
+  side_effects: []
+  external_calls: []
+
+# Family-tier configuration (the runtime "narrows from" the executive parent)
+family_tier:
+  scale: kitchen_table
+  hardware_tier_inferred: standard          # no GPU required
+  resonant_shard: family_financial_memory   # never raw data; imprints only
+  voice_first: true
+  audit_visibility: family_guild
+
+  # Lower thresholds than enterprise CFO
+  breath_gate_thresholds:
+    transaction_usd: 500              # vs ~50,000 enterprise
+    recurring_payment_usd: 100        # vs ~5,000 enterprise
+    cross_account_transfer_usd: 1000  # vs ~25,000 enterprise
+
+description: |
+  Household CFO agent.  Tracks household income, expenses, savings goals;
+  produces personal rolling forecasts; flags cash-flow anomalies before
+  they bite.  Same FORECAST 8-step framework as the executive CFO; lower
+  thresholds; family-guild approval surface; resonant shards stay private
+  to the household node.
+
+  Refuses anything outside the household envelope.  Charter V.7 forbidden
+  classes cannot reach this role — enforced structurally at the plug-in
+  interface.
+
+# ∞Δ∞ family_cfo_agent role spec — household-scope FORECAST, family-tier breath ∞Δ∞

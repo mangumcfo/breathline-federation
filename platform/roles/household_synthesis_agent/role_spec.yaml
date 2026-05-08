@@ -1,0 +1,69 @@
+# =============================================================================
+# household_synthesis_agent — Series 2 Book 2
+#
+# Runtime PermissionSpec.  Household-scope orchestrator that coordinates
+# family CFO + family compliance shield + (future) family tutor +
+# household health.  Lower recursion depths than enterprise synthesis.
+# =============================================================================
+
+role: household_synthesis_agent
+version: "0.1"
+book: "Series_2_Book_2_Daily_Operations_and_Home_Node"
+framework: SYNTHESIS
+parent_role: synthesis_agent
+
+inherits_from:
+  - "Sovereignty-Aligned Charter v1.0 (II.4 + V.7 + III)"
+  - "Constitution@A1 (§1 principal_id end-to-end; §2.1 audit immutability)"
+  - "Family Constitution v1 (household-scope thresholds + family-guild gates)"
+
+allowed_action_classes:
+  # inherited from synthesis_agent (canonical names from seed/action_classes.yaml)
+  - read_role_outputs
+  - invoke_peer_role
+  - integrate_role_outputs
+  - produce_executive_brief
+  - surface_role_tensions
+  - cite_assumptions
+  - flag_uncertainty
+  # NEW (family-only — added to action_classes.yaml in v0.5.0)
+  - household_decision_orchestration
+  - weekly_household_brief
+  - cross_generation_consultation_request
+
+invocation_envelope:
+  inputs_required:
+    - request_summary
+    - peer_roles_to_invoke
+  outputs_produced:
+    - household_brief
+  side_effects: []
+  external_calls: []
+
+family_tier:
+  scale: kitchen_table
+  recursion_depth_default: 2          # vs 3 enterprise
+  recursion_depth_max: 3              # vs 5 enterprise
+  breath_gate_at_depth: 2             # vs 4 enterprise — household feels drift sooner
+  voice_first: true
+
+  # Family-scope peer allowlist (Charter V.7 default-deny on unknowns)
+  allowed_peer_roles:
+    - family_cfo_agent
+    - family_compliance_shield
+    # future:  - family_tutor_agent
+    #          - household_health_agent
+    # generational ascension peers — gated separately per ladder transition
+    # - legacy_guardian_agent
+    # - dynastic_synthesis_agent
+
+description: |
+  Household-scope orchestrator.  Same SYNTHESIS framework as enterprise,
+  narrower allowed_peer_roles, lower recursion depths so the household
+  feels drift sooner than a $500M enterprise would.
+
+  Produces weekly household briefs integrating family_cfo +
+  family_compliance_shield outputs.  Surfaces tensions BEFORE producing
+  recommendations to preserve family-guild coherence.
+
+# ∞Δ∞ household_synthesis_agent — kitchen-table SYNTHESIS, family-guild gated ∞Δ∞

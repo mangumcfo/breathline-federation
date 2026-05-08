@@ -1,0 +1,77 @@
+# =============================================================================
+# family_compliance_shield — Series 2 Book 3
+#
+# Runtime PermissionSpec.  Family-tier extension of compliance_agent:
+# same Charter V.7 enforcement, narrower receipt-mint surface,
+# quarterly self-audit cadence, family-guild approval gates.
+# =============================================================================
+
+role: family_compliance_shield
+version: "0.1"
+book: "Series_2_Book_3_Privacy_Security_Constitutional_Governance"
+framework: AUDIT
+parent_role: compliance_agent
+
+inherits_from:
+  - "Sovereignty-Aligned Charter v1.0 (II.4 + V.7 + III + Appendix E.3.4)"
+  - "Constitution@A1 (§1 principal_id end-to-end; §2.1 audit immutability)"
+  - "Family Constitution v1 (household-scope thresholds + family-guild gates)"
+
+# Charter V.7 enforcement is INHERITED unchanged from parent.
+# Family scope adds privacy_shield_enforcement + family_guild_threshold_management.
+allowed_action_classes:
+  # inherited from compliance_agent (canonical names from seed/action_classes.yaml)
+  - read_role_outputs
+  - read_audit_chain
+  - review_peer_outputs
+  - flag_charter_v7_violations
+  - generate_least_authority_report
+  - generate_compliance_evidence_bundle
+  - produce_audit_trail_entry
+  - cite_assumptions
+  # NEW (family-only — added to action_classes.yaml in v0.5.0)
+  - privacy_shield_enforcement
+  - family_guild_threshold_management
+  - quarterly_household_audit
+
+invocation_envelope:
+  inputs_required:
+    - mode  # charter_v7_review | compliance_review
+  outputs_produced:
+    - audit_artifact
+  side_effects: []
+  external_calls: []
+
+family_tier:
+  scale: kitchen_table
+  audit_scope: household
+  audit_cadence: quarterly
+  family_guild_threshold_minimum: 2  # adult family members for cross-gen decisions
+
+  # Family-scope receipt taxonomy override
+  always_mint_events:
+    - compliance_evidence_bundle_generated
+    - least_authority_report_generated
+    - new_role_deployed_via_spec
+    - family_compact_activated
+    - guild_join_approved
+    - human_approval_gate
+    - kernel_boot
+    - layer_elevation
+    - cost_ceiling_breach_attempt
+
+  default_deny_events:
+    - household_routine_transaction
+    - background_telemetry
+    - voice_command_internal_routing
+
+description: |
+  Household-scope Charter V.7 enforcer + privacy shield.  Same K1-K4
+  invariants as the executive compliance_agent; receipt-mint taxonomy
+  narrows to constitutional family events (compact activation, guild
+  joins, evidence bundles for tax/legal advisors); quarterly self-audit
+  cadence under the family-guild threshold.
+
+  Refuses anything outside the household compliance envelope.
+
+# ∞Δ∞ family_compliance_shield — household-scope Charter V.7 + privacy shield ∞Δ∞

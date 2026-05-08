@@ -78,6 +78,98 @@ def create_demo2_handlers(
     return handlers
 
 
+# ============================================================
+# Series 2 — Family role pack (v0.5.0)
+# ============================================================
+#
+# Family role handlers inherit from executive parents and narrow scope
+# to the household.  Same K1-K4 invariants; lower thresholds; family-
+# guild approval surface; resonant shards stay private to the household
+# node.
+#
+# Per LIVING_SPECS_YAML.md §5: family roles extend executive roles via
+# Python subclassing.  The numeric / framework cores are reused; the
+# narrowing happens at the role-handler level (process()) and at the
+# role_spec.yaml PermissionSpec level (allowed_action_classes,
+# breath_gate_thresholds).
+
+
+def register_family_roles(role_registry: RoleRegistry) -> None:
+    """Register the three family-tier role specs into the registry."""
+    for role_id in (
+        "family_cfo_agent",
+        "family_compliance_shield",
+        "household_synthesis_agent",
+    ):
+        spec_path = role_spec_path(role_id)
+        if not spec_path.exists():
+            raise FileNotFoundError(
+                f"Family role spec for {role_id!r} not found at {spec_path}."
+            )
+        role_registry.register_from_yaml(spec_path)
+
+
+def create_family_handlers(
+    role_registry: RoleRegistry,
+    auditor: Any | None = None,
+    receipt_minter: Any | None = None,
+) -> dict[str, Any]:
+    """Instantiate the three Series 2 family role handlers.
+
+    Each family handler subclasses an executive parent:
+      family_cfo_agent           ← cfo_agent
+      family_compliance_shield   ← compliance_agent
+      household_synthesis_agent  ← synthesis_agent
+
+    Same protocol surface (process(PlugInRequest) -> dict).  Family-tier
+    metadata is added to every result (audit_scope, family_tier flag,
+    breath_gate_thresholds, etc.) so downstream Auditor + Critic can
+    apply household-tier gates.
+    """
+    from roles.family_cfo_agent.role import FamilyCFOAgent
+    from roles.family_compliance_shield.role import FamilyComplianceShield
+    from roles.household_synthesis_agent.role import HouseholdSynthesisAgent
+
+    handlers: dict[str, Any] = {
+        "family_cfo_agent": FamilyCFOAgent(),
+        "family_compliance_shield": FamilyComplianceShield(
+            role_registry=role_registry,
+            auditor=auditor,
+            receipt_minter=receipt_minter,
+        ),
+    }
+    handlers["household_synthesis_agent"] = HouseholdSynthesisAgent(
+        peer_handlers=handlers
+    )
+    return handlers
+
+
+def create_full_handlers(
+    role_registry: RoleRegistry,
+    auditor: Any | None = None,
+    receipt_minter: Any | None = None,
+) -> dict[str, Any]:
+    """Instantiate executive + family handlers in one combined dict.
+
+    Useful for nodes that operate at Level 1 (Executive Mastery) AND
+    Level 2 (Family Sovereignty) simultaneously — e.g., a fractional CFO
+    using the platform for both client work and personal household.
+    """
+    handlers = create_demo2_handlers(
+        role_registry=role_registry,
+        auditor=auditor,
+        receipt_minter=receipt_minter,
+    )
+    handlers.update(
+        create_family_handlers(
+            role_registry=role_registry,
+            auditor=auditor,
+            receipt_minter=receipt_minter,
+        )
+    )
+    return handlers
+
+
 def create_demo2_graph_handlers(
     role_registry: RoleRegistry,
     auditor: Any | None = None,

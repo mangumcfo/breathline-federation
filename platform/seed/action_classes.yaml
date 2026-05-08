@@ -115,6 +115,46 @@ allowed_action_classes:
     description: "Invoke the breath gate for human approval"
     always_available: true
 
+  # ─── Series 2 Family role pack (added v0.5.0, KM-1176 directive) ──────
+  # Per amendment_path: operator approval + Charter V.7 review.
+  # All five new classes are household-scope narrowings; none enable a
+  # Charter V.7 forbidden capability.  Reviewed and approved 2026-05-08.
+  - id: household_budget_track
+    description: "Track household income, expenses, savings goals (read-only by default)"
+    series: "family"
+
+  - id: personal_rolling_forecast
+    description: "Produce a 12-month personal/household rolling forecast"
+    series: "family"
+
+  - id: family_cash_flow_alert
+    description: "Flag household cash-flow anomalies before breath-gated action"
+    series: "family"
+
+  - id: privacy_shield_enforcement
+    description: "Enforce P5 zk/homomorphic shield rules on family memory imprints"
+    series: "family"
+
+  - id: family_guild_threshold_management
+    description: "Manage family-guild membership + N+ adult threshold for cross-gen decisions"
+    series: "family"
+
+  - id: quarterly_household_audit
+    description: "Run the quarterly self-audit cycle (family compliance shield)"
+    series: "family"
+
+  - id: household_decision_orchestration
+    description: "Decompose household questions into role-scoped sub-questions"
+    series: "family"
+
+  - id: weekly_household_brief
+    description: "Produce a weekly household brief integrating peer-role outputs"
+    series: "family"
+
+  - id: cross_generation_consultation_request
+    description: "Request consultation across generations (under cross-generation breath)"
+    series: "family"
+
 # -----------------------------------------------------------------------------
 # AMENDMENT PATH
 #
