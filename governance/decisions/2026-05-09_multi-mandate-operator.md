@@ -10,7 +10,7 @@
 
 ## Context
 
-KM-1176 directive (2026-05-09): one human commonly serves several fiduciary mandates simultaneously — e.g., CFO of QuadRoof, interim CFO of Akshino Consulting, principal of Fractional CFO Consulting Group, plus family CFO at home. Each mandate has its own data, its own counterparties, its own audit obligations, its own Charter V.7 boundaries. Cross-contamination between mandates is a constitutional violation.
+KM-1176 directive (2026-05-09): one human commonly serves several fiduciary mandates simultaneously — e.g., CFO of QuadRoof, principal of Fractional CFO Consulting Group, plus family CFO at home. Each mandate has its own data, its own counterparties, its own audit obligations, its own Charter V.7 boundaries. Cross-contamination between mandates is a constitutional violation.
 
 The Constitution §1 already states the relevant invariant:
 
@@ -20,7 +20,7 @@ What is **not** explicitly written: the doctrine for **the same human holding mu
 
 ## Decision
 
-1. **Doctrine: each mandate is a distinct principal_id.** A single human may hold multiple principal_ids (e.g., `kenneth-quadroof`, `kenneth-akshino`, `kenneth-fractional-cfo`, `kenneth-family`). Each principal_id carries:
+1. **Doctrine: each mandate is a distinct principal_id.** A single human may hold multiple principal_ids (e.g., `kenneth-quadroof`, `kenneth-fractional-cfo`, `kenneth-family`). Each principal_id carries:
 
    - Its own audit chain (cylinder seq independent per mandate)
    - Its own Permission Spec set
@@ -44,7 +44,7 @@ What is **not** explicitly written: the doctrine for **the same human holding mu
 
 4. **No code changes required for the simple cases.** Constitution §1 + the existing per-principal_id audit isolation already cover the solo-entrepreneur and multi-mandate-with-separate-nodes cases. The `mandate_id` extension is only needed for shared-node multi-mandate operation.
 
-5. **Cross-mandate handoff is breath-gated and audit-sealed.** Any artifact that flows from one mandate to another (e.g., a Quadroof board summary referenced in an Akshino strategy memo) must:
+5. **Cross-mandate handoff is breath-gated and audit-sealed.** Any artifact that flows from one mandate to another (e.g., a QuadRoof board summary referenced in a Fractional CFO Consulting Group client memo) must:
 
    - Be classified under a `cross_mandate_handoff` action class (queued for `action_classes.yaml` amendment)
    - Pass breath-gate explicitly

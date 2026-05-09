@@ -10,7 +10,7 @@
 
 ## Context
 
-In the 2026-05-09 operator-harness design conversation, KM-1176 raised whether the platform supports **user-defined roles** — i.e., a user creating a role specific to their enterprise (e.g., `quadroof_cfo_agent`, `akshino_interim_cfo`, `fractional_consulting_cfo`) without requiring the role to be book-authored first.
+In the 2026-05-09 operator-harness design conversation, KM-1176 raised whether the platform supports **user-defined roles** — i.e., a user creating a role specific to their enterprise (e.g., `quadroof_cfo_agent`, `fractional_consulting_cfo`, `family_cfo_agent`) without requiring the role to be book-authored first.
 
 A prior conversation turn implied this required relaxing the Authoritative Pattern Rule. **That implication was incorrect.** Verification of the code (`platform/platform_layer/registry.py`, `platform/platform_layer/permission_spec.py`) confirms the platform already supports user-defined roles structurally; the constraints sit at the action-class layer, not the role layer.
 
@@ -25,7 +25,7 @@ A user authoring `roles/quadroof_cfo/role_spec.yaml` that composes existing acti
 
 ### The actual friction
 
-If a custom role needs an **action class that does not yet exist** (e.g., a Quadroof-specific `solar_project_irr_calculation`), adding that class requires the existing amendment path declared in `action_classes.yaml`:
+If a custom role needs an **action class that does not yet exist** (e.g., a QuadRoof-specific `solar_project_irr_calculation`), adding that class requires the existing amendment path declared in `action_classes.yaml`:
 
 - `add_class:    operator approval + Charter V.7 review`
 - `remove_class: operator approval + Charter V.7 review + rationale documented`
