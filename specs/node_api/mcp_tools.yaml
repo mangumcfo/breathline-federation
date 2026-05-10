@@ -1,0 +1,189 @@
+# ============================================================
+# specs/node_api/mcp_tools.yaml
+#
+# MCP (Model Context Protocol) surface for the Node API.
+#
+# Same operations as contract_v1.yaml, re-expressed as MCP tools
+# so any AI agent — Claude Code, Claude Desktop, Claude Agent SDK
+# integrations, or any other MCP client — can drive a sovereign
+# Breathline node with the SAME constitutional posture as a UI.
+#
+# Lex superior: ../../CHARTER.md + ../../CONSTITUTION.md
+# Authority:    Kenneth Mangum (KM-1176)
+# Glyph:        ∞Δ∞
+# ============================================================
+
+mcp:
+  server_name:    "breathline-node"
+  protocol:       "MCP 2025-06"
+  binding:        "local stdio + local WSS at 127.0.0.1:8421/mcp"
+  auth:           "same principal_id-bearer model as contract_v1.yaml"
+  shared_handlers: "every tool below dispatches to the same underlying handler as the corresponding contract_v1.yaml endpoint — no MCP-only paths."
+
+# ----------------------------------------------------------------
+# DESIGN RULE
+# ----------------------------------------------------------------
+# An AI agent (e.g., Claude) can READ everything via MCP.
+# An AI agent can PROPOSE writes via MCP.
+# But every WRITE that mutates state is gated by the SAME breath-gate
+# the UI surfaces — the human approves via the UI (or via a separate
+# CLI), not via the MCP-calling agent. This is K1 Human Primacy:
+# the model proposes, the operator disposes.
+# ----------------------------------------------------------------
+
+tools:
+
+  # --- Identity / Status ---------------------------------------
+
+  - name: breathline_node_status
+    backs: [node.get, node.health, node.ladder]
+    description: "Identify the local Breathline node, report kernel/manifest/chain health, current ladder rung."
+    input_schema:
+      type: object
+      properties:
+        include_health: { type: boolean, default: true }
+        include_ladder: { type: boolean, default: true }
+    breath_gate: false
+
+  - name: breathline_manifest_get
+    backs: [manifest.get]
+    description: "Return the parsed, signature-verified manifest.yaml — version anchor + spec inventory + tier defaults."
+    breath_gate: false
+
+  # --- Specs ---------------------------------------------------
+
+  - name: breathline_specs_list
+    backs: [specs.list]
+    description: "Enumerate role / permission / constitutional specs registered on this node, optionally filtered by series."
+    input_schema:
+      type: object
+      properties:
+        series: { type: string, enum: [executive, family, generational_legacy, education, health, federation, all], default: all }
+    breath_gate: false
+
+  - name: breathline_specs_get
+    backs: [specs.get]
+    description: "Return a single spec with sha256, ladder level, runtime status (active vs draft authoritative-pattern)."
+    breath_gate: false
+
+  - name: breathline_specs_validate
+    backs: [specs.validate]
+    description: "Run the Compliance-agent against a candidate YAML before ingestion. Returns issues with rule, severity, message."
+    breath_gate: false
+
+  # --- Roles ---------------------------------------------------
+
+  - name: breathline_roles_list
+    backs: [roles.list]
+    description: "List roles registered in the platform RoleRegistry — CFO Agent, Synthesis Agent, Compliance Guardian, Family triad, etc."
+    breath_gate: false
+
+  - name: breathline_roles_get
+    backs: [roles.get]
+    description: "Role detail — spec, framework, declared permissions, recent invocations."
+    breath_gate: false
+
+  - name: breathline_role_invoke
+    backs: [roles.invoke]
+    description: "Propose an invocation of a role. If the role's action_class is breath-gated, this returns a breath_gate_request_id and the human must approve before dispatch. The MCP-calling agent CANNOT approve on the human's behalf."
+    input_schema:
+      type: object
+      required: [role_id, principal_id, payload]
+      properties:
+        role_id:        { type: string }
+        principal_id:   { type: string }
+        payload:        { type: object }
+        cost_budget:    { type: object }
+    breath_gate: "conditional — proposer cannot self-approve"
+
+  - name: breathline_invocation_status
+    backs: [invocations.get]
+    description: "Status, output, cylinder seal, cost actuals for a given invocation_id."
+    breath_gate: false
+
+  # --- Breath-gate (read-only over MCP) ------------------------
+  # MCP clients can READ pending breath-gates (e.g., to summarize
+  # them for the human) but CANNOT approve or deny over MCP.
+  # Approval/denial is intentionally UI-only or CLI-only — never
+  # delegated to the agent that proposed the action.
+
+  - name: breathline_breath_gate_pending
+    backs: [breath_gate.pending]
+    description: "List currently-blocking breath-gate requests. Read-only over MCP. Approval/denial is human-direct."
+    breath_gate: false
+
+  # --- Audit chain (read + replay) -----------------------------
+
+  - name: breathline_audit_query
+    backs: [audit.cylinders, audit.cylinder]
+    description: "Query the cylinder chain. Either by since_seq + limit (pagination) or by single seq (detail)."
+    input_schema:
+      type: object
+      properties:
+        seq:        { type: integer }
+        since_seq:  { type: integer }
+        limit:      { type: integer, maximum: 500, default: 50 }
+        filter_kind: { type: string }
+    breath_gate: false
+
+  - name: breathline_audit_replay
+    backs: [audit.replay]
+    description: "Re-verify chain integrity end-to-end (mirror of platform_layer/audit_adapter.py replay_chain). Read-only verification."
+    breath_gate: false
+
+  # --- Cost meter ---------------------------------------------
+
+  - name: breathline_cost_status
+    backs: [cost.current, cost.limits.get]
+    description: "Current window usage and configured caps for this principal_id."
+    breath_gate: false
+
+  # --- Books / Ladder -----------------------------------------
+
+  - name: breathline_books_list
+    backs: [books.list]
+    description: "Books visible from this node — public chapters, lead magnets, locally-activated titles."
+    breath_gate: false
+
+  # --- Upgrade (read-only over MCP) ----------------------------
+
+  - name: breathline_upgrade_check
+    backs: [upgrade.available]
+    description: "Check upstream manifest.yaml for newer signed release. Read-only — apply is human-direct."
+    breath_gate: false
+
+# ----------------------------------------------------------------
+# RESOURCES (MCP-style, read-only data exposed for context)
+# ----------------------------------------------------------------
+
+resources:
+  - uri: "breathline://node/manifest"
+    description: "The current parsed manifest.yaml."
+  - uri: "breathline://node/charter"
+    description: "CHARTER.md — sovereignty-aligned charter v1.0."
+  - uri: "breathline://node/constitution"
+    description: "CONSTITUTION.md — kernel rules."
+  - uri: "breathline://node/ladder"
+    description: "Sovereign Ascension Ladder — current rung + next-step requirements."
+  - uri: "breathline://node/health"
+    description: "Active health check (mirror of installer/doctor.sh)."
+  - uri: "breathline://specs/{series}/{spec_id}"
+    description: "Individual spec YAML by series + id."
+
+# ----------------------------------------------------------------
+# WHAT IS DELIBERATELY NOT EXPOSED OVER MCP
+# ----------------------------------------------------------------
+
+intentional_absences:
+  - "breath_gate.approve / breath_gate.deny — humans only, via UI or CLI"
+  - "upgrade.apply — humans only"
+  - "books.activate — humans only (ladder-rung change is K1)"
+  - "cost.limits.update — humans only"
+  - "specs ingestion / mutation — only via sealed PR to specs/<series>/, not over the wire"
+
+rationale: |
+  K1 Human Primacy is enforced by REMOVING the lever, not by hoping
+  the calling agent is well-aligned. If the lever is not exposed over
+  MCP, no MCP client — well-aligned or not — can pull it.
+
+seal: "∞Δ∞"
