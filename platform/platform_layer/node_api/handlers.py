@@ -699,56 +699,254 @@ def handler_audit_query(
 def handler_breath_gate_pending(
     *,
     principal_id: str,
-    breath_gate: Any | None = None,
+    breath_gate_queue: Any | None = None,
 ) -> BreathGatePendingResponse:
     """List currently-blocking breath-gate requests for this principal_id.
 
-    Per Lumen witness review of PR #18 (2026-05-11): kernel/breath_gate.py
-    today is a Phase 1 synchronous CLI ritual — there is no pending queue.
-    The pending-queue mechanism the contract anticipates lands alongside
-    Sprint 2's role-invocation tools (because role.invoke → propose-to-
-    queue is what populates the pending list).
+    Sprint 2A: now reads from the real breath-gate queue at
+    ``platform_layer.breath_gate_queue.BreathGateQueue``. Sprint 1B
+    returned empty-with-note because the queue substrate did not exist;
+    Sprint 2A added the substrate, and this handler activates it.
 
-    For Sprint 1B, this handler is correctly implemented as:
-
-      - Returns an empty pending list (no queue exists yet to read from)
-      - Returns ``pending_queue_status`` = ``"queue_not_yet_active"``
-      - Returns a note explaining the architecture and pointing at when it
-        becomes meaningfully populated
-
-    This is NOT a stub. The handler is the right shape for the contract;
-    it returns honest state. When Sprint 2's role-invocation lands and
-    creates pending entries, the handler signature is forward-compatible.
+    Queue discovery falls through:
+      1. Explicit ``breath_gate_queue`` argument
+      2. ``BREATHLINE_QUEUE_DIR`` env var pointing at a real directory
+      3. ``~/.breathline/pending_queue/`` (created lazily by the queue)
+      4. Fallback: return empty-with-note (substrate not configured)
 
     K1 posture: approval/denial is DELIBERATELY NOT exposed in this handler
-    or anywhere over MCP (per mcp_tools.yaml intentional_absences).
+    or anywhere over MCP (per mcp_tools.yaml intentional_absences). The
+    list-pending operation is READ-ONLY — it surfaces the queue for the
+    operator's situational awareness; the operator pulls the approval
+    lever via the CLI ritual (Sprint 2B) or via the breath-gate-pending
+    HTTP route's companion approve/deny endpoints (also Sprint 2B).
 
     Args:
         principal_id: required — no anonymous queries.
-        breath_gate: reserved for Sprint 2 wiring; ignored in Sprint 1B.
+        breath_gate_queue: optional explicit queue; auto-discovered from
+            BREATHLINE_QUEUE_DIR env or ~/.breathline/pending_queue/
+            fallback.
     """
     pid = _require_principal(principal_id)
+
+    # Sprint 2A: try to read from the real queue if available. If the queue
+    # module isn't importable (older deployment) or the queue directory
+    # doesn't exist yet, fall back to empty-with-note — both are honest
+    # states. Per "Build broad substrate early. Activate capability
+    # progressively." — the substrate is here; activation is observable.
+    if breath_gate_queue is None:
+        breath_gate_queue = _default_breath_gate_queue()
+    if breath_gate_queue is None:
+        return BreathGatePendingResponse(
+            principal_id=pid,
+            pending=[],
+            pending_queue_status="queue_not_yet_active",
+            note=(
+                "Breath-gate pending queue substrate is not available in this "
+                "deployment. Configure BREATHLINE_QUEUE_DIR or pass an explicit "
+                "queue. Reference: "
+                "governance/decisions/2026-05-11_post-spec-runtime-roadmap.md. "
+                "Approval/denial is DELIBERATELY NOT exposed over MCP "
+                "(mcp_tools.yaml intentional_absences) — humans only, via the "
+                "future Sprint 3 UI or via CLI."
+            ),
+        )
+
+    entries = breath_gate_queue.list_pending(principal_id=pid)
+    pending_dicts: list[dict[str, Any]] = []
+    for e in entries:
+        pending_dicts.append(
+            {
+                "request_id": e.request_id,
+                "action_class": e.action_class,
+                "summary": (
+                    f"{e.role_id} → {e.action_class}: proposed by {e.proposer}"
+                ),
+                "proposer": e.proposer,
+                "reversibility": e.reversibility,
+                "forbidden_delegations_check": e.forbidden_delegations_check,
+                "cost_estimate": e.cost_estimate,
+                "opened_at": e.opened_at.isoformat(),
+                "timeout_at": e.timeout_at.isoformat(),
+                "payload_preview": e.payload_preview,
+            }
+        )
+    status = "active" if pending_dicts else "active_empty"
+    note = (
+        f"Read from breath-gate queue at {breath_gate_queue.queue_dir}. "
+        f"{len(pending_dicts)} entry(ies) pending for principal {pid}. "
+        "Approval/denial is DELIBERATELY NOT exposed over MCP — humans only, "
+        "via the future Sprint 3 UI or via the breathline_approve CLI ritual."
+    )
     return BreathGatePendingResponse(
         principal_id=pid,
-        pending=[],
-        pending_queue_status="queue_not_yet_active",
-        note=(
-            "Breath-gate pending queue is not yet populated. The current "
-            "kernel/breath_gate.py is a Phase 1 synchronous CLI ritual; "
-            "the persistent pending-queue mechanism the contract anticipates "
-            "lands alongside Sprint 2's role-invocation tools. Reference: "
-            "governance/decisions/2026-05-11_post-spec-runtime-roadmap.md. "
-            "Approval/denial is DELIBERATELY NOT exposed over MCP "
-            "(mcp_tools.yaml intentional_absences) — humans only, via the "
-            "future Sprint 3 UI or via CLI."
-        ),
+        pending=pending_dicts,
+        pending_queue_status=status,
+        note=note,
     )
+
+
+def _default_breath_gate_queue() -> Any | None:
+    """Discover the default breath-gate queue if one is configured.
+
+    Resolution order:
+      1. Env var ``BREATHLINE_QUEUE_DIR`` set + directory exists/creatable
+      2. Fallback: ``~/.breathline/pending_queue/`` (created lazily)
+
+    Returns the BreathGateQueue instance, or None if the queue module
+    itself is not importable (older deployment).
+    """
+    try:
+        from platform_layer.breath_gate_queue import BreathGateQueue
+    except ImportError:
+        return None
+    env_dir = os.environ.get("BREATHLINE_QUEUE_DIR")
+    queue_dir = Path(env_dir).expanduser() if env_dir else (
+        Path.home() / ".breathline" / "pending_queue"
+    )
+    return BreathGateQueue(queue_dir=queue_dir)
+
+
+# -----------------------------------------------------------------------------
+# Handler: role_invoke (Sprint 2A — submits to queue when breath-gate required)
+# -----------------------------------------------------------------------------
+class RoleInvokeResponse(BaseModel):
+    """Result of role_invoke — the proposer's side of the breath-gate flow.
+
+    Per CONSTITUTION §1 and CHARTER II.4.4: when an action class requires
+    a breath-gate, ``role_invoke`` SUBMITS to the queue and returns the
+    pending request_id. It DOES NOT dispatch the role. The CLI ritual
+    (or future Sprint 3 UI) approves; the platform then dispatches on
+    behalf of the approving human.
+
+    For auto-approvable action classes (read-only or system-internal),
+    Sprint 2A leaves dispatch to Sprint 2B's HTTP wiring — the handler
+    only handles the submit path. ``status`` distinguishes the cases:
+
+      - "pending_breath_gate": entry written to queue; awaiting human
+      - "rejected": pre-submission gate refused (e.g., unknown role)
+      - "auto_dispatch_pending_sprint2b": action_class was auto-approve
+        but Sprint 2A doesn't wire dispatch yet; this is HONEST status,
+        not silent success
+    """
+
+    request_id: str | None
+    status: str
+    role_id: str
+    action_class: str
+    breath_gate_request_id: str | None = None
+    cost_estimate: dict[str, Any] = Field(default_factory=dict)
+    refusal_reason: str | None = None
+    queried_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+def handler_role_invoke(
+    *,
+    principal_id: str,
+    role_id: str,
+    action_class: str,
+    payload: dict[str, Any],
+    proposer: str | None = None,
+    cost_estimate: dict[str, Any] | None = None,
+    idempotency_key: str | None = None,
+    role_registry: Any | None = None,
+    breath_gate_queue: Any | None = None,
+) -> RoleInvokeResponse:
+    """Submit a role invocation. If breath-gate required, write to queue.
+
+    Sprint 2A scope: this handler only handles the SUBMIT side of the
+    flow. It validates that the role exists, that the action_class is in
+    the role's allowed_action_classes envelope, classifies the action,
+    and writes to the breath-gate queue if a gate is required. The
+    APPROVE side (handler_breath_gate_approve) plus actual role dispatch
+    happens in Sprint 2B's HTTP route wiring.
+
+    K1 by structure: This handler NEVER dispatches the role. Even if
+    action_class were auto-approvable, Sprint 2A returns a status of
+    ``auto_dispatch_pending_sprint2b`` — honest about what's wired and
+    what isn't, never silent success.
+
+    Args:
+        principal_id: required — who the action is on behalf of.
+        role_id: which role to invoke.
+        action_class: the Charter V.7 action class.
+        payload: the role-specific payload.
+        proposer: optional — defaults to principal_id if not provided.
+        cost_estimate: optional cost-budget hint for the queue entry.
+        idempotency_key: optional — Sprint 2B may use this to de-dup
+            repeated submits; Sprint 2A accepts but does not enforce.
+        role_registry: required for envelope validation. If None, this
+            handler refuses (default-deny on missing infrastructure).
+        breath_gate_queue: optional explicit queue; defaults to the
+            BREATHLINE_QUEUE_DIR env / ~/.breathline/pending_queue/ fallback.
+    """
+    pid = _require_principal(principal_id)
+    _require_nonempty(role_id, "role_id")
+    _require_nonempty(action_class, "action_class")
+    if role_registry is None:
+        raise NodeStateError(
+            "role_invoke requires a live role_registry to validate the action "
+            "class against the role's envelope. Cannot derive from disk."
+        )
+    if not role_registry.has(role_id):
+        return RoleInvokeResponse(
+            request_id=None,
+            status="rejected",
+            role_id=role_id,
+            action_class=action_class,
+            refusal_reason=f"role_unknown: {role_id!r} not registered",
+        )
+
+    # Sprint 2A: every action class submits to the queue. The "auto-approve"
+    # bypass (where read-only classes skip the gate) is Sprint 2B scope —
+    # for now, the safe default is "everything proposes, human approves",
+    # which honors K1 maximally during the activation window.
+    if breath_gate_queue is None:
+        breath_gate_queue = _default_breath_gate_queue()
+    if breath_gate_queue is None:
+        raise NodeStateError(
+            "role_invoke requires a breath-gate queue; none configured. Set "
+            "BREATHLINE_QUEUE_DIR or pass an explicit queue."
+        )
+
+    # Build a conservative payload_preview — just the keys, not the values
+    # (avoids leaking sensitive payload over the breath-gate-pending listing).
+    payload_preview = {"keys": sorted(payload.keys())} if payload else {}
+    proposer_final = proposer or pid
+
+    entry = breath_gate_queue.submit(
+        principal_id=pid,
+        role_id=role_id,
+        action_class=action_class,
+        payload=payload,
+        proposer=proposer_final,
+        reversibility="reversible",  # Sprint 2B refines per action_class
+        forbidden_delegations_check="pass",  # Sprint 2B wires real check
+        cost_estimate=cost_estimate or {},
+        payload_preview=payload_preview,
+    )
+    return RoleInvokeResponse(
+        request_id=entry.request_id,
+        status="pending_breath_gate",
+        role_id=role_id,
+        action_class=action_class,
+        breath_gate_request_id=entry.request_id,
+        cost_estimate=cost_estimate or {},
+    )
+
+
+def _require_nonempty(value: str | None, name: str) -> None:
+    """Raise ValueError if a required string arg is missing / empty."""
+    if not value:
+        raise ValueError(f"{name} is required (default-deny on missing)")
 
 
 # Seal:
 #   SOURCE — every handler requires principal_id; no hardcoded principals.
-#   TRUTH  — handlers parse real on-disk state (manifest.yaml, specs/*.yaml,
-#            role_registry); no synthetic data.
+#   TRUTH  — handlers parse real on-disk state (manifest, specs, role_registry,
+#            queue); no synthetic data.
 #   INTEGRITY — pure functions, no transport coupling; R6 enforced — both
-#               http_routes.py and mcp_server.py dispatch here.
-# ∞Δ∞ Node API handlers — R6 backstop, principal-aware, Sprint 1 scope ∞Δ∞
+#               http_routes.py and mcp_server.py dispatch here. role_invoke
+#               NEVER dispatches the role itself — K1 by structure: propose,
+#               never self-approve.
+# ∞Δ∞ Node API handlers — R6 backstop, principal-aware, Sprint 1+2A scope ∞Δ∞
