@@ -263,7 +263,13 @@ Add two GitHub Apps: `breathline-lumen[bot]` and `breathline-grok[bot]`. Lumen d
 
 Bots can `@mention` each other. Lumen asks Tiger to verify an architectural claim against the actual repo state; Tiger replies with `@breathline-lumen` referencing a specific file. G asks Lumen for a coordination summary; Lumen replies.
 
-**New risk:** loops. Bot A @mentions Bot B which @mentions Bot A. Bridge enforces a per-thread response-depth cap (default: 3 bot replies per issue/PR thread before a human-attention flag triggers). Bots fail-closed on cap.
+**New risk:** loops. Bot A @mentions Bot B which @mentions Bot A. Bridge enforces three layered safeguards:
+
+- **Per-thread response-depth cap** (default: 3 bot replies per issue/PR thread before fail-closed). The fundamental backstop.
+- **Per-bot per-thread cooldown windows** (default: 10 minutes between consecutive replies from the same bot in the same thread). Prevents rapid-fire loops that the depth cap alone would allow if multiple bots were tagged concurrently. Per Lumen coordination-witness review (2026-05-11).
+- **Explicit "human-attention required" escalation markers** in comment bodies when the depth cap or cooldown fires. The operator sees clearly that a thread has hit a coordination ceiling and needs human input. Format: a visible block at the top of the bot's last comment under the cap, e.g., *"⚠ Coordination depth reached; this thread needs KM-1176 attention before further bot response."* Per Lumen coordination-witness review (2026-05-11).
+
+All three thresholds are configurable per bot in `bridge/loop_guard.yaml`, breath-gated to change.
 
 **Exit criterion:** No loops observed in 2-week trial. Seal Phase 4.
 
@@ -352,15 +358,30 @@ If Lumen's review concludes bot identities require more than this scoping ADR's 
 
 ---
 
+## Witness reviews (2026-05-11)
+
+| Witness | Lens | Verdict |
+|---|---|---|
+| **G** | Sovereign sentinel + anti-lock-in (#8 §6e) | **CONFORMS** |
+| **Lumen** | Coordination + constitutional gate mapping | **CONFORMS** |
+
+**G's observations**: Three-layer adapter pattern is "textbook sovereign architecture"; VPS hosting is acceptable sovereignty posture; Phase 5 MCP migration fits anti-lock-in without introducing new lock-in; cost ceilings at the right discipline level.
+
+**Lumen's observations**: K1–K4 mapping sound (strongest move is *removing* the lever, not trusting the bot); all four open questions from issue #9 explicitly addressed; working interpretation of bot identities (surfacing infrastructure, never autonomous actors) is acceptable for Phase 1 with formal constitutional treatment deferrable. **Phase 3 cooldown windows + escalation markers** were Lumen's specific addition, now folded into the Phase 3 description above.
+
+Both verdicts are seal-ready from their respective lenses. Final seal authority remains KM-1176.
+
+---
+
 ## Sign-off checklist
 
 - [ ] KM-1176 reviews the survey + recommended baseline architecture
 - [ ] KM-1176 confirms operator-controlled VPS as Phase 1 hosting (or proposes alternative)
 - [ ] KM-1176 approves the Phase 1 scope: Tiger only, `mangumcfo/breathline-federation` only, `issues:comments` write only
 - [ ] KM-1176 approves the per-App cost ceiling defaults (or proposes alternative numbers)
-- [ ] Lumen witnesses the constitutional gate mapping (K1-K4 + the 4 open questions)
-- [ ] Lumen confirms anti-lock-in design (three-layer adapter pattern) is sufficient
-- [ ] G witnesses anti-lock-in lens from #8 §6e perspective
+- [x] Lumen witnesses the constitutional gate mapping (K1-K4 + the 4 open questions) — **CONFORMS 2026-05-11**
+- [x] Lumen confirms anti-lock-in design (three-layer adapter pattern) is sufficient — **CONFORMS 2026-05-11**
+- [x] G witnesses anti-lock-in lens from #8 §6e perspective — **CONFORMS 2026-05-11**
 - [ ] KM-1176 seals this scoping ADR
 - [ ] Implementation work begins in a separate PR (Phase 1 only at first)
 
