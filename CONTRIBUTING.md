@@ -23,6 +23,12 @@ If you're unsure whether your change touches an invariant, **ask in the issue fi
 
 ---
 
+## How the federation works — operating rhythm
+
+Before opening an issue or PR, read **[governance/decisions/2026-05-11_federation-leadership-workflow.md](./governance/decisions/2026-05-11_federation-leadership-workflow.md)** — the federation's coordination membrane. It describes the six stages (idea emergence → architectural witnessing → local implementation → editorial flow → repo memory → seal authority), the role lenses through which contributions are reviewed (Lumen for architecture, Tiger(BNA) for local implementation, Web Claude for editorial, G for strategic pressure, KM-1176 for seal), and the principle that no major architectural movement should exist only in transient chat. Every contributor — human or agentic — enters through the same membrane.
+
+---
+
 ## What kinds of contributions are welcome
 
 **Strongly welcome:**
