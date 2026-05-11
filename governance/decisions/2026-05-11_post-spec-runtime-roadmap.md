@@ -119,9 +119,15 @@ This roadmap is not a destination; it is a *stage* in the federation's autonomy 
 - **Operator-as-Stillpoint remains structural.** The federation does not produce autonomous actors. Bot identities (per issue #9) are surfacing infrastructure under operator authority. Aligned intelligences are role lenses, not authority.
 - **The seal authority remains exclusively KM-1176.** Witnesses surface for the operator's weighing; they do not gate the seal themselves.
 
-### Ongoing autonomy-direction work (deferred for separate fold-in)
+### Companion autonomy-trajectory ADR
 
-KM-1176 has noted ongoing work with G on the full-autonomy direction trajectory beyond what is captured in this ADR's witness review section. That work — currently outside this roadmap — will inform Sprint 3+ design decisions and may produce a companion ADR (e.g., `governance/decisions/<date>_autonomy-trajectory.md`) that this roadmap can reference once it lands. The current roadmap is forward-compatible with whatever that companion ADR concludes: no decision in this roadmap precludes any reasonable evolution of operator autonomy posture.
+The broader autonomy-direction work KM-1176 has been developing with G is now captured as a companion ADR: **`2026-05-11_autonomy-trajectory.md`** (PR #15). That ADR formalizes:
+
+- The current position as **High-Fidelity Assisted Sovereignty** (deliberately not full autonomy; full autonomy would violate K1)
+- A four-level framework: Level 1.5 (this roadmap's destination) → Level 2 (Family Sovereignty, Series 2) → Level 3 (Generational Legacy, Series 3) → Level 4+ (Civilizational Federation)
+- Five structural enablers, three of which are already in flight (Operator Pulse, coordination membrane #8, tag-response infra #13) and two new (manifest-driven tiering, periodic autonomy audit in `doctor.sh`)
+
+This roadmap implements **Level 1.5** of that trajectory. The companion ADR provides the constitutional framing for what comes after. Sealing order between the two is flexible — neither depends on the other landing first, and PR #15 can seal in parallel with this roadmap.
 
 ## Risks and mitigations
 
