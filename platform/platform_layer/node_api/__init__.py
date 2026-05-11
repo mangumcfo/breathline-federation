@@ -46,12 +46,14 @@ from platform_layer.node_api.handlers import (
     CylinderResponse,
     ChainIntegritySummary,
     BreathGatePendingResponse,
+    RoleInvokeResponse,
     handler_node_status,
     handler_manifest_get,
     handler_specs_list,
     handler_roles_list,
     handler_audit_query,
     handler_breath_gate_pending,
+    handler_role_invoke,
 )
 
 __all__ = [
@@ -63,10 +65,12 @@ __all__ = [
     "CylinderResponse",
     "ChainIntegritySummary",
     "BreathGatePendingResponse",
+    "RoleInvokeResponse",
     "handler_node_status",
     "handler_manifest_get",
     "handler_specs_list",
     "handler_roles_list",
     "handler_audit_query",
     "handler_breath_gate_pending",
+    "handler_role_invoke",
 ]
