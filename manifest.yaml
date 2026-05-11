@@ -291,6 +291,39 @@ companions:
     visibility: "private"
     purpose: "Marketing site (https://six-sov.com)"
     deploy: "Netlify"
+  breathline_ui:
+    repo: "mangumcfo/breathline-ui"
+    visibility: "public"
+    purpose: "Sovereign operator console — consumes the node_api contract; UI is replaceable, platform is sovereign"
+    scaffolded_at: "2026-05-11 (Sprint 0 of the post-spec runtime roadmap)"
+    governs: "specs/node_api/separability.md (R1-R10)"
+
+# ----------------------------------------------------------------
+# NODE API  (the thin-waist contract; v1 specification, runtime queued for v0.7.0)
+# Sealed via PR #7 (2026-05-11) per ADR governance/decisions/2026-05-10_ui-thin-waist-architecture.md
+# ----------------------------------------------------------------
+
+node_api:
+  status: "specification (v1, unreleased runtime)"
+  current_version: "1.0.0-draft"
+  contract:      "specs/node_api/contract_v1.yaml"
+  mcp_tools:     "specs/node_api/mcp_tools.yaml"
+  ui_ia:         "specs/node_api/ui_information_architecture.md"
+  separability:  "specs/node_api/separability.md"
+  adr:           "governance/decisions/2026-05-10_ui-thin-waist-architecture.md"
+  roadmap:       "governance/decisions/2026-05-11_post-spec-runtime-roadmap.md"
+  sha256:
+    contract_v1.yaml:                "12e95b743977490dac9ae96064a67dde380a66e5952f92f5f1ed9e74c032721a"
+    mcp_tools.yaml:                  "1b685dc14075362d7f46e671619ded139714c665d47359a06f919ed82f65e87f"
+    ui_information_architecture.md:  "46be42398412b1f7a06bf8baa0aa881537e861688d25a8b62230311da662d1c2"
+    separability.md:                 "b66531a82a6e3ba9c2df007a3df13a3ca5a61ced6d7d09f3f93bbf0d36095c9d"
+  runtime:
+    target_release: "v0.7.0 (book-coupled per Trigger Pattern)"
+    serves_at:      "127.0.0.1:8421 (default; opt-in remote bind)"
+  ui_repo:
+    name:        "mangumcfo/breathline-ui"
+    visibility:  "public"
+    created_at:  "2026-05-11"
 
 # ----------------------------------------------------------------
 # PUBLISHING PIPELINE  (v0.3.0)
