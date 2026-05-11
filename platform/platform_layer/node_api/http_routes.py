@@ -234,9 +234,13 @@ def create_node_api_router(
         raise HTTPException(
             status_code=501,
             detail=(
-                "audit.cylinders is scaffolded for Sprint 1B. The handler "
-                "signature is final; implementation queued in the "
-                "continuation PR (will dispatch to audit_adapter.read_chain)."
+                "audit.cylinders: INTENTIONALLY SCAFFOLDED, queued for Sprint 1B "
+                "(not silently unsupported). The handler signature in "
+                "node_api/handlers.py is final; implementation lands in the "
+                "continuation PR (will dispatch to audit_adapter.replay_chain). "
+                "Per CONSTITUTION §4: loud errors with context; never silent "
+                "corruption. Status reference: "
+                "governance/decisions/2026-05-11_post-spec-runtime-roadmap.md"
             ),
         )
 
@@ -248,9 +252,14 @@ def create_node_api_router(
         raise HTTPException(
             status_code=501,
             detail=(
-                "breath_gate.pending is scaffolded for Sprint 1B. The handler "
-                "signature is final; implementation queued in the "
-                "continuation PR (will dispatch to kernel.breath_gate.list_pending)."
+                "breath_gate.pending: INTENTIONALLY SCAFFOLDED, queued for "
+                "Sprint 1B (not silently unsupported). The handler signature "
+                "in node_api/handlers.py is final; the pending-queue mechanism "
+                "the contract anticipates lands alongside Sprint 2's "
+                "role-invocation tools (the current kernel/breath_gate.py is "
+                "a synchronous CLI ritual). Per CONSTITUTION §4: loud errors "
+                "with context; never silent corruption. Status reference: "
+                "governance/decisions/2026-05-11_post-spec-runtime-roadmap.md"
             ),
         )
 
