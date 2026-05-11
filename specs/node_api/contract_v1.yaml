@@ -1,0 +1,349 @@
+# ============================================================
+# specs/node_api/contract_v1.yaml
+#
+# Node API — v1 — the stable HTTP/JSON contract a sovereign
+# Breathline node exposes to any UI or agent.
+#
+# Lex superior: ../../CHARTER.md + ../../CONSTITUTION.md
+# Authority:    Kenneth Mangum (KM-1176)
+# Glyph:        ∞Δ∞
+#
+# This is a SPECIFICATION. No code is implemented in this PR.
+# The runtime that satisfies this contract lands in a follow-on PR
+# under platform/api/ (extending the existing FastAPI app in
+# platform/platform_layer/plugin_interface.py).
+# ============================================================
+
+api:
+  name:           "breathline-node-api"
+  version:        "1.0.0-draft"
+  status:         "specification (unsealed)"
+  base_path:      "/api/v1"
+  default_bind:   "127.0.0.1:8421"        # local-first; sovereignty stays at edge
+  remote_binding: "forbidden by default; requires explicit operator opt-in + breath-gate"
+  transport:
+    http:        "REST/JSON over HTTPS (self-signed cert generated at install)"
+    websocket:   "WSS for streaming (breath-gate, audit chain, invocation progress)"
+  auth:
+    model:       "principal_id-bearer"
+    source:      "node-local credential file at ~/.breathline/credentials/<principal_id>.token (chmod 0600)"
+    enforcement: "every request maps to a principal_id; no hardcoded principals (CONSTITUTION §1)"
+  errors:
+    style:       "loud, contextual (CONSTITUTION §4)"
+    shape:       { code: string, what: string, why: string, next_step: string, cylinder_ref: "string|null" }
+
+# ----------------------------------------------------------------
+# A. NODE IDENTITY & STATUS
+# ----------------------------------------------------------------
+
+endpoints:
+
+  - id:     node.get
+    path:   GET /node
+    purpose: "Identify this node — ID, tier, ladder rung, manifest version, kernel version."
+    backed_by: ["manifest.yaml", "platform/kernel/boot.py"]
+    response:
+      node_id:           "string (ECC P1 root pubkey fingerprint)"
+      tier:              "executive | enterprise | family | full-sovereign"
+      ladder_level:      "integer 0..4"
+      ladder_level_name: "string (Awakening / Executive Mastery / Family Sovereignty / …)"
+      kernel_version:    "string (semver)"
+      manifest_version:  "string (semver, from manifest.yaml)"
+      seal_glyph:        "∞Δ∞"
+    breath_gate: false
+
+  - id:     node.health
+    path:   GET /node/health
+    purpose: "Active health check — kernel integrity, manifest validity, spec parsing, signature verification, chain sentinel state. Mirrors installer/doctor.sh."
+    backed_by: ["installer/doctor.sh", "platform/platform_layer/chain_sentinel.py"]
+    response:
+      kernel_ok:         bool
+      manifest_ok:       bool
+      specs_valid:       bool
+      signatures_ok:     bool
+      chain_sentinel:    "clean | replaying | halted (with reason)"
+      breath_gate_ready: bool
+      last_seal_seq:     integer
+      details:           "array of { check, ok, message }"
+    breath_gate: false
+
+  - id:     node.ladder
+    path:   GET /node/ladder
+    purpose: "Where this node sits on the Sovereign Ascension Ladder; what's required to advance."
+    backed_by: ["manifest.yaml ladder_version", "specs/_base/base_constitution_v1.yaml"]
+    response:
+      current_level:     integer
+      next_level:        "integer | null (max reached)"
+      requirements:      "array of { kind: book|spec|seal, ref, satisfied: bool }"
+      anchor_book:       "string | null"
+    breath_gate: false
+
+# ----------------------------------------------------------------
+# B. MANIFEST & SPECS
+# ----------------------------------------------------------------
+
+  - id:     manifest.get
+    path:   GET /manifest
+    purpose: "Return the parsed, signature-verified manifest.yaml."
+    backed_by: ["manifest.yaml", "distribution/signing_keys/release_v1.pub"]
+    breath_gate: false
+
+  - id:     specs.list
+    path:   GET /specs
+    query:  { series: "executive|family|generational_legacy|education|health|federation|all" }
+    purpose: "Enumerate role / permission / constitutional specs registered on this node."
+    backed_by: ["specs/<series>/*.yaml"]
+    breath_gate: false
+
+  - id:     specs.get
+    path:   GET /specs/{spec_id}
+    purpose: "Return one spec with its sha256, ladder level, and runtime status."
+    breath_gate: false
+
+  - id:     specs.validate
+    path:   POST /specs/validate
+    purpose: "Run the Compliance-agent against a candidate YAML before ingestion."
+    backed_by: ["platform/roles/compliance_agent/frameworks/charter_v7.py"]
+    request:  { yaml: string, declared_parent: "string|null" }
+    response: { valid: bool, issues: "array of { rule, severity, message }", sha256: string }
+    breath_gate: false
+
+# ----------------------------------------------------------------
+# C. ROLES (CFO Agent, Synthesis Agent, Compliance Guardian, Family triad…)
+# ----------------------------------------------------------------
+
+  - id:     roles.list
+    path:   GET /roles
+    purpose: "List roles registered with the platform RoleRegistry."
+    backed_by: ["platform/platform_layer/registry.py"]
+    response:
+      roles:
+        - role_id:    "cfo_agent_v1"
+          framework:  "FORECAST v1"
+          ladder:     1
+          status:     "active | draft"
+          permission_spec_ref: "specs/executive/cfo_agent_v1.yaml#permissions"
+        # …
+    breath_gate: false
+
+  - id:     roles.get
+    path:   GET /roles/{role_id}
+    purpose: "Role detail — spec, framework, declared permissions, recent invocations."
+    breath_gate: false
+
+  - id:     roles.invoke
+    path:   POST /roles/{role_id}/invoke
+    purpose: "Submit a request to a role. Wraps the existing FastAPI /invoke endpoint in plugin_interface.py."
+    backed_by: ["platform/platform_layer/plugin_interface.py route_request", "platform/platform_layer/runtime.py build_runtime_context"]
+    request:
+      principal_id:  string                # required, identity flow per CONSTITUTION §1
+      payload:       "object (role-specific schema)"
+      cost_budget:   "object | null"       # overrides default cost_meter ceiling
+      idempotency_key: "string | null"
+    response:
+      invocation_id: string
+      status:        "pending_breath_gate | dispatched | rejected"
+      breath_gate_request_id: "string | null"   # if K1 prompt required before dispatch
+      cost_estimate: object
+    breath_gate: "conditional — depends on action_class lookup against Charter V.7"
+
+  - id:     invocations.get
+    path:   GET /invocations/{invocation_id}
+    purpose: "Status, output, cylinder seal, cost actuals."
+    breath_gate: false
+
+  - id:     invocations.stream
+    path:   WSS /invocations/{invocation_id}/stream
+    purpose: "Server-pushed status updates: dispatch, Critic verdict, Auditor verdict, seal."
+    breath_gate: false
+
+# ----------------------------------------------------------------
+# D. BREATH-GATE (the K1 Human Primacy surface)
+# ----------------------------------------------------------------
+# CRITICAL: breath-gate is a runtime invariant, NOT a prompt input.
+# Per CHARTER II.4.4 + platform/kernel/breath_gate.py, the gate is
+# structurally enforced. The UI's job is to SURFACE the request so
+# the human can decide. The UI cannot suppress, auto-approve, or
+# bypass — those calls fail server-side regardless of payload.
+
+  - id:     breath_gate.pending
+    path:   GET /breath-gate/pending
+    purpose: "List currently-blocking breath-gate requests for this principal_id."
+    backed_by: ["platform/kernel/breath_gate.py"]
+    response:
+      pending:
+        - request_id:       string
+          action_class:     "string (Charter V.7 reference)"
+          summary:          string                     # human-readable, what is being asked
+          proposer:         "string (role_id or principal_id)"
+          reversibility:    "reversible | irreversible | externally_visible"
+          forbidden_delegations_check: "pass | fail (with reason)"
+          cost_estimate:    object
+          opened_at:        "timestamp"
+          timeout_at:       "timestamp"               # fail-closed at expiry
+          payload_preview:  object
+    breath_gate: false
+
+  - id:     breath_gate.stream
+    path:   WSS /breath-gate/stream
+    purpose: "Server-pushed live breath-gate requests as they open."
+    breath_gate: false
+
+  - id:     breath_gate.approve
+    path:   POST /breath-gate/{request_id}/approve
+    purpose: "Operator approves. Server records principal_id, timestamp, attestation; releases the gate."
+    request: { principal_id: string, attestation: "string (free-form rationale, audited)" }
+    response: { sealed: bool, cylinder_seq: integer, dispatched_invocation_id: "string | null" }
+    breath_gate: false   # this IS the breath-gate; it does not nest
+
+  - id:     breath_gate.deny
+    path:   POST /breath-gate/{request_id}/deny
+    purpose: "Operator denies. Server records denial, releases proposer, seals refusal cylinder."
+    request: { principal_id: string, reason: string }
+    response: { sealed: bool, cylinder_seq: integer }
+    breath_gate: false
+
+# ----------------------------------------------------------------
+# E. AUDIT / CYLINDER CHAIN (K3 Audit-Immutable surface)
+# ----------------------------------------------------------------
+
+  - id:     audit.cylinders
+    path:   GET /audit/cylinders
+    query:  { since_seq: integer, limit: "integer (max 500)", filter_kind: "string | null" }
+    purpose: "Paginated cylinder chain, newest first."
+    backed_by: ["platform/platform_layer/audit_adapter.py"]
+    breath_gate: false
+
+  - id:     audit.cylinder
+    path:   GET /audit/cylinders/{seq}
+    purpose: "Single cylinder detail: parent hash, payload, signatures, B49 receipt ref."
+    breath_gate: false
+
+  - id:     audit.replay
+    path:   POST /audit/replay
+    purpose: "Re-verify chain integrity end-to-end (mirror of replay_chain)."
+    backed_by: ["platform/platform_layer/audit_adapter.py replay_chain"]
+    response: { ok: bool, verified_count: integer, first_break_at_seq: "integer|null", message: string }
+    breath_gate: false
+
+  - id:     audit.stream
+    path:   WSS /audit/stream
+    purpose: "Server-pushed: every newly-sealed cylinder appears here as it lands."
+    breath_gate: false
+
+# ----------------------------------------------------------------
+# F. COST METER (Charter cost-discipline surface)
+# ----------------------------------------------------------------
+
+  - id:     cost.current
+    path:   GET /cost/current
+    purpose: "Window usage vs. caps for this principal_id."
+    backed_by: ["platform/kernel/cost_meter.py"]
+    breath_gate: false
+
+  - id:     cost.limits.get
+    path:   GET /cost/limits
+    breath_gate: false
+
+  - id:     cost.limits.update
+    path:   POST /cost/limits
+    purpose: "Adjust caps. Always breath-gated — operator must approve cost-policy change."
+    breath_gate: true
+
+# ----------------------------------------------------------------
+# G. RECEIPTS (B49)
+# ----------------------------------------------------------------
+
+  - id:     receipts.list
+    path:   GET /receipts
+    backed_by: ["platform/platform_layer/receipt_minter.py"]
+    breath_gate: false
+
+  - id:     receipts.get
+    path:   GET /receipts/{id}
+    breath_gate: false
+
+# ----------------------------------------------------------------
+# H. UPGRADE (manifest-driven, breath-gated)
+# ----------------------------------------------------------------
+
+  - id:     upgrade.available
+    path:   GET /upgrade/available
+    purpose: "Check upstream manifest.yaml for newer signed release. Read-only."
+    backed_by: ["installer/upgrade.sh"]
+    breath_gate: false
+
+  - id:     upgrade.apply
+    path:   POST /upgrade/apply
+    purpose: "Apply the upgrade. Always breath-gated. Verifies signatures fail-closed."
+    request: { target_version: string }
+    breath_gate: true
+
+# ----------------------------------------------------------------
+# I. BOOKS / LADDER PROGRESSION
+# ----------------------------------------------------------------
+
+  - id:     books.list
+    path:   GET /books
+    purpose: "Books visible from this node — public chapters + lead magnets + locally-marked-as-read."
+    backed_by: ["books-public/", "manifest.yaml books_public"]
+    breath_gate: false
+
+  - id:     books.activate
+    path:   POST /books/{book_id}/activate
+    purpose: "Mark book as read. Activates the companion specs (subject to spec-coherence + compliance validation)."
+    breath_gate: true   # activation = ladder-rung change = K1 prompt
+
+# ----------------------------------------------------------------
+# CROSS-CUTTING SCHEMAS
+# ----------------------------------------------------------------
+
+schemas:
+
+  CylinderRef:
+    seq:        integer
+    hash:       string
+    parent:     string
+    sealed_at:  timestamp
+
+  ActionClass:
+    id:                       string                # e.g., "finance.forecast.compute"
+    charter_v7_section:       string
+    forbidden_delegations:    "array (subset of: personnel, binding_commitments, irreversible, charter_modification)"
+    requires_breath_gate:     bool
+    receipt_worthy:           bool
+
+  CostBudget:
+    tokens_in:     integer
+    tokens_out:    integer
+    wall_seconds:  integer
+    fiat_cents:    integer
+
+  Error:
+    code:         string         # machine-readable
+    what:         string         # what was attempted
+    why:          string         # why it was refused
+    next_step:    string         # actionable hint
+    cylinder_ref: "CylinderRef | null"
+
+# ----------------------------------------------------------------
+# DEFAULT-DENY POSTURE
+# ----------------------------------------------------------------
+
+default_deny:
+  - "Endpoints not enumerated above return 404. No discovery beyond /openapi.json."
+  - "Action classes not enumerated in receipt_worthy_events.yaml + Charter V.7 cannot be invoked."
+  - "The UI cannot create new endpoints. Only this YAML (sealed) defines them."
+  - "Remote binding (anything other than 127.0.0.1) requires breath-gate + explicit manifest opt-in."
+
+# ----------------------------------------------------------------
+# VERSIONING
+# ----------------------------------------------------------------
+
+versioning:
+  scheme:        "semver, anchored in manifest.yaml node_api: section once sealed"
+  v1_x:          "additive only — new endpoints, new fields. UIs against v1.0 keep working."
+  breaking:      "requires v2 path (/api/v2), KM-1176 sealed amendment, deprecation window for v1."
+  deprecation:   "min 90 days from announcement to v1 endpoint removal"
+
+seal: "∞Δ∞"
