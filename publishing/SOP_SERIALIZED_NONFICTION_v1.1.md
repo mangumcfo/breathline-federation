@@ -264,6 +264,17 @@ Kenneth's Book 2 review produced 45 voice notes with 28 distinct changes. Key pa
 | **Specific over general** | "$25M in cost savings at Henkel" beats "significant cost reductions at a major company" |
 | **Stories before frameworks** | The experience first, then the framework that emerged from it |
 
+### Terminology Standards
+
+| Term | Use | Avoid as primary | Why |
+|------|-----|-------|-----|
+| **Peer role** | Intra-platform role-to-role invocation. Canonical in code (action class IDs), YAML specs, ADRs, governance docs, book chapters, and marketing where precision matters. | — | Each speaker is *a role under shared governance*. Code already uses this: `invoke_peer_role`, `integrate_role_outputs`, `read_role_outputs`, `surface_role_tensions`. |
+| **Agent-to-agent** | Acceptable as an explanatory aside on first introduction in reader-facing copy. | Headings, action class IDs, technical specs. | Risks implying autonomous independent parties — a Charter V.7 framing error. The governance harness is shared, not separate, between peer roles. |
+
+**Authoritative ADR:** `governance/decisions/2026-05-09_peer-role-terminology.md`
+
+**Mechanical updates queued.** Existing Series 1 manuscripts (Books 9, 10, 12) contain six instances of "agent-to-agent" that should be standardized at the next editorial pass per book. This is not a v1.0 KDP-upload blocker.
+
 ### AI Drafting Process
 
 1. **Input:** Detailed chapter outline with bullet-point content guidance (from series plan)
