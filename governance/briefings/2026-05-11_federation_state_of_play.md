@@ -60,10 +60,11 @@ Eleven pull requests merged. Eight closed open issues. Five sealed ADRs. The fed
 
 ```
 Open issues:  0 across mangumcfo/*
-Open PRs:     2 — both awaiting KM-1176 seal authority
+Open PRs:     3 (this briefing is one of them) — all awaiting KM-1176 seal authority
 
   PR #19  Series Map v1.0 promotion (302 lines)
   PR #20  Sprint 1B handlers (audit_query + breath_gate_pending) (600 / 94)
+  PR #21  This briefing — non-constitutional circulation material
 
 State of substrate (V1's "build broad substrate early" directive):
   ✅ Constitution (CHARTER.md, CONSTITUTION.md) — sealed prior
