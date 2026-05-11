@@ -190,17 +190,7 @@ class TestHandlersDirect:
         role_ids = {r.role_id for r in result.roles}
         assert role_ids == {"cfo_agent", "synthesis_agent", "compliance_agent"}
 
-    def test_sprint1b_audit_query_raises(self):
-        from platform_layer.node_api.handlers import handler_audit_query
-
-        with pytest.raises(NotImplementedError, match="Sprint 1B"):
-            handler_audit_query(principal_id="test-operator")
-
-    def test_sprint1b_breath_gate_pending_raises(self):
-        from platform_layer.node_api.handlers import handler_breath_gate_pending
-
-        with pytest.raises(NotImplementedError, match="Sprint 1B"):
-            handler_breath_gate_pending(principal_id="test-operator")
+    # Sprint 1B: real handler tests live in TestSprint1BHandlers / TestSprint1BHttp below.
 
 
 # -----------------------------------------------------------------------------
@@ -349,15 +339,191 @@ class TestPrincipalIdGate:
 
 
 # -----------------------------------------------------------------------------
-# 4. Sprint 1B scaffold — 501 (HTTP) / NotImplementedError (handler)
+# 4. Sprint 1B handlers — audit_query + breath_gate_pending (real implementations)
 # -----------------------------------------------------------------------------
-class TestSprint1BScaffold:
-    """The 2 scaffolded endpoints must return 501 / NotImplementedError loudly,
-    never silently succeed. Constitutional posture (CONSTITUTION §4) — loud
-    errors with context."""
+class TestSprint1BHandlers:
+    """Sprint 1B handler tests — direct calls. audit_query against a real
+    cylinder directory fixture; breath_gate_pending returns empty-with-note
+    per the Sprint 2 deferral confirmed by Lumen's PR #18 review."""
 
     @pytest.fixture
-    def client(self, fake_role_registry):
+    def empty_cylinders_dir(self, tmp_path: Path) -> Path:
+        """Empty cylinders directory — valid for replay_chain (returns 0 cylinders)."""
+        d = tmp_path / "cylinders"
+        d.mkdir()
+        return d
+
+    @pytest.fixture
+    def cylinders_dir_with_one(self, tmp_path: Path) -> Path:
+        """Cylinders directory containing one valid SIX1-encoded cylinder."""
+        d = tmp_path / "cylinders"
+        d.mkdir()
+        # Minimal valid cylinder per audit_adapter regex + parser:
+        #   filename: capture_YYYYMMDD_HHMMSS[_kind].cyl
+        #   header: # Cylinder Hash, # Chain, # Timestamp; body: SIX1: ...
+        (d / "capture_20260511_120000_test_kind.cyl").write_text(
+            "# Cylinder Hash: 0123456789abcdef\n"
+            "# Chain: GENESIS\n"
+            "# Timestamp: 2026-05-11T12:00:00Z\n"
+            "SIX1: dGVzdA==\n"
+        )
+        return d
+
+    def test_audit_query_empty_chain(self, empty_cylinders_dir: Path):
+        from platform_layer.node_api.handlers import handler_audit_query
+
+        result = handler_audit_query(
+            principal_id="test-operator",
+            cylinders_dir=empty_cylinders_dir,
+        )
+        assert result.total_in_chain == 0
+        assert result.returned_count == 0
+        assert result.cylinders == []
+        assert result.chain_integrity.total == 0
+        assert result.chain_integrity.encoded == 0
+        assert result.chain_integrity.tip_seq is None
+
+    def test_audit_query_with_one_cylinder(self, cylinders_dir_with_one: Path):
+        from platform_layer.node_api.handlers import handler_audit_query
+
+        result = handler_audit_query(
+            principal_id="test-operator",
+            cylinders_dir=cylinders_dir_with_one,
+        )
+        assert result.total_in_chain == 1
+        assert result.returned_count == 1
+        assert len(result.cylinders) == 1
+        cyl = result.cylinders[0]
+        assert cyl.is_encoded is True
+        assert cyl.has_traceback is False
+        # Kind parsed from filename suffix
+        assert cyl.kind == "test_kind"
+
+    def test_audit_query_by_seq(self, cylinders_dir_with_one: Path):
+        from platform_layer.node_api.handlers import handler_audit_query
+
+        result = handler_audit_query(
+            principal_id="test-operator",
+            seq=0,
+            cylinders_dir=cylinders_dir_with_one,
+        )
+        assert result.returned_count == 1
+        # Single-cylinder lookup returns just that cylinder
+        assert result.cylinders[0].seq == 0
+
+    def test_audit_query_seq_not_found(self, cylinders_dir_with_one: Path):
+        from platform_layer.node_api.handlers import handler_audit_query
+
+        result = handler_audit_query(
+            principal_id="test-operator",
+            seq=999,  # doesn't exist
+            cylinders_dir=cylinders_dir_with_one,
+        )
+        assert result.returned_count == 0
+        assert result.cylinders == []
+
+    def test_audit_query_filter_kind(self, cylinders_dir_with_one: Path):
+        from platform_layer.node_api.handlers import handler_audit_query
+
+        # Matching filter (substring, case-insensitive)
+        r1 = handler_audit_query(
+            principal_id="test-operator",
+            filter_kind="test",
+            cylinders_dir=cylinders_dir_with_one,
+        )
+        assert r1.returned_count == 1
+
+        # Non-matching filter
+        r2 = handler_audit_query(
+            principal_id="test-operator",
+            filter_kind="nonexistent",
+            cylinders_dir=cylinders_dir_with_one,
+        )
+        assert r2.returned_count == 0
+
+    def test_audit_query_default_deny(self, empty_cylinders_dir: Path):
+        from platform_layer.node_api.handlers import (
+            MissingPrincipalError,
+            handler_audit_query,
+        )
+        with pytest.raises(MissingPrincipalError):
+            handler_audit_query(
+                principal_id="", cylinders_dir=empty_cylinders_dir
+            )
+
+    def test_audit_query_seq_and_since_seq_mutually_exclusive(
+        self, empty_cylinders_dir: Path
+    ):
+        from platform_layer.node_api.handlers import handler_audit_query
+
+        with pytest.raises(ValueError, match="Provide either seq.*or since_seq"):
+            handler_audit_query(
+                principal_id="test-operator",
+                seq=1,
+                since_seq=0,
+                cylinders_dir=empty_cylinders_dir,
+            )
+
+    def test_audit_query_limit_bounds(self, empty_cylinders_dir: Path):
+        from platform_layer.node_api.handlers import handler_audit_query
+
+        with pytest.raises(ValueError, match="limit must be in"):
+            handler_audit_query(
+                principal_id="test-operator",
+                limit=0,
+                cylinders_dir=empty_cylinders_dir,
+            )
+        with pytest.raises(ValueError, match="limit must be in"):
+            handler_audit_query(
+                principal_id="test-operator",
+                limit=501,
+                cylinders_dir=empty_cylinders_dir,
+            )
+
+    def test_audit_query_missing_dir(self):
+        from platform_layer.node_api.handlers import (
+            NodeStateError,
+            handler_audit_query,
+        )
+        with pytest.raises(NodeStateError, match="not a directory"):
+            handler_audit_query(
+                principal_id="test-operator",
+                cylinders_dir="/nonexistent/path/cylinders",
+            )
+
+    def test_breath_gate_pending_returns_empty_with_note(self):
+        from platform_layer.node_api.handlers import handler_breath_gate_pending
+
+        result = handler_breath_gate_pending(principal_id="test-operator")
+        assert result.principal_id == "test-operator"
+        assert result.pending == []
+        assert result.pending_queue_status == "queue_not_yet_active"
+        # Note must explain the architecture
+        assert "Sprint 2" in result.note
+        assert "DELIBERATELY NOT" in result.note  # K1 enforcement note
+
+    def test_breath_gate_pending_default_deny(self):
+        from platform_layer.node_api.handlers import (
+            MissingPrincipalError,
+            handler_breath_gate_pending,
+        )
+        with pytest.raises(MissingPrincipalError):
+            handler_breath_gate_pending(principal_id="")
+
+
+class TestSprint1BHttp:
+    """Sprint 1B HTTP route tests — R6 verified via HTTP transport."""
+
+    @pytest.fixture
+    def empty_cylinders_dir(self, tmp_path: Path, monkeypatch) -> Path:
+        """Empty cylinders dir + env var pointing at it for HTTP handler discovery."""
+        d = tmp_path / "cylinders"
+        d.mkdir()
+        monkeypatch.setenv("BREATHLINE_CYLINDERS_DIR", str(d))
+        return d
+
+    @pytest.fixture
+    def client(self, fake_role_registry, empty_cylinders_dir: Path):
         try:
             from fastapi import FastAPI
             from fastapi.testclient import TestClient
@@ -369,25 +535,65 @@ class TestSprint1BScaffold:
         app.include_router(create_node_api_router(role_registry=fake_role_registry))
         return TestClient(app)
 
-    def test_audit_cylinders_501(self, client):
+    def test_audit_cylinders_returns_200_with_empty_chain(self, client):
         r = client.get(
-            "/api/v1/audit/cylinders", headers={"X-Principal-Id": "test-operator"}
+            "/api/v1/audit/cylinders",
+            headers={"X-Principal-Id": "test-operator"},
         )
-        assert r.status_code == 501
-        assert "Sprint 1B" in r.json()["detail"]
+        assert r.status_code == 200
+        body = r.json()
+        assert body["total_in_chain"] == 0
+        assert body["returned_count"] == 0
+        assert body["cylinders"] == []
+        assert "chain_integrity" in body
 
-    def test_breath_gate_pending_501(self, client):
+    def test_audit_cylinders_with_query_params(self, client):
+        r = client.get(
+            "/api/v1/audit/cylinders",
+            params={"limit": 10, "filter_kind": "breath_gate"},
+            headers={"X-Principal-Id": "test-operator"},
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert body["limit"] == 10
+        assert body["filter_kind"] == "breath_gate"
+
+    def test_audit_cylinder_by_seq_returns_404_when_missing(self, client):
+        r = client.get(
+            "/api/v1/audit/cylinders/999",
+            headers={"X-Principal-Id": "test-operator"},
+        )
+        assert r.status_code == 404
+        assert "999" in r.json()["detail"]
+
+    def test_audit_cylinders_invalid_limit_returns_400(self, client):
+        # FastAPI's Query(le=500) catches this at request validation
+        r = client.get(
+            "/api/v1/audit/cylinders",
+            params={"limit": 1000},
+            headers={"X-Principal-Id": "test-operator"},
+        )
+        assert r.status_code in (400, 422)  # 422 if FastAPI validation; 400 if handler
+
+    def test_breath_gate_pending_returns_200_empty_with_note(self, client):
         r = client.get(
             "/api/v1/breath-gate/pending",
             headers={"X-Principal-Id": "test-operator"},
         )
-        assert r.status_code == 501
-        assert "Sprint 1B" in r.json()["detail"]
+        assert r.status_code == 200
+        body = r.json()
+        assert body["principal_id"] == "test-operator"
+        assert body["pending"] == []
+        assert body["pending_queue_status"] == "queue_not_yet_active"
+        assert "Sprint 2" in body["note"]
 
-    def test_sprint1b_auth_still_runs_before_501(self, client):
-        """Even on a 501 endpoint, auth must run first. Missing principal → 401, not 501."""
-        r = client.get("/api/v1/audit/cylinders")  # no auth header
-        assert r.status_code == 401  # auth gate fires before the 501
+    def test_audit_cylinders_missing_principal_returns_401(self, client):
+        r = client.get("/api/v1/audit/cylinders")
+        assert r.status_code == 401
+
+    def test_breath_gate_pending_missing_principal_returns_401(self, client):
+        r = client.get("/api/v1/breath-gate/pending")
+        assert r.status_code == 401
 
 
 # -----------------------------------------------------------------------------

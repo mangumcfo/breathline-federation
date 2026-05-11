@@ -433,8 +433,148 @@ def handler_roles_list(
 
 
 # -----------------------------------------------------------------------------
-# Sprint 1B (queued — scaffold only; implementation in continuation PR)
+# Sprint 1B response models
 # -----------------------------------------------------------------------------
+class CylinderResponse(BaseModel):
+    """Single cylinder projected from audit_adapter.CylinderRef."""
+
+    seq: int
+    filename: str
+    hash_prefix: str
+    prev_hash_prefix: str
+    timestamp: str
+    is_encoded: bool
+    has_traceback: bool
+    kind: str | None = None  # parsed from filename suffix if present
+
+
+class ChainIntegritySummary(BaseModel):
+    """Light projection of audit_adapter.ChainReplayReport for query responses.
+
+    The full replay report carries diagnostic state (hash_breaks, seq_gaps,
+    every CylinderRef). The query response carries a summary so callers can
+    paginate without re-pulling the entire chain on every page.
+    """
+
+    total: int
+    encoded: int
+    freeform: int
+    tracebacks: int
+    hash_breaks_count: int
+    seq_gaps_count: int
+    genesis_seq: int | None = None
+    tip_seq: int | None = None
+
+
+class AuditChainQuery(BaseModel):
+    """Result of audit_query — paginated subset of the cylinder chain.
+
+    R6 contract: same handler called from HTTP (audit.cylinders /
+    audit.cylinder) and MCP (breathline_audit_query). The response shape
+    is identical across transports.
+    """
+
+    total_in_chain: int
+    returned_count: int
+    since_seq: int | None = None
+    limit: int
+    filter_kind: str | None = None
+    cylinders: list[CylinderResponse] = Field(default_factory=list)
+    chain_integrity: ChainIntegritySummary
+    queried_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class BreathGatePendingResponse(BaseModel):
+    """Result of breath_gate_pending — currently-blocking breath-gate requests.
+
+    Per Lumen witness review (PR #18, 2026-05-11): the pending-queue
+    mechanism the contract anticipates lands alongside Sprint 2's
+    role-invocation tools — kernel/breath_gate.py today is a synchronous
+    CLI ritual (Phase 1) with no pending queue. This handler is correctly
+    implemented for Sprint 1B as returning an empty pending list with a
+    status field; Sprint 2's role-invocation will populate it.
+    """
+
+    principal_id: str
+    pending: list[dict[str, Any]] = Field(default_factory=list)
+    pending_queue_status: str
+    note: str
+    queried_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+# -----------------------------------------------------------------------------
+# Handler: audit_query (backs audit.cylinders + audit.cylinder)
+# -----------------------------------------------------------------------------
+def _resolve_cylinders_dir(cylinders_dir: Path | str | None = None) -> Path:
+    """Discover the cylinders directory.
+
+    Resolution order:
+      1. Explicit ``cylinders_dir`` argument (caller knows the location)
+      2. Env var ``BREATHLINE_CYLINDERS_DIR``
+      3. Fallback: ``$HOME/Tiger_1a/cylinders`` (the existing dev default
+         used by ``audit_adapter.DEFAULT_SEAL_SH``)
+
+    Raises NodeStateError if no usable directory is found.
+    """
+    if cylinders_dir is not None:
+        p = Path(cylinders_dir).expanduser().resolve()
+        if not p.is_dir():
+            raise NodeStateError(
+                f"cylinders_dir is not a directory: {p}"
+            )
+        return p
+    env_dir = os.environ.get("BREATHLINE_CYLINDERS_DIR")
+    if env_dir:
+        p = Path(env_dir).expanduser().resolve()
+        if not p.is_dir():
+            raise NodeStateError(
+                f"BREATHLINE_CYLINDERS_DIR is set but not a directory: {p}"
+            )
+        return p
+    fallback = Path.home() / "Tiger_1a" / "cylinders"
+    if fallback.is_dir():
+        return fallback
+    raise NodeStateError(
+        "Could not locate a cylinders directory. "
+        f"Tried explicit arg (None), env BREATHLINE_CYLINDERS_DIR (unset), "
+        f"and fallback {fallback} (not a directory). Configure one of the above."
+    )
+
+
+def _parse_cylinder_kind(filename: str) -> str | None:
+    """Parse a cylinder's optional kind suffix from its filename.
+
+    Filenames have the shape ``capture_YYYYMMDD_HHMMSS[_<kind>].cyl`` per
+    the regex in audit_adapter.py. The optional kind suffix is what we
+    surface as the cylinder's 'kind' field. Returns None for filenames
+    without a kind suffix.
+    """
+    if not filename.endswith(".cyl"):
+        return None
+    stem = filename[: -len(".cyl")]
+    parts = stem.split("_")
+    # Expect at least: ["capture", "<8 digits>", "<6 digits>", ...]
+    if len(parts) < 3:
+        return None
+    if len(parts) == 3:
+        return None  # No kind suffix
+    return "_".join(parts[3:])
+
+
+def _project_cylinder(ref: Any) -> CylinderResponse:
+    """Project an audit_adapter.CylinderRef to our response model."""
+    return CylinderResponse(
+        seq=ref.sequence,
+        filename=ref.filename,
+        hash_prefix=ref.hash_prefix,
+        prev_hash_prefix=ref.prev_hash_prefix,
+        timestamp=ref.timestamp,
+        is_encoded=ref.is_encoded,
+        has_traceback=ref.has_traceback,
+        kind=_parse_cylinder_kind(ref.filename),
+    )
+
+
 def handler_audit_query(
     *,
     principal_id: str,
@@ -442,48 +582,166 @@ def handler_audit_query(
     since_seq: int | None = None,
     limit: int = 50,
     filter_kind: str | None = None,
-    audit_adapter: Any | None = None,
-) -> dict[str, Any]:
-    """Query the cylinder chain (paginated or by single seq).
+    cylinders_dir: Path | str | None = None,
+) -> AuditChainQuery:
+    """Query the cylinder chain — paginated or by single seq.
 
-    SPRINT 1B SCAFFOLD: signature is final, implementation queued for the
-    continuation PR. Calls audit_adapter.read_chain() once that surface is
-    confirmed against the existing audit_adapter.py.
+    Backs the contract endpoints audit.cylinders (paginated) and
+    audit.cylinder (single seq when ``seq`` is provided).
 
-    Raises ``NotImplementedError`` until wired. Tests in Sprint 1B will exercise
-    this against the existing AuditAdapter from platform_layer/audit_adapter.py.
+    Per R6: same handler exercised from HTTP (audit/cylinders, audit/cylinder
+    routes in http_routes.py) and MCP (breathline_audit_query tool in
+    mcp_server.py).
+
+    Args:
+        principal_id: required — no anonymous queries.
+        seq: when provided, return the single cylinder at that sequence.
+            ``since_seq``, ``limit``, ``filter_kind`` are ignored for the
+            seq-filter step but still validated for shape.
+        since_seq: when provided (and ``seq`` is None), return cylinders
+            with sequence > since_seq.
+        limit: max cylinders to return (default 50, max 500).
+        filter_kind: optional case-insensitive substring match against the
+            kind suffix parsed from filenames.
+        cylinders_dir: explicit path to cylinders directory; otherwise
+            falls back to env var or default per ``_resolve_cylinders_dir``.
+
+    Raises:
+        MissingPrincipalError: principal_id not provided.
+        NodeStateError: cylinders directory cannot be located or the
+            chain replay fails fundamentally.
+        ValueError: when ``limit`` is outside [1, 500] or both ``seq`` and
+            ``since_seq`` are provided.
     """
     _require_principal(principal_id)
-    raise NotImplementedError(
-        "handler_audit_query is scaffolded for Sprint 1B continuation. "
-        "Implementation will dispatch to audit_adapter.read_chain() with "
-        "(since_seq, limit, filter_kind) parameters; or audit_adapter.get(seq) "
-        "when seq is provided. R6 contract: same handler called from HTTP "
-        "(audit.cylinders, audit.cylinder) and MCP (breathline_audit_query)."
+    if seq is not None and since_seq is not None:
+        raise ValueError(
+            "Provide either seq (single-cylinder lookup) or since_seq "
+            "(paginated query), not both."
+        )
+    if limit < 1 or limit > 500:
+        raise ValueError(f"limit must be in [1, 500]; got {limit}")
+
+    # Lazy import — audit_adapter pulls in subprocess machinery for seal()
+    # that we don't need for read-only queries; keeping the import scoped
+    # here avoids dragging that surface into module-import time.
+    try:
+        from platform_layer.audit_adapter import (
+            ChainReplayError,
+            replay_chain,
+        )
+    except ImportError as e:
+        raise NodeStateError(
+            f"audit_adapter module not importable: {e}"
+        ) from e
+
+    cyl_dir = _resolve_cylinders_dir(cylinders_dir)
+    try:
+        report = replay_chain(cyl_dir)
+    except ChainReplayError as e:
+        raise NodeStateError(f"chain replay failed: {e}") from e
+
+    integrity = ChainIntegritySummary(
+        total=report.total,
+        encoded=report.encoded,
+        freeform=report.freeform,
+        tracebacks=report.tracebacks,
+        hash_breaks_count=len(report.hash_breaks),
+        seq_gaps_count=len(report.seq_gaps),
+        genesis_seq=report.genesis_seq,
+        tip_seq=report.tip_seq,
+    )
+
+    all_refs = report.cylinders_in_order
+    if seq is not None:
+        matches = [r for r in all_refs if r.sequence == seq]
+        if not matches:
+            return AuditChainQuery(
+                total_in_chain=report.total,
+                returned_count=0,
+                limit=limit,
+                cylinders=[],
+                chain_integrity=integrity,
+            )
+        return AuditChainQuery(
+            total_in_chain=report.total,
+            returned_count=1,
+            limit=limit,
+            cylinders=[_project_cylinder(matches[0])],
+            chain_integrity=integrity,
+        )
+
+    # Paginated query: filter then limit
+    filtered = all_refs
+    if since_seq is not None:
+        filtered = [r for r in filtered if r.sequence > since_seq]
+    if filter_kind is not None:
+        needle = filter_kind.lower()
+        filtered = [
+            r for r in filtered
+            if (_parse_cylinder_kind(r.filename) or "").lower().find(needle) != -1
+        ]
+    page = filtered[:limit]
+    return AuditChainQuery(
+        total_in_chain=report.total,
+        returned_count=len(page),
+        since_seq=since_seq,
+        limit=limit,
+        filter_kind=filter_kind,
+        cylinders=[_project_cylinder(r) for r in page],
+        chain_integrity=integrity,
     )
 
 
+# -----------------------------------------------------------------------------
+# Handler: breath_gate_pending (backs breath_gate.pending)
+# -----------------------------------------------------------------------------
 def handler_breath_gate_pending(
     *,
     principal_id: str,
     breath_gate: Any | None = None,
-) -> dict[str, Any]:
+) -> BreathGatePendingResponse:
     """List currently-blocking breath-gate requests for this principal_id.
 
-    SPRINT 1B SCAFFOLD: signature is final, implementation queued. Will
-    dispatch to ``breath_gate.list_pending(principal_id)`` once the
-    surface is confirmed against the existing kernel/breath_gate.py module.
+    Per Lumen witness review of PR #18 (2026-05-11): kernel/breath_gate.py
+    today is a Phase 1 synchronous CLI ritual — there is no pending queue.
+    The pending-queue mechanism the contract anticipates lands alongside
+    Sprint 2's role-invocation tools (because role.invoke → propose-to-
+    queue is what populates the pending list).
 
-    Raises ``NotImplementedError`` until wired. R6 contract: same handler
-    called from HTTP (breath_gate.pending) and MCP (breathline_breath_gate_pending).
+    For Sprint 1B, this handler is correctly implemented as:
+
+      - Returns an empty pending list (no queue exists yet to read from)
+      - Returns ``pending_queue_status`` = ``"queue_not_yet_active"``
+      - Returns a note explaining the architecture and pointing at when it
+        becomes meaningfully populated
+
+    This is NOT a stub. The handler is the right shape for the contract;
+    it returns honest state. When Sprint 2's role-invocation lands and
+    creates pending entries, the handler signature is forward-compatible.
+
+    K1 posture: approval/denial is DELIBERATELY NOT exposed in this handler
+    or anywhere over MCP (per mcp_tools.yaml intentional_absences).
+
+    Args:
+        principal_id: required — no anonymous queries.
+        breath_gate: reserved for Sprint 2 wiring; ignored in Sprint 1B.
     """
-    _require_principal(principal_id)
-    raise NotImplementedError(
-        "handler_breath_gate_pending is scaffolded for Sprint 1B continuation. "
-        "Implementation will dispatch to kernel/breath_gate.py list_pending(). "
-        "R6 contract: same handler called from HTTP (breath_gate.pending) "
-        "and MCP (breathline_breath_gate_pending). Approval/denial deliberately "
-        "NOT exposed over MCP per mcp_tools.yaml intentional_absences."
+    pid = _require_principal(principal_id)
+    return BreathGatePendingResponse(
+        principal_id=pid,
+        pending=[],
+        pending_queue_status="queue_not_yet_active",
+        note=(
+            "Breath-gate pending queue is not yet populated. The current "
+            "kernel/breath_gate.py is a Phase 1 synchronous CLI ritual; "
+            "the persistent pending-queue mechanism the contract anticipates "
+            "lands alongside Sprint 2's role-invocation tools. Reference: "
+            "governance/decisions/2026-05-11_post-spec-runtime-roadmap.md. "
+            "Approval/denial is DELIBERATELY NOT exposed over MCP "
+            "(mcp_tools.yaml intentional_absences) — humans only, via the "
+            "future Sprint 3 UI or via CLI."
+        ),
     )
 
 
