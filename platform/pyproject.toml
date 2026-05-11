@@ -27,6 +27,12 @@ dev = [
     "ruff>=0.6,<1.0",
     "mypy>=1.10,<2.0",
 ]
+# Sprint 1 (2026-05-11): MCP server for Node API. Optional so the platform
+# can be imported in environments where MCP is not yet installed (e.g., the
+# constitutional check CI workflow).
+mcp = [
+    "mcp[cli]>=1.0,<2.0",
+]
 
 [project.scripts]
 bootstrap = "scripts.bootstrap:main"
