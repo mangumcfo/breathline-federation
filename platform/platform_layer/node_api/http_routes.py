@@ -26,10 +26,14 @@ from platform_layer.node_api.handlers import (
     ManifestSummary,
     SpecListing,
     RolesListing,
+    AuditChainQuery,
+    BreathGatePendingResponse,
     handler_node_status,
     handler_manifest_get,
     handler_specs_list,
     handler_roles_list,
+    handler_audit_query,
+    handler_breath_gate_pending,
 )
 
 
@@ -39,7 +43,7 @@ def create_node_api_router(
 ):
     """Build a FastAPI APIRouter exposing the Sprint 1 node-api endpoints.
 
-    Routes added (Sprint 1 scope):
+    Sprint 1A routes (sealed in PR #18):
 
       - GET  /api/v1/node              → node.get (subset of NodeStatus)
       - GET  /api/v1/node/health       → node.health (subset of NodeStatus)
@@ -50,10 +54,11 @@ def create_node_api_router(
                                           remains for Phase-4 callers; this
                                           is the contract-versioned route)
 
-    Sprint 1B (continuation):
+    Sprint 1B routes (this commit):
 
-      - GET  /api/v1/audit/cylinders, /api/v1/audit/cylinders/{seq}
-      - GET  /api/v1/breath-gate/pending
+      - GET  /api/v1/audit/cylinders               → audit.cylinders (paginated)
+      - GET  /api/v1/audit/cylinders/{seq}         → audit.cylinder (single)
+      - GET  /api/v1/breath-gate/pending           → breath_gate.pending
 
     Args:
         role_registry: live RoleRegistry instance (required for /roles and
@@ -218,50 +223,79 @@ def create_node_api_router(
         return result.model_dump(mode="json")
 
     # ------------------------------------------------------------------
-    # E. Sprint 1B placeholders — 501 Not Implemented (intentional)
+    # E. Sprint 1B routes — audit chain query + breath-gate pending list
     # ------------------------------------------------------------------
 
     @router.get("/audit/cylinders", response_model=dict)
     async def audit_cylinders(
         x_principal_id: str | None = Header(default=None),
         since_seq: int | None = Query(default=None),
-        limit: int = Query(default=50, le=500),
+        limit: int = Query(default=50, ge=1, le=500),
         filter_kind: str | None = Query(default=None),
     ) -> dict[str, Any]:
-        # Auth still runs even before the handler raises — fail-on-missing-id
-        # before fail-on-not-implemented. K2 default-deny is the first gate.
-        auth_fn(x_principal_id)
-        raise HTTPException(
-            status_code=501,
-            detail=(
-                "audit.cylinders: INTENTIONALLY SCAFFOLDED, queued for Sprint 1B "
-                "(not silently unsupported). The handler signature in "
-                "node_api/handlers.py is final; implementation lands in the "
-                "continuation PR (will dispatch to audit_adapter.replay_chain). "
-                "Per CONSTITUTION §4: loud errors with context; never silent "
-                "corruption. Status reference: "
-                "governance/decisions/2026-05-11_post-spec-runtime-roadmap.md"
-            ),
-        )
+        """Paginated cylinder-chain query.
+
+        Backs contract endpoint audit.cylinders. Dispatches to
+        ``handler_audit_query`` for the actual chain replay + filter.
+        Single-cylinder lookup is at ``/audit/cylinders/{seq}`` below.
+        """
+        principal_id = auth_fn(x_principal_id)
+        try:
+            result: AuditChainQuery = handler_audit_query(
+                principal_id=principal_id,
+                since_seq=since_seq,
+                limit=limit,
+                filter_kind=filter_kind,
+            )
+        except Exception as e:  # noqa: BLE001
+            raise _translate_handler_error(e) from e
+        return result.model_dump(mode="json")
+
+    @router.get("/audit/cylinders/{seq}", response_model=dict)
+    async def audit_cylinder(
+        seq: int,
+        x_principal_id: str | None = Header(default=None),
+    ) -> dict[str, Any]:
+        """Single cylinder by sequence.
+
+        Backs contract endpoint audit.cylinder. Same handler as
+        audit.cylinders, just passes ``seq`` instead of pagination args.
+        Returns 404 when the cylinder is not found.
+        """
+        principal_id = auth_fn(x_principal_id)
+        try:
+            result: AuditChainQuery = handler_audit_query(
+                principal_id=principal_id,
+                seq=seq,
+            )
+        except Exception as e:  # noqa: BLE001
+            raise _translate_handler_error(e) from e
+        if result.returned_count == 0:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No cylinder at sequence {seq}",
+            )
+        return result.model_dump(mode="json")
 
     @router.get("/breath-gate/pending", response_model=dict)
     async def breath_gate_pending(
         x_principal_id: str | None = Header(default=None),
     ) -> dict[str, Any]:
-        auth_fn(x_principal_id)
-        raise HTTPException(
-            status_code=501,
-            detail=(
-                "breath_gate.pending: INTENTIONALLY SCAFFOLDED, queued for "
-                "Sprint 1B (not silently unsupported). The handler signature "
-                "in node_api/handlers.py is final; the pending-queue mechanism "
-                "the contract anticipates lands alongside Sprint 2's "
-                "role-invocation tools (the current kernel/breath_gate.py is "
-                "a synchronous CLI ritual). Per CONSTITUTION §4: loud errors "
-                "with context; never silent corruption. Status reference: "
-                "governance/decisions/2026-05-11_post-spec-runtime-roadmap.md"
-            ),
-        )
+        """List currently-blocking breath-gate requests for this principal_id.
+
+        Backs contract endpoint breath_gate.pending. Per Sprint 1B scope
+        (see ``handler_breath_gate_pending`` docstring): the pending queue
+        is empty until Sprint 2's role-invocation lands; this returns
+        honest state with a status field and explanatory note. Not a stub.
+        """
+        principal_id = auth_fn(x_principal_id)
+        try:
+            result: BreathGatePendingResponse = handler_breath_gate_pending(
+                principal_id=principal_id
+            )
+        except Exception as e:  # noqa: BLE001
+            raise _translate_handler_error(e) from e
+        return result.model_dump(mode="json")
 
     return router
 
