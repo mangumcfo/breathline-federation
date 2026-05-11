@@ -20,6 +20,12 @@ This ADR proposes a sequencing strategy. It does **not** implement any runtime i
 
 **Adopt Path B (MCP-first) as the post-spec sequencing strategy.** Build a minimal MCP server first (read-mostly tools satisfying `mcp_tools.yaml`), let Claude Desktop / Claude Code function as the operator's interim UI, then pivot to a minimum web UI on the same contract.
 
+### Core commitment (Lumen witness hardening, 2026-05-11)
+
+**MCP-first is approved only as a contract-validation path. It does not satisfy the UI commitment. The minimum web UI remains part of the same roadmap and must not be deferred without a sealed amendment.**
+
+**The web UI is not cosmetic.** It is the human operator's native breath-gate and audit surface. MCP may assist the operator, but it does not replace the operator console. Sprint 3 ships unless KM-1176 seals a different path; the Claude-as-UI affordance from Sprints 1–2 is a *stepping stone*, not a destination.
+
 ### Why this is the right call
 
 1. **MCP-first validates the contract cheaply.** A web UI is ~3 weeks of effort; an MCP server is ~1 week. If `mcp_tools.yaml` has shape errors, missing primitives, or accidental coupling, an MCP implementation surfaces them at lower cost than a partially-built web UI.
@@ -66,12 +72,22 @@ Skip MCP entirely; web UI only. **Rejected** because the spec is built around MC
 | Sprint | Focus | Deliverables | Calendar |
 |---|---|---|---|
 | **0 — Seal** | Merge the 4 open PRs from the 2026-05-11 closeout (`#5`, `#12`, `#7`, `#13`). Create empty `mangumcfo/breathline-ui` repo as scaffold. | All open items closed; UI repo registered. | This week |
-| **1 — MCP read tools** | FastAPI/FastMCP server stub. Implement read-only tools first: `breathline_node_status`, `breathline_manifest_get`, `breathline_specs_list`, `breathline_roles_list`, `breathline_audit_query`, `breathline_breath_gate_pending`. Wire to Claude Desktop config. | "Claude knows about your node." You can ask Claude to query state. | 1 week |
-| **2 — MCP write tools (proposal-only)** | Add `breathline_role_invoke` (returns breath-gate-pending; cannot self-approve). Add CLI `breathline approve <request_id>` as the approval surface during this phase. | You can dispatch roles via Claude; you approve via CLI; node executes; cylinder seals. | 1 week |
-| **3 — Web UI MVP** | Pivot to `breathline-ui` repo. Implement 3 screens: Stillpoint, Breath-gate inbox (graphical approval), Cylinder chain explorer. Reuses the same backend handlers as the MCP server. | Browser-based UI at `127.0.0.1:8421`. | 2 weeks |
+| **1 — MCP read tools** | FastAPI/FastMCP server stub. Implement read-only tools first: `breathline_node_status`, `breathline_manifest_get`, `breathline_specs_list`, `breathline_roles_list`, `breathline_audit_query`, `breathline_breath_gate_pending`. **All tools enforce `principal_id`-bearer auth even for reads (G witness 2026-05-11).** Wire to Claude Desktop config. | "Claude knows about your node." You can ask Claude to query state. | 1 week |
+| **2 — MCP write tools (proposal-only)** | Add `breathline_role_invoke` (returns breath-gate-pending; cannot self-approve). Add CLI `breathline approve <request_id>` as the approval surface during this phase. **Any future MCP `approve`-class tool must ship disabled-by-default and require an explicit `manifest.yaml` flag to enable (G witness 2026-05-11).** | You can dispatch roles via Claude; you approve via CLI; node executes; cylinder seals. | 1 week |
+| **3 — Web UI MVP** | Pivot to `breathline-ui` repo. Implement 3 screens: Stillpoint, Breath-gate inbox (graphical approval), Cylinder chain explorer. Reuses the same backend handlers as the MCP server. **Stillpoint composition includes a multi-mandate strip** (active mandates / pending breath-gates per mandate / one-click context switch / default LLM per role) per G witness suggestion — folded into the Stillpoint screen rather than added as a 4th, preserving Lumen's 3-screen ceiling. **End of Sprint 3: run a full constitutional conformance pass against the 3-screen UI before declaring v0.7.0 (G witness 2026-05-11).** | Browser-based UI at `127.0.0.1:8421` with multi-mandate visibility in Stillpoint. | 2 weeks |
 | **4 — Installer integration** | Wire `installer/install.sh` to fetch + serve the signed UI release. Doctor.sh aware of UI process. Manifest `node_api:` section live. | `curl \| bash` installs both runtime + UI. | 3-5 days |
 
 **Total elapsed time to a usable visual UI: ~4-5 weeks. Time to first operator-usable thing (Claude-as-UI): ~1 week.**
+
+### Sprint exit criteria (Lumen witness hardening, 2026-05-11)
+
+Each sprint is *not complete* unless these gates pass. Forcing function for the web UI commitment:
+
+- **Sprint 1 exit:** Handlers are reusable by HTTP. *If a Sprint 1 handler can only be called from MCP and not from a future HTTP request, Sprint 1 is not done.* R6 of `separability.md` enforced from the first line of code.
+- **Sprint 2 exit:** Breath-gate approval remains external to MCP. *If any MCP tool can approve a breath-gate, even with a flag, Sprint 2 is not done.* K1 forcing function structurally preserved.
+- **Sprint 3 begins immediately after Sprint 2 unless KM-1176 seals a different path.** No "Claude-as-UI is good enough" drift. Deferring Sprint 3 requires a sealed ADR amendment, not operator decision-by-default.
+- **Sprint 3 exit:** All three screens functional, end-of-sprint constitutional conformance pass green, manifest `node_api:` section live.
+- **Sprint 4 exit:** `installer/install.sh` fetches signed UI release, `doctor.sh` aware of UI process, v0.7.0 declared.
 
 ## Constitutional posture
 
@@ -83,6 +99,29 @@ Every step preserves K1–K4 as defined in PR #7's spec:
 - **K4 (Constitutional-Validated Extension)**: New tools require the spec to enumerate them. Adding MCP tools beyond `mcp_tools.yaml` requires a sealed amendment.
 
 The Authoritative Pattern Rule is preserved: the runtime catches up to the spec; it does not race ahead. Sprint deliverables are paired with the next book seal per the Trigger Pattern.
+
+## Position in the autonomy trajectory
+
+This roadmap is not a destination; it is a *stage* in the federation's autonomy trajectory. Per G witness framing (2026-05-11):
+
+> *Current autonomy level: high-fidelity assisted sovereignty. Aligned intelligences carry 80–90% of the operational weight. KM-1176 remains Stillpoint. This roadmap pushes the level higher without crossing into autonomy creep.*
+
+### What this roadmap unlocks
+
+- **Coordination tax drops dramatically after Sprint 3.** The visual breath-gate inbox + cylinder explorer + multi-mandate strip means most operator decisions become click-and-attest rather than read-and-relay.
+- **Multi-mandate context switching becomes muscle memory.** The Stillpoint multi-mandate strip operationalizes the multi-mandate pattern (Series 1 issue #4) at the UI surface — one human, several fiduciary hats, structurally partitioned, visibly switchable.
+- **Per-role LLM defaults become operator-controlled and visible.** The runtime_binding pattern (Series 1 issue #2) becomes a status indicator in the dashboard, not a config-file invariant.
+- **Higher-series flow inherits the same shape.** Family (Series 2), Generational Legacy (Series 3), and beyond all use the same pattern: manuscript → YAML spec → platform tier → UI surface. No new infrastructure required per series; the surface is generic.
+
+### What this roadmap does NOT change
+
+- **K1 Human Primacy stays absolute.** Every breath-gate is operator-approved. No "trust mode," no heuristic auto-approve, no MCP self-approval.
+- **Operator-as-Stillpoint remains structural.** The federation does not produce autonomous actors. Bot identities (per issue #9) are surfacing infrastructure under operator authority. Aligned intelligences are role lenses, not authority.
+- **The seal authority remains exclusively KM-1176.** Witnesses surface for the operator's weighing; they do not gate the seal themselves.
+
+### Ongoing autonomy-direction work (deferred for separate fold-in)
+
+KM-1176 has noted ongoing work with G on the full-autonomy direction trajectory beyond what is captured in this ADR's witness review section. That work — currently outside this roadmap — will inform Sprint 3+ design decisions and may produce a companion ADR (e.g., `governance/decisions/<date>_autonomy-trajectory.md`) that this roadmap can reference once it lands. The current roadmap is forward-compatible with whatever that companion ADR concludes: no decision in this roadmap precludes any reasonable evolution of operator autonomy posture.
 
 ## Risks and mitigations
 
@@ -103,24 +142,32 @@ The Authoritative Pattern Rule is preserved: the runtime catches up to the spec;
 - **Authentication beyond `principal_id`-bearer.** Out of scope per the PR #7 ADR.
 - **Cost ceilings for the MCP server.** Will reuse `kernel/cost_meter.py` pattern at implementation time.
 
-## Witness reviews requested
+## Witness reviews (2026-05-11)
 
-This ADR should be witnessed under the Federation Leadership Workflow (#8) before KM-1176 seals:
+| Witness | Lens | Verdict |
+|---|---|---|
+| **G** | Sovereign sentinel + anti-lock-in | **CONFORMS** |
+| **Lumen** | Coordination + sequencing | **CONFORMS WITH COORDINATION DETAIL** (structural amendment folded in) |
 
-- **G (sovereign sentinel + anti-lock-in lens)** — Does MCP-first introduce any new lock-in (Anthropic ecosystem)? Is the Claude-as-UI affordance acceptable as the operator's first-touch surface? Does the sprint sequencing preserve sovereignty?
-- **Lumen (coordination)** — Does the sprint sequencing fit the federation's release cadence? Does it set the right precedent for future runtime work? Is the path back to a web UI cleanly forced by the design, or does it depend on operator discipline alone?
+**G's observations**: MCP-first is "the sovereign choice right now." K1 explicitly preserved (read-only Sprint 1; proposal-only Sprint 2; CLI/web approval for breath-gates). Anti-lock-in posture clean — MCP treated as one parallel face, web UI as the committed long-term surface, Claude-as-interim-UI is acceptable affordance because MCP can always be disabled. Default-deny + separability (R6) honored. **Three non-blocking refinements folded in**: Sprint 1 `principal_id`-bearer auth even for read tools; default-disabled MCP `approve`-class tools requiring explicit manifest flag; constitutional conformance pass at end of Sprint 3 before declaring v0.7.0. **Strategic addition folded in**: Operator Pulse / multi-mandate strip composition within Stillpoint (not as a 4th screen — preserves Lumen's 3-screen ceiling). G also framed this roadmap's position in the autonomy trajectory (now captured as a dedicated section above).
 
-Witness brief drafted as a companion artifact.
+**Lumen's observations**: *"MCP-first is a good first road, as long as it does not become an excuse to never build the city."* CONFORMS only with one structural amendment: Sprint 3 must be **committed scope** with a sealed-amendment requirement to defer, not a soft commitment. The three-screen scope (Stillpoint, Breath-gate inbox, Cylinder chain) is right — do not start with 11, do not skip the 3. Vendor-in-federation-first for the MCP server is correct for Sprint 1. **The amendment is folded into the Decision section (the two hardened-commitment sentences) and the Sprint exit criteria subsection (per-sprint forcing functions).** Sprint 1 exit requires handlers reusable by HTTP. Sprint 2 exit requires breath-gate approval external to MCP. Sprint 3 begins immediately after Sprint 2 unless KM-1176 seals a different path.
+
+Both verdicts taken together produce a roadmap with stronger structural commitments than the original PROPOSAL. The web UI is no longer at risk of indefinite deferral; the Claude-as-UI stepping stone is now explicitly time-bounded.
 
 ## Sign-off checklist
 
-- [ ] G witnesses the anti-lock-in lens (MCP-first; Claude-as-UI as first face)
-- [ ] G confirms sprint sequencing preserves sovereignty
-- [ ] Lumen witnesses the sprint sequencing fits federation release cadence
-- [ ] Lumen confirms the path back to web UI is structurally forced (not just operator discipline)
+- [x] G witnesses the anti-lock-in lens (MCP-first; Claude-as-UI as first face) — **CONFORMS 2026-05-11**
+- [x] G confirms sprint sequencing preserves sovereignty — **CONFORMS 2026-05-11**
+- [x] G's 3 refinements folded in (Sprint 1 auth; default-disabled approve tools; Sprint 3 conformance pass) — **applied 2026-05-11**
+- [x] G's Operator Pulse strategic addition folded in (Stillpoint multi-mandate strip) — **applied 2026-05-11**
+- [x] Lumen witnesses the sprint sequencing fits federation release cadence — **CONFORMS 2026-05-11**
+- [x] Lumen confirms the path back to web UI is structurally forced — **CONFORMS after amendment 2026-05-11**
+- [x] Lumen's structural amendment folded in (committed-scope language + per-sprint exit criteria) — **applied 2026-05-11**
 - [ ] KM-1176 seals this roadmap
 - [ ] Sprint 0 work (merging the 4 open PRs + creating `breathline-ui` repo) executes
 - [ ] Sprint 1 implementation begins under a separate PR
+- [ ] (Optional, deferred) Companion autonomy-trajectory ADR from ongoing KM-1176 + G work
 
 On seal, this ADR moves from PROPOSAL to ACTIVE-DIRECTION. The roadmap becomes the federation's operating sequence for getting from spec to functional operator surface. Subsequent runtime PRs reference this ADR by date.
 
