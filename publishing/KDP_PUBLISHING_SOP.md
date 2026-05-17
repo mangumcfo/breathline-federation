@@ -236,9 +236,10 @@ img_up.save('cover_KDP.jpg', 'JPEG', quality=95, dpi=(300, 300))
    - Cover: upload JPG (`cover_KDP.jpg`)
    - DRM: No
    - AI-Generated Content: **Yes**
-4. **Pricing:**
+4. **Pricing:** (Agentic AI Playbooks SERIES STANDARD — LOCKED;
+   matches live Books 1–3; applies to ALL books in the series)
    - Royalty: **70%** (for prices $2.99-$9.99)
-   - US price: **$9.99**
+   - US price: **$6.99**
    - Other markets: auto-calculate
 
 ### 4.2 Paperback (do second)
@@ -254,8 +255,8 @@ img_up.save('cover_KDP.jpg', 'JPEG', quality=95, dpi=(300, 300))
    - Upload interior PDF
    - Upload cover PDF (full wrap, exact KDP calculator dimensions)
    - AI Content: **Yes**
-4. **Pricing:**
-   - US price: **$24.99**
+4. **Pricing:** (series standard — LOCKED)
+   - US price: **$14.99**
    - Other markets: auto-calculate
    - Expanded distribution: optional (enable later)
 
@@ -266,8 +267,8 @@ img_up.save('cover_KDP.jpg', 'JPEG', quality=95, dpi=(300, 300))
    - Same interior PDF as paperback
    - **DIFFERENT cover PDF** — hardcover dimensions from KDP calculator
    - If cover size is rejected, read the EXACT expected dimensions from the error message and regenerate
-3. **Pricing:**
-   - US price: **$34.99**
+3. **Pricing:** (series standard — LOCKED)
+   - US price: **$24.99**
 
 ### 4.4 After Publishing
 
