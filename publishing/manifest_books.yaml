@@ -68,6 +68,169 @@ books:
   # =====================================================
   # (placeholder entries — added when Series 2 manuscripts begin)
 
+  # =====================================================
+  # SERIES 3 — Agentic AI Playbooks for Executives
+  # Canonical source: mangumcfo/breathline-books-vault
+  #   (kdp/agentic_playbooks/<id>/v1.0/). ISBNs + ASIN/URL live in
+  #   kdp/agentic_playbooks/ASIN_TRACKER.yaml. B1–B9 PUBLISHED &
+  #   LIVE on KDP (KM-1176, 2026-05-17). ladder_level 1 = confirm.
+  # =====================================================
+  - id: "agentic_01_cfos_finance"
+    title: "AI Agents for CFOs"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/01_cfos_finance/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/01_cfos_finance/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""        # ASIN URL — populate post-publish
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "published"
+
+  - id: "agentic_02_executives_decisions"
+    title: "AI Agents for Executives"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/02_executives_decisions/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/02_executives_decisions/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "published"
+
+  - id: "agentic_03_leading_agents"
+    title: "Leading with AI Agents"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/03_leading_agents/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/03_leading_agents/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "published"
+
+  - id: "agentic_04_supply_chain"
+    title: "AI Agents for Supply Chain"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/04_supply_chain/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/04_supply_chain/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "published"
+
+  - id: "agentic_05_hr_talent"
+    title: "AI Agents for HR"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/05_hr_talent/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/05_hr_talent/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "published"
+
+  - id: "agentic_06_compliance_audit"
+    title: "AI Agents for Compliance"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/06_compliance_audit/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/06_compliance_audit/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "published"
+
+  - id: "agentic_07_sales_revenue"
+    title: "AI Agents for Sales & Revenue Operations"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/07_sales_revenue/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/07_sales_revenue/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "published"
+
+  - id: "agentic_08_manufacturing_ops"
+    title: "AI Agents for Manufacturing"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/08_manufacturing_ops/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/08_manufacturing_ops/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "published"
+
+  - id: "agentic_09_multi_agent"
+    title: "Multi-Agent AI Systems"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/09_multi_agent/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/09_multi_agent/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "published"
+
+  - id: "agentic_10_scaling_enterprise"
+    title: "Scaling AI Agents"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/10_scaling_enterprise/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/10_scaling_enterprise/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "in_progress"   # build done; wraps + ISBNs outstanding
+
+  - id: "agentic_11_ma_due_diligence"
+    title: "AI Agents for M&A"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/11_ma_due_diligence/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/11_ma_due_diligence/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "in_progress"   # build done; wraps + ISBNs outstanding
+
+  - id: "agentic_12_agentic_enterprise"
+    title: "The Agentic Enterprise"
+    series: "agentic_playbooks"
+    ladder_level: 1
+    manuscript_path: "agentic_playbooks/12_agentic_enterprise/v1.0/manuscript_v1.0.md"
+    audiobook:
+      output_dir: "agentic_playbooks/12_agentic_enterprise/v1.0/audiobook/sections_optimized"
+    kdp:
+      ebook_listing: ""
+      paperback_listing: ""
+      hardcover_listing: ""
+    status: "in_progress"   # build done; wraps + ISBNs outstanding
+
 # =============================================================================
 # Phases supported in v0.5.0:
 #   - prep_audiobook (delegates to publishing/prep_audiobooks.py)
